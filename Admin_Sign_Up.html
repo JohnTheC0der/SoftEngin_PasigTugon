@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pasig Tugon! - Admin Registration</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+
+    <!-- jQuery & jQuery UI CDN (Required for jQuery Dialog) -->
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+
+    <style>
+        :root {
+            --primary-blue: #0e48a1;
+            --light-blue: #2563eb;
+            --accent-cyan: #38bdf8;
+            --btn-hover-blue: #1d4ed8;
+            --white: #ffffff;
+            --glass-bg: rgba(15, 23, 42, 0.55);
+            --glass-border: rgba(255, 255, 255, 0.18);
+            --input-bg: rgba(255, 255, 255, 0.95);
+            --transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            --success-green: #10b981;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            /* Updated to use local background.png with color overlay */
+            background: url('background.png') center/cover no-repeat fixed;
+            color: var(--white);
+            padding: 20px;
+        }
+
+        /* CARD CONTAINER WITH GLASSMORPHISM */
+        .login-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 28px;
+            padding: 48px 40px;
+            width: 100%;
+            max-width: 480px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+
+        /* CITY SEAL LOGO */
+        .city-seal {
+            width: 85px;
+            height: 85px;
+            object-fit: contain;
+            margin-bottom: 16px;
+            filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.3));
+            transition: var(--transition);
+        }
+
+        .city-seal:hover {
+            transform: scale(1.05);
+        }
+
+        /* BRANDING TITLES */
+        .brand-title {
+            font-weight: 900;
+            font-size: clamp(2.4rem, 4.5vw, 3rem);
+            letter-spacing: -0.02em;
+            text-transform: uppercase;
+            line-height: 1.1;
+            margin-bottom: 6px;
+        }
+
+        .brand-title .blue-text {
+            color: var(--accent-cyan);
+            text-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+        }
+
+        .brand-title .white-text {
+            color: var(--white);
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .sub-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.85);
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            margin-bottom: 32px;
+        }
+
+        /* FORM STYLING */
+        .login-form {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            text-align: left;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+            letter-spacing: 0.03em;
+        }
+
+        .input-field,
+        .select-field {
+            width: 100%;
+            padding: 14px 20px;
+            font-size: 0.98rem;
+            font-family: inherit;
+            color: #0f172a;
+            background: var(--input-bg);
+            border: 2px solid transparent;
+            border-radius: 50px;
+            outline: none;
+            transition: var(--transition);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .input-field::placeholder {
+            color: #94a3b8;
+        }
+
+        .input-field:focus,
+        .select-field:focus {
+            border-color: var(--accent-cyan);
+            background: var(--white);
+            box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.25);
+        }
+
+        /* CUSTOM SELECT DROPDOWN ARROW */
+        .select-field {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%230f172a' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 20px center;
+            padding-right: 48px;
+            cursor: pointer;
+        }
+
+        .select-field option {
+            color: #0f172a;
+            background: #ffffff;
+        }
+
+        /* SUBMIT BUTTON */
+        .login-btn {
+            width: 100%;
+            padding: 16px 24px;
+            margin-top: 10px;
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--white);
+            background: var(--light-blue);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.4);
+        }
+
+        .login-btn:hover {
+            background: var(--btn-hover-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px -5px rgba(37, 99, 235, 0.6);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        /* FOOTER / SIGN-UP LINK */
+        .form-footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.7);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .form-footer a {
+            color: var(--accent-cyan);
+            font-weight: 700;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .form-footer a:hover {
+            text-decoration: underline;
+            color: var(--white);
+        }
+
+        .custom-dialog-content {
+            padding: 16px 24px 24px 24px !important;
+            text-align: center;
+        }
+
+        .dialog-icon-wrapper {
+            width: 64px;
+            height: 64px;
+            background-color: #fef2f2;
+            color: #ef4444;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px auto;
+        }
+
+        .dialog-icon-wrapper svg {
+            width: 36px;
+            height: 36px;
+        }
+
+        .dialog-title {
+            font-weight: 800;
+            font-size: 1.5rem;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .dialog-description {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .ui-dialog .ui-dialog-buttonpane {
+            background: #ffffff !important;
+            border: none !important;
+            padding: 0 24px 24px 24px !important;
+            margin: 0 !important;
+        }
+
+        .ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset {
+            float: none !important;
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .ui-dialog .ui-dialog-buttonpane button {
+            width: 100% !important;
+            padding: 12px 24px !important;
+            font-family: inherit !important;
+            font-size: 1rem !important;
+            font-weight: 700 !important;
+            color: #ffffff !important;
+            background-color: var(--primary-blue) !important;
+            border: none !important;
+            border-radius: 12px !important;
+            cursor: pointer;
+            transition: var(--transition) !important;
+            margin: 0 !important;
+            box-shadow: 0 4px 12px rgba(11, 69, 172, 0.2) !important;
+        }
+
+        .ui-dialog .ui-dialog-buttonpane button:hover {
+            background-color: var(--btn-hover-blue) !important;
+        }
+
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 36px 24px;
+            }
+
+            .brand-title {
+                font-size: 2.2rem;
+            }
+
+            .sub-title {
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="form-incomplete" title="Pasig Tugon!" style="display:none;">
+        <div class="custom-dialog-content">
+            <div class="dialog-icon-wrapper">
+                <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </div>
+            <h2 class="dialog-title">Unable to Submit</h2>
+            <p class="dialog-description">Please make sure your details are completely filled out before submitting.</p>
+        </div>
+    </div>
+
+    <main class="login-card">
+        <!-- City Seal Logo -->
+        <img src="pasig_logo.webp" alt="Pasig City Seal" class="city-seal">
+
+        <!-- Title Header -->
+        <h1 class="brand-title">
+            <span class="blue-text">PASIG</span> <span class="white-text">TUGON!</span>
+        </h1>
+        <p class="sub-title">Admin Registration Station</p>
+
+        <!-- Login Form -->
+        <form class="login-form" id="registration-form" action="#" method="POST">
+            <div class="input-group">
+                <label for="username" class="input-label">Username</label>
+                <input type="text" id="username" name="username" class="input-field" placeholder="Enter your username"
+                    required autocomplete="username">
+            </div>
+
+            <div class="input-group">
+                <label for="email" class="input-label">Email</label>
+                <input type="email" id="email" name="email" class="input-field" placeholder="Enter your email" required
+                    autocomplete="email">
+            </div>
+
+            <div class="input-group">
+                <label for="barangay" class="input-label">Choose your Barangay</label>
+                <select id="barangay" name="barangay" class="select-field" required>
+                    <option value="" disabled selected>Select your barangay</option>
+                    <option value="bagong-ilog">Bagong Ilog</option>
+                    <option value="bambang">Bambang</option>
+                    <option value="caniogan">Caniogan</option>
+                    <option value="kapitolyo">Kapitolyo</option>
+                    <option value="malinao">Malinao</option>
+                    <option value="oranbo">Oranbo</option>
+                    <option value="pinagbuhatan">Pinagbuhatan</option>
+                    <option value="san-antonio">San Antonio</option>
+                    <option value="san-joaquin">San Joaquin</option>
+                    <option value="ugong">Ugong</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label for="password" class="input-label">Password</label>
+                <input type="text" id="password" name="password" class="input-field"
+                    placeholder="Auto-generated password" required readonly>
+            </div>
+
+            <button type="submit" class="login-btn">Create Account</button>
+        </form>
+
+        <p class="form-footer">
+            Already have an account? <a href="Admin_Log_In.html">Sign in here</a>
+        </p>
+    </main>
+
+    <script>
+        function checkAndGeneratePassword() {
+            var username = document.getElementById("username").value.trim();
+            var email = document.getElementById("email").value.trim();
+            var barangay = document.getElementById("barangay").value;
+            var passwordField = document.getElementById("password");
+
+            if (username !== "" && email !== "" && barangay !== "") {
+                var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
+                var passwordLength = 12;
+                var generatedPassword = "";
+
+                for (var i = 0; i < passwordLength; i++) {
+                    var randomIndex = Math.floor(Math.random() * chars.length);
+                    generatedPassword += chars.charAt(randomIndex);
+                }
+
+                passwordField.value = generatedPassword;
+            } else {
+                passwordField.value = "";
+            }
+        }
+
+        $(document).ready(function () {
+            // Automatically run check whenever inputs or dropdown value change
+            $("#username, #email").on("input", checkAndGeneratePassword);
+            $("#barangay").on("change", checkAndGeneratePassword);
+
+            // Handle submission dialog for incomplete form
+            $("#registration-form").on("submit", function (e) {
+                var username = $("#username").val().trim();
+                var email = $("#email").val().trim();
+                var barangay = $("#barangay").val();
+
+                if (!username || !email || !barangay) {
+                    e.preventDefault();
+                    $("#form-incomplete").dialog("open");
+                    return;
+                }
+
+                // Set the flag before navigating away
+                e.preventDefault(); // prevent actual POST for now
+                localStorage.setItem("adminJustRegistered", "true");
+                window.location.href = "main_menu.html";
+            });
+
+            // Initialize jQuery UI Dialog
+            $("#form-incomplete").dialog({
+                autoOpen: false,
+                modal: true,
+                resizable: false,
+                draggable: false,
+                width: 400,
+                show: { effect: "fade", duration: 200 },
+                hide: { effect: "fadeOut", duration: 150 },
+                buttons: {
+                    Ok: function () {
+                        $(this).dialog("close");
+                    }
+                }
+            });
+        });
+    </script>
+
+</body>
+
+</html>

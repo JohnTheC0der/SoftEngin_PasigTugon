@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pasig Tugon! - Domain Status</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-blue: #0e48a1;
+            --light-blue: #2563eb;
+            --accent-cyan: #38bdf8;
+            --btn-hover-blue: #1d4ed8;
+            --white: #ffffff;
+            --glass-bg: rgba(15, 23, 42, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.18);
+            --transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, rgba(14, 72, 161, 0.88), rgba(7, 29, 73, 0.94)),
+                url('background.png') center/cover no-repeat fixed;
+            color: var(--white);
+            padding: 20px;
+        }
+
+        /* OVERLAY MODAL / CARD CONTAINER */
+        .status-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--glass-border);
+            border-radius: 28px;
+            padding: 48px 36px;
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+            text-align: center;
+            position: relative;
+        }
+
+        .city-seal {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            margin-bottom: 16px;
+            filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.3));
+        }
+
+        .brand-title {
+            font-weight: 900;
+            font-size: clamp(2rem, 4vw, 2.5rem);
+            letter-spacing: -0.02em;
+            text-transform: uppercase;
+            line-height: 1.1;
+            margin-bottom: 4px;
+        }
+
+        .brand-title .blue-text {
+            color: var(--accent-cyan);
+        }
+
+        .brand-title .white-text {
+            color: var(--white);
+        }
+
+        .sub-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.8);
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            margin-bottom: 32px;
+        }
+
+        /* STATUS VIEWS */
+        .status-view {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            animation: fadeIn 0.4s ease-in-out forwards;
+        }
+
+        .status-view.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+        }
+
+        .status-badge.pending {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.4);
+        }
+
+        .status-badge.success {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.4);
+        }
+
+        .headline {
+            font-weight: 900;
+            font-size: 2rem;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .headline.success {
+            color: var(--accent-cyan);
+        }
+
+        .message-text {
+            font-size: 0.92rem;
+            color: rgba(255, 255, 255, 0.85);
+            line-height: 1.6;
+            margin-bottom: 28px;
+        }
+
+        .message-text a {
+            color: var(--accent-cyan);
+            font-weight: 700;
+            text-decoration: none;
+        }
+
+        .action-btn {
+            width: 100%;
+            padding: 16px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--white);
+            background: var(--light-blue);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: var(--transition);
+            box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.4);
+        }
+
+        .action-btn:hover {
+            background: var(--btn-hover-blue);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+
+<body>
+
+    <main class="status-card">
+        <img src="pasig_logo.webp" alt="Pasig City Seal" class="city-seal">
+
+        <h1 class="brand-title">
+            <span class="blue-text">PASIG</span> <span class="white-text">TUGON!</span>
+        </h1>
+        <p class="sub-title">Citizen Concern Station</p>
+
+        <!-- STATE 1: PENDING (Shown when site is still under development) -->
+        <div id="view-pending" class="status-view">
+            <div class="status-badge pending">⏳ Domain Setup Pending</div>
+            <h2 class="headline">Hello There!</h2>
+            <p class="message-text">
+                Your requested domain for your barangay is still being processed. We will email you as soon as your site
+                is live. If you need assistance, please <a href="mailto:support@pasigtugon.gov.ph">contact us</a>.
+            </p>
+            <a href="login.html" class="action-btn">Go Back to Login</a>
+        </div>
+
+        <!-- STATE 2: READY (Shown when developers finish building the barangay page) -->
+        <div id="view-success" class="status-view">
+            <div class="status-badge success">✓ Domain Ready</div>
+            <h2 class="headline success">Congratulations!</h2>
+            <p class="message-text">
+                Your requested domain has been created! Click the button below to access your official barangay portal.
+            </p>
+            <a href="#" id="portal-link" class="action-btn">Go to Your Barangay Page</a>
+        </div>
+    </main>
+
+    <script>
+        // Function called automatically when page loads or login completes
+        function setDomainStatus(status, barangayUrl = "#") {
+            const pendingView = document.getElementById('view-pending');
+            const successView = document.getElementById('view-success');
+
+            pendingView.classList.remove('active');
+            successView.classList.remove('active');
+
+            if (status === 'pending') {
+                pendingView.classList.add('active');
+            } else if (status === 'ready') {
+                successView.classList.add('active');
+                if (barangayUrl) {
+                    document.getElementById('portal-link').href = barangayUrl;
+                }
+            }
+        }
+
+        // Example backend call: Fetch admin status automatically from database/session
+        /*
+        fetch('/api/get-admin-status')
+            .then(res => res.json())
+            .then(data => {
+                setDomainStatus(data.status, data.barangayUrl);
+            });
+        */
+
+        // Default to pending on load
+        setDomainStatus('pending');
+    </script>
+
+</body>
+
+</html>

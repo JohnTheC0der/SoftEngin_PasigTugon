@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pasig Tugon! - Admin Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <!-- Chart.js for rendering the Concerns Graph -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --primary-blue: #0e48a1;
+            --dark-blue: #071d49;
+            --accent-cyan: #38bdf8;
+            --light-blue-bg: rgba(224, 242, 254, 0.85);
+            --card-glass: rgba(15, 23, 42, 0.65);
+            --card-border: rgba(255, 255, 255, 0.15);
+            --white: #ffffff;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --badge-blue: #2563eb;
+            --transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            background: url('background.png') center/cover no-repeat fixed;
+
+            color: var(--white);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* NAVBAR */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background: rgba(4, 39, 120, 0.753);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--card-border);
+            position: relative;
+            z-index: 50;
+        }
+
+        .brand-title {
+            font-weight: 900;
+            font-size: 1.6rem;
+            letter-spacing: -0.02em;
+            text-transform: uppercase;
+        }
+
+        .brand-title .blue-text {
+            color: var(--accent-cyan);
+        }
+
+        .brand-title .white-text {
+            color: var(--white);
+        }
+
+        .menu-container {
+            position: relative;
+        }
+
+        .menu-toggle-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--card-border);
+            color: var(--white);
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .menu-toggle-btn:hover {
+            background: var(--badge-blue);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            right: 0;
+            top: 54px;
+            width: 200px;
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 12px;
+            display: none;
+            flex-direction: column;
+            gap: 6px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: var(--transition);
+        }
+
+        .dropdown-menu.show {
+            display: flex;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .dropdown-item {
+            color: rgba(255, 255, 255, 0.85);
+            text-decoration: none;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .dropdown-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--accent-cyan);
+        }
+
+        .dropdown-item.logout {
+            color: #f87171;
+            margin-top: 6px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 12px;
+        }
+
+        .dropdown-item.logout:hover {
+            background: rgba(239, 68, 68, 0.15);
+            color: #fca5a5;
+        }
+
+        /* MAIN DASHBOARD LAYOUT */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 24px;
+            padding: 32px 40px;
+            max-width: 1440px;
+            margin: 0 auto;
+            width: 100%;
+            flex: 1;
+        }
+
+        /* LEFT PANEL: BARANGAY STATS */
+        .sidebar-card {
+            background: var(--card-glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .barangay-header {
+            border-bottom: 2px solid var(--accent-cyan);
+            padding-bottom: 12px;
+        }
+
+        .barangay-title {
+            font-size: 1.6rem;
+            font-weight: 900;
+            letter-spacing: -0.01em;
+            text-transform: uppercase;
+        }
+
+        .barangay-subtitle {
+            font-size: 0.85rem;
+            color: var(--accent-cyan);
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .stats-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 12px 16px;
+            border-radius: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .stat-badge {
+            background: var(--badge-blue);
+            color: var(--white);
+            font-weight: 800;
+            font-size: 0.95rem;
+            min-width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.4);
+        }
+
+        .stat-label {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .graph-box {
+            background: var(--white);
+            border-radius: 18px;
+            padding: 16px;
+            margin-top: auto;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .graph-title {
+            font-size: 0.8rem;
+            font-weight: 800;
+            color: var(--text-dark);
+            text-transform: uppercase;
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        /* RIGHT PANEL: MAIN DATA */
+        .main-panel {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 24px;
+            background: var(--card-glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 28px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        /* WORDS CONNECTED COLUMN */
+        .words-section {
+            background: var(--light-blue-bg);
+            border-radius: 20px;
+            padding: 20px;
+            color: var(--text-dark);
+        }
+
+        .section-header {
+            font-size: 1rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(14, 72, 161, 0.2);
+            margin-bottom: 16px;
+            color: var(--primary-blue);
+        }
+
+        .tag-cloud {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .tag-item {
+            background: var(--white);
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: var(--primary-blue);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tag-item::before {
+            content: '•';
+            color: var(--accent-cyan);
+            font-size: 1.2rem;
+        }
+
+        /* CONCERNS TABLE COLUMN */
+        .concerns-section {
+            background: var(--light-blue-bg);
+            border-radius: 20px;
+            padding: 20px;
+            color: var(--text-dark);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .concerns-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(14, 72, 161, 0.2);
+        }
+
+        .concerns-title {
+            font-size: 1.2rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: var(--primary-blue);
+        }
+
+        .view-all-btn {
+            background: var(--primary-blue);
+            color: var(--white);
+            border: none;
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .view-all-btn:hover {
+            background: var(--badge-blue);
+        }
+
+        .concerns-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            overflow-y: auto;
+            max-height: 480px;
+        }
+
+        .concern-row {
+            display: grid;
+            grid-template-columns: 100px 1fr;
+            align-items: center;
+            background: var(--white);
+            padding: 12px 16px;
+            border-radius: 12px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+            transition: var(--transition);
+        }
+
+        .concern-row:hover {
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .concern-date {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-muted);
+        }
+
+        .concern-text {
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* RESPONSIVE LAYOUT */
+        @media (max-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .main-panel {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <nav class="navbar">
+        <div class="brand-title">
+            <span class="blue-text">PASIG</span> <span class="white-text">TUGON!</span>
+        </div>
+        <div class="menu-container">
+            <button class="menu-toggle-btn" id="menuBtn" aria-label="Toggle Menu">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                </svg>
+            </button>
+            <div class="dropdown-menu" id="dropdownMenu">
+                <a href="#" class="dropdown-item">Dashboard</a>
+                <a href="Admin_Concerns_Table_Page.html" class="dropdown-item">Concerns</a>
+                <a href="#" class="dropdown-item">Settings</a>
+                <a href="#" class="dropdown-item logout">Log Out</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- DASHBOARD CONTAINER -->
+    <main class="dashboard-grid">
+
+        <!-- LEFT BARANGAY STATS CARD -->
+        <section class="sidebar-card">
+            <div class="barangay-header">
+                <h1 class="barangay-title">Barangay</h1>
+                <p class="barangay-subtitle">Santolan</p>
+            </div>
+
+            <div class="stats-list">
+                <div class="stat-item">
+                    <div class="stat-badge">2</div>
+                    <span class="stat-label">Total of concerns</span>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-badge">10</div>
+                    <span class="stat-label">Total visits</span>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-badge">8</div>
+                    <span class="stat-label">No. of connection formed</span>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-badge">0</div>
+                    <span class="stat-label">No. of concerns completed</span>
+                </div>
+            </div>
+
+            <div class="graph-box">
+                <canvas id="concernsChart" height="120"></canvas>
+                <div class="graph-title">Concerns Graph</div>
+            </div>
+        </section>
+
+        <!-- RIGHT MAIN CONTENT PANEL -->
+        <section class="main-panel">
+
+            <!-- WORDS CONNECTED -->
+            <div class="words-section">
+                <h2 class="section-header">Words Connected</h2>
+                <div class="tag-cloud">
+                    <div class="tag-item">"Baha"</div>
+                    <div class="tag-item">"Sunog"</div>
+                    <div class="tag-item">"Allowance"</div>
+                    <div class="tag-item">"School"</div>
+                    <div class="tag-item">"Sugal"</div>
+                    <div class="tag-item">"Holdap"</div>
+                    <div class="tag-item">"Snatcher"</div>
+                    <div class="tag-item">"Magnanakaw"</div>
+                </div>
+            </div>
+
+            <!-- CONCERNS LIST -->
+            <div class="concerns-section">
+                <div class="concerns-header-row">
+                    <h2 class="concerns-title">Concerns</h2>
+                    <a class="view-all-btn" href="Admin_Concerns_Table_Page.html">View</a>
+                </div>
+
+                <div class="concerns-list">
+                    <div class="concern-row">
+                        <span class="concern-date">11/09/2026</span>
+                        <span class="concern-text">Laging nagbabaha dito sa s...</span>
+                    </div>
+                    <div class="concern-row">
+                        <span class="concern-date">11/11/2026</span>
+                        <span class="concern-text">MAY SUNOG PO DITO SA M...</span>
+                    </div>
+                    <div class="concern-row">
+                        <span class="concern-date">12/16/2026</span>
+                        <span class="concern-text">Ang daming nagsu-sugal po...</span>
+                    </div>
+                    <div class="concern-row">
+                        <span class="concern-date">1/3/2027</span>
+                        <span class="concern-text">Na-holdap po ako dito sa k...</span>
+                    </div>
+                    <div class="concern-row">
+                        <span class="concern-date">1/18/2027</span>
+                        <span class="concern-text">Magnanakaw yan si mirador...</span>
+                    </div>
+                    <div class="concern-row">
+                        <span class="concern-date">1/19/2027</span>
+                        <span class="concern-text">MAY SUNOG DITO SA DORE...</span>
+                    </div>
+                    <div class="concern-row">
+                        <span class="concern-date">1/19/2027</span>
+                        <span class="concern-text">Nasaan po yung allowance...</span>
+                    </div>
+                    <div class="concern-row">
+                        <span class="concern-date">1/19/2027</span>
+                        <span class="concern-text">Hoy barangay! Ilang beses...</span>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <script>
+        $('#logout').dialog({
+            autoOpen: false,
+            modal: true,
+            resizable: false,
+            draggable: false,
+            width: 420,
+            show: { effect: "fade", duration: 200 },
+            hide: { effect: "fadeOut", duration: 150 },
+            buttons: {
+                "OK": function () {
+                    $(this).dialog("close");
+
+                }
+            }
+        });
+
+
+        // Dropdown Menu Toggle Logic
+        const menuBtn = document.getElementById('menuBtn');
+        const dropdownMenu = document.getElementById('dropdownMenu');
+
+        menuBtn.addEventListener('click', () => {
+            dropdownMenu.classList.toggle('show');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!menuBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                dropdownMenu.classList.remove('show');
+            }
+        });
+
+        // Concerns Graph Initialization (Chart.js)
+        const ctx = document.getElementById('concernsChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'Concerns',
+                    data: [20, 40, 60, 80, 100, 110],
+                    borderColor: '#2563eb',
+                    backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    borderWidth: 2,
+                    pointRadius: 3
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    x: { display: false },
+                    y: {
+                        grid: { color: 'rgba(0, 0, 0, 0.05)' },
+                        ticks: { font: { size: 9 } }
+                    }
+                }
+            }
+        });
+    </script>
+
+</body>
+
+</html>
