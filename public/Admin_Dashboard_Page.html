@@ -9,7 +9,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
         rel="stylesheet">
-    <!-- Chart.js for rendering the Concerns Graph -->
+
+    <!-- jQuery & Chart.js -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
@@ -25,6 +27,12 @@
             --text-muted: #64748b;
             --badge-blue: #2563eb;
             --transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+
+            /* Added missing modal variables */
+            --brand-dark: #071d49;
+            --brand-green: #10b981;
+            --brand-light: #f1f5f9;
+            --danger: #ef4444;
         }
 
         *,
@@ -39,7 +47,6 @@
             font-family: 'Inter', system-ui, -apple-system, sans-serif;
             min-height: 100vh;
             background: url('background.png') center/cover no-repeat fixed;
-
             color: var(--white);
             display: flex;
             flex-direction: column;
@@ -141,6 +148,7 @@
             margin-top: 6px;
             border-top: 1px solid rgba(255, 255, 255, 0.1);
             padding-top: 12px;
+            cursor: pointer;
         }
 
         .dropdown-item.logout:hover {
@@ -339,6 +347,7 @@
             font-size: 0.8rem;
             font-weight: 700;
             cursor: pointer;
+            text-decoration: none;
             transition: var(--transition);
         }
 
@@ -385,20 +394,246 @@
             text-overflow: ellipsis;
         }
 
-        /* RESPONSIVE LAYOUT */
-        @media (max-width: 1024px) {
-            .dashboard-grid {
-                grid-template-columns: 1fr;
+        /* MODAL LOG OUT */
+        .modal_overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 10, 0.75);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal_overlay.active {
+            display: flex;
+        }
+
+        .modal_panel {
+            width: 440px;
+            max-width: 95vw;
+            background: var(--white);
+            border: 4px solid var(--brand-dark);
+            box-shadow: 8px 8px 0 var(--brand-green);
+            animation: zoomIn 0.2s ease;
+            overflow: hidden;
+            border-radius: 12px;
+            color: var(--text-dark);
+        }
+
+        @keyframes zoomIn {
+            from {
+                opacity: 0;
+                transform: scale(0.92);
             }
 
-            .main-panel {
-                grid-template-columns: 1fr;
+            to {
+                opacity: 1;
+                transform: scale(1);
             }
+        }
+
+        .modal_overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(3, 10, 26, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .modal_overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        /* Modal Window Container */
+        .modal_panel {
+            width: 440px;
+            max-width: 90vw;
+            background: rgba(15, 23, 42, 0.88);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--card-border, rgba(255, 255, 255, 0.15));
+            border-radius: 20px;
+            box-shadow:
+                0 25px 50px -12px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+            transform: scale(0.95) translateY(10px);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow: hidden;
+            color: var(--white, #ffffff);
+        }
+
+        .modal_overlay.active .modal_panel {
+            transform: scale(1) translateY(0);
+        }
+
+        /* Modal Header Options */
+        .modal_header_bar {
+            background: linear-gradient(135deg, rgba(14, 72, 161, 0.8), rgba(7, 29, 73, 0.95));
+            padding: 18px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .modal_header_bar.danger {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.9), rgba(153, 27, 27, 0.95));
+            border-bottom: 1px solid rgba(248, 113, 113, 0.3);
+        }
+
+        .modal_header_bar.success {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.9), rgba(6, 95, 70, 0.95));
+            color: #ffffff;
+            border-bottom: 1px solid rgba(52, 211, 153, 0.3);
+        }
+
+        .modal_header_title {
+            font-size: 0.95rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal_close_btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: rgba(255, 255, 255, 0.8);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            cursor: pointer;
+            line-height: 1;
+            transition: all 0.2s ease;
+        }
+
+        .modal_close_btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            transform: rotate(90deg);
+        }
+
+        /* Modal Body Text */
+        .modal_body {
+            padding: 28px 24px;
+            text-align: center;
+            font-size: 0.95rem;
+            font-weight: 500;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* Modal Footer Action Row */
+        .modal_footer {
+            padding: 0 24px 24px;
+            display: flex;
+            gap: 12px;
+        }
+
+        /* Button Variants */
+        .swiss_btn_modal {
+            flex: 1;
+            padding: 12px 18px;
+            font-family: inherit;
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.05em;
+            border: 1px solid transparent;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .swiss_btn_modal:active {
+            transform: scale(0.97);
+        }
+
+        .swiss_btn_modal.cancel {
+            background: rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        .swiss_btn_modal.cancel:hover {
+            background: rgba(255, 255, 255, 0.18);
+            color: #ffffff;
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .swiss_btn_modal.confirm {
+            background: var(--badge-blue, #2563eb);
+            color: #ffffff;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+        }
+
+        .swiss_btn_modal.confirm:hover {
+            background: #3b82f6;
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.6);
+            transform: translateY(-1px);
+        }
+
+        .swiss_btn_modal.confirm_danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: #ffffff;
+            box-shadow: 0 4px 14px rgba(239, 68, 68, 0.35);
+        }
+
+        .swiss_btn_modal.confirm_danger:hover {
+            background: linear-gradient(135deg, #f87171, #ef4444);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5);
+            transform: translateY(-1px);
         }
     </style>
 </head>
 
 <body>
+    <!-- LOGOUT MODAL -->
+    <div id="logoutModal" class="modal_overlay">
+        <div class="modal_panel">
+            <div class="modal_header_bar danger">
+                <h2 class="modal_header_title">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path
+                            d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z">
+                        </path>
+                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                    End Session
+                </h2>
+                <button class="modal_close_btn" onclick="closeModal('logoutModal')"
+                    aria-label="Close Modal">&times;</button>
+            </div>
+            <div class="modal_body">
+                Are you sure you want to securely log out of the admin portal?
+            </div>
+            <div class="modal_footer">
+                <button class="swiss_btn_modal cancel" onclick="closeModal('logoutModal')">Cancel</button>
+                <button class="swiss_btn_modal confirm_danger" onclick="executeLogout()">Log Out</button>
+            </div>
+        </div>
+    </div>
 
     <!-- NAVBAR -->
     <nav class="navbar">
@@ -417,8 +652,8 @@
             <div class="dropdown-menu" id="dropdownMenu">
                 <a href="#" class="dropdown-item">Dashboard</a>
                 <a href="Admin_Concerns_Table_Page.html" class="dropdown-item">Concerns</a>
-                <a href="#" class="dropdown-item">Settings</a>
-                <a href="#" class="dropdown-item logout">Log Out</a>
+                <a href="Admin_Setting_Page.html" class="dropdown-item">Settings</a>
+                <a href="#" class="dropdown-item logout" id="logoutBtn">Log Out</a>
             </div>
         </div>
     </nav>
@@ -524,22 +759,33 @@
     </main>
 
     <script>
-        $('#logout').dialog({
-            autoOpen: false,
-            modal: true,
-            resizable: false,
-            draggable: false,
-            width: 420,
-            show: { effect: "fade", duration: 200 },
-            hide: { effect: "fadeOut", duration: 150 },
-            buttons: {
-                "OK": function () {
-                    $(this).dialog("close");
+        // Modal Handlers
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
 
-                }
-            }
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        function executeLogout() {
+            // Add redirect logic here
+            window.location.href = 'main_menu.html';
+        }
+
+        // Event Listeners for Logout
+        document.getElementById('logoutBtn').addEventListener('click', function (e) {
+            e.preventDefault();
+            dropdownMenu.classList.remove('show');
+            openModal('logoutModal');
         });
 
+        // Close modal when clicking backdrop
+        document.getElementById('logoutModal').addEventListener('click', function (e) {
+            if (e.target === this) {
+                closeModal('logoutModal');
+            }
+        });
 
         // Dropdown Menu Toggle Logic
         const menuBtn = document.getElementById('menuBtn');
