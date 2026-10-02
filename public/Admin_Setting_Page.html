@@ -9,6 +9,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Gantari:wght@400;600;700;800;900&display=swap"
         rel="stylesheet">
+
+    <link rel="icon" type="image/x-icon" href="PasigTugon_Logo.png">
+
     <style>
         :root {
             --sky-blue: #38A2EF;
@@ -653,7 +656,7 @@
             <div class="modal_body">Are you sure you want to log out of the Admin Dashboard?</div>
             <div class="modal_footer">
                 <button class="swiss_btn_modal cancel" onclick="closeModal('logoutModal')">Cancel</button>
-                <button class="swiss_btn_modal confirm_danger" onclick="doLogout()">Log Out</button>
+                <button class="swiss_btn_modal confirm_danger" onclick="executeLogout()">Log Out</button>
             </div>
         </div>
     </div>
@@ -783,7 +786,9 @@
         function openModal(id) { document.getElementById(id).classList.add('active'); }
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
         function openExitModal() { openModal('logoutModal'); }
-        function doLogout() { window.location.href = 'logout.php'; } // ← keep your original logout target
+        function executeLogout() {
+            window.location.href = 'main_menu.html';
+        } // ← keep your original logout target
 
         // Navbar dropdown
         const dropdown = document.getElementById('navDropdown');
