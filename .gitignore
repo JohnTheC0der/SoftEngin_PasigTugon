@@ -1,0 +1,11 @@
+# Python
+ml_engine/venv/
+__pycache__/
+*.pyc
+
+# PHP / database credentials
+src/config.php
+
+# OS clutter
+.DS_Store
+Thumbs.db
