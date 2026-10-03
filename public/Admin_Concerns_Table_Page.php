@@ -1,3 +1,12 @@
+<?php
+// Session guard — redirects to login if nobody is signed in.
+// Must run before any HTML is output, so this block stays at the very top of the file.
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    header('Location: Admin_Log_In.html');
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -926,9 +935,9 @@
                 </svg>
             </button>
             <div class="dropdown-menu" id="navDropdown">
-                <a href="Admin_Dashboard_Page.html" class="dropdown-item">Dashboard</a>
-                <a href="Admin_Concerns_Table_Page.html" class="dropdown-item">Concerns</a>
-                <a href="Admin_Setting_Page.html" class="dropdown-item">Settings</a>
+                <a href="Admin_Dashboard_Page.php" class="dropdown-item">Dashboard</a>
+                <a href="Admin_Concerns_Table_Page.php" class="dropdown-item">Concerns</a>
+                <a href="Admin_Setting_Page.php" class="dropdown-item">Settings</a>
                 <a href="#" class="dropdown-item logout" id="logoutBtn">Log Out</a>
             </div>
         </div>
@@ -1172,7 +1181,8 @@
         }
 
         function executeLogout() {
-            window.location.href = 'main_menu.html';
+            // logout.php destroys the PHP session, then redirects to the login page itself
+            window.location.href = '../src/logout.php';
         }
 
         document.getElementById('logoutBtn').addEventListener('click', function (e) {

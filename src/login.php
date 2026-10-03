@@ -18,10 +18,11 @@ if ($username === '' || $password === '') {
 }
 
 try {
+    // LEFT JOIN (not JOIN) so super_admins, who have no barangay_id, still match this query
     $stmt = $pdo->prepare(
-        "SELECT u.user_id, u.password_hash, u.is_active, u.barangay_id, b.approval_status
+        "SELECT u.user_id, u.password_hash, u.is_active, u.barangay_id, u.role, b.approval_status
          FROM tbl_users u
-         JOIN tbl_barangay b ON u.barangay_id = b.barangay_id
+         LEFT JOIN tbl_barangay b ON u.barangay_id = b.barangay_id
          WHERE u.username = ?"
     );
     $stmt->execute([$username]);
@@ -42,13 +43,17 @@ try {
     }
 
     $_SESSION['user_id']     = $user['user_id'];
-    $_SESSION['barangay_id'] = $user['barangay_id'];
+    $_SESSION['barangay_id'] = $user['barangay_id']; // null for super_admin
+    $_SESSION['role']        = $user['role'];
 
     $stmt = $pdo->prepare("UPDATE tbl_users SET last_login_at = NOW() WHERE user_id = ?");
     $stmt->execute([$user['user_id']]);
 
     $response['success'] = true;
-    $response['status']  = $user['approval_status']; // 'pending' or 'approved'
+    $response['role']    = $user['role'];
+
+    // super_admins have no barangay, so there's nothing to "approve" — treat them as always approved
+    $response['status'] = ($user['role'] === 'super_admin') ? 'approved' : $user['approval_status'];
 } catch (PDOException $e) {
     $response['message'] = 'Something went wrong. Please try again.';
     // error_log($e->getMessage()); // uncomment while debugging locally

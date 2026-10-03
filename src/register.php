@@ -24,6 +24,15 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     exit;
 }
 
+// Registration is restricted to official Pasig City government email addresses.
+// This mirrors the check already done in the browser, but enforced here too since
+// a direct POST request to this endpoint would otherwise skip the frontend check entirely.
+if (!str_ends_with(strtolower($email), '@pasigcity.gov.ph')) {
+    $response['message'] = 'Only official @pasigcity.gov.ph email addresses are permitted to create admin accounts.';
+    echo json_encode($response);
+    exit;
+}
+
 // The dropdown sends a slug like "bagong-ilog" — convert it back to "Bagong Ilog"
 // so it matches a readable barangay_name in the database.
 $barangayName = ucwords(str_replace('-', ' ', $barangaySlug));

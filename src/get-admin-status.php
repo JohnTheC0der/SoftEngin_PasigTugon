@@ -1,5 +1,6 @@
 <?php
-// Called by Admin_Wait_Page.html to check whether this admin's barangay has been approved yet. Relies on the session set during login.php.
+// Called by Admin_Wait_Page.html to check whether this admin's barangay
+// has been approved yet. Relies on the session set during login.php.
 
 session_start();
 header('Content-Type: application/json');
@@ -29,7 +30,7 @@ try {
 
     echo json_encode([
         'status'      => $status,
-        'barangayUrl' => $status === 'ready' ? 'Admin_Dashboard_Page.html' : '#'
+        'barangayUrl' => $status === 'ready' ? 'Admin_Dashboard_Page.php' : '#'
     ]);
 } catch (PDOException $e) {
     echo json_encode(['status' => 'pending', 'barangayUrl' => '#']);

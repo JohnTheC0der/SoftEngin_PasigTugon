@@ -8,10 +8,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
-
-    <link rel="icon" type="image/x-icon" href="PasigTugon_Logo.png">
-
-
     <style>
         :root {
             --primary-blue: #0e48a1;
@@ -296,7 +292,7 @@
                         // approved barangays go straight to the dashboard,
                         // pending ones go to the wait page which polls their status
                         window.location.href = (data.status === 'approved')
-                            ? 'Admin_Dashboard_Page.html'
+                            ? 'Admin_Dashboard_Page.php'
                             : 'Admin_Wait_Page.html';
                     } else {
                         errorEl.textContent = data.message;

@@ -28,7 +28,7 @@ CREATE TABLE tbl_barangay (
 -- ---------------------------------------------------
 CREATE TABLE tbl_users (
     user_id        INT AUTO_INCREMENT PRIMARY KEY,
-    barangay_id    INT NOT NULL,
+    barangay_id    INT NULL COMMENT 'NULL for super_admin accounts, which are not tied to a barangay',
     username       VARCHAR(50) NOT NULL UNIQUE,
     email          VARCHAR(150) NOT NULL UNIQUE,
     password_hash  VARCHAR(255) NOT NULL,

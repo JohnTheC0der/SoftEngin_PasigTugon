@@ -358,23 +358,6 @@
 </head>
 
 <body>
-    <!-- Invalid Authorization Key Dialog -->
-    <div id="invalid-master-key" title="Pasig Tugon!" style="display:none;">
-        <div class="custom-dialog-content">
-            <div class="dialog-icon-wrapper">
-                <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
-                    </path>
-                </svg>
-            </div>
-            <h2 class="dialog-title">Invalid Authorization Key</h2>
-            <p class="dialog-description">The master key you entered is incorrect. Access is strictly restricted to
-                authorized Barangay Head Admins.</p>
-        </div>
-    </div>
-
     <!-- Invalid Email Domain Dialog -->
     <div id="invalid-email-domain" title="Pasig Tugon!" style="display:none;">
         <div class="custom-dialog-content">
@@ -452,12 +435,6 @@
             </div>
 
             <div class="input-group">
-                <label for="admin-code" class="input-label">Admin Authorization Key</label>
-                <input type="password" id="admin-code" name="admin_code" class="input-field"
-                    placeholder="Enter LGU Authorization Key" required>
-            </div>
-
-            <div class="input-group">
                 <label for="password" class="input-label">Generated Account Password</label>
                 <input type="text" id="password" name="password" class="input-field"
                     placeholder="Auto-generated password" required readonly>
@@ -476,10 +453,9 @@
             var username = $("#username").val().trim();
             var email = $("#email").val().trim();
             var barangay = $("#barangay").val();
-            var adminCode = $("#admin-code").val().trim();
             var passwordField = document.getElementById("password");
 
-            if (username !== "" && email !== "" && barangay !== "" && adminCode !== "") {
+            if (username !== "" && email !== "" && barangay !== "") {
                 var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
                 var generatedPassword = "";
                 for (var i = 0; i < 12; i++) {
@@ -492,23 +468,6 @@
         }
 
         $(document).ready(function () {
-            // Initialize Dialog: Invalid Master Key
-            $("#invalid-master-key").dialog({
-                autoOpen: false,
-                modal: true,
-                resizable: false,
-                draggable: false,
-                width: 400,
-                show: { effect: "fade", duration: 200 },
-                hide: { effect: "fadeOut", duration: 150 },
-                buttons: {
-                    "Try Again": function () {
-                        $(this).dialog("close");
-                        $("#admin-code").focus();
-                    }
-                }
-            });
-
             // Initialize Dialog: Invalid Email Domain
             $("#invalid-email-domain").dialog({
                 autoOpen: false,
@@ -544,7 +503,7 @@
             });
 
             // Password Generation Event Listeners
-            $("#username, #email, #admin-code").on("input", checkAndGeneratePassword);
+            $("#username, #email").on("input", checkAndGeneratePassword);
             $("#barangay").on("change", checkAndGeneratePassword);
 
             // Form Submit Handler
@@ -554,11 +513,14 @@
                 var username = $("#username").val().trim();
                 var email = $("#email").val().trim();
                 var barangay = $("#barangay").val();
-                var adminCode = $("#admin-code").val().trim();
-                var masterKey = "PASIG2026"; // Replace with secure server check in production
+                var password = $("#password").val();
 
                 // Step 1: Check for Empty Fields
-                if (!username || !email || !barangay || !adminCode) {
+                if (!username || !email || !barangay) {
+                    $("#form-incomplete .dialog-title").text("Unable to Submit");
+                    $("#form-incomplete .dialog-description").text(
+                        "Please make sure your details are completely filled out before submitting."
+                    );
                     $("#form-incomplete").dialog("open");
                     return;
                 }
@@ -569,15 +531,35 @@
                     return;
                 }
 
-                // Step 3: Validate Authorization Master Key
-                if (adminCode !== masterKey) {
-                    $("#invalid-master-key").dialog("open");
-                    return;
-                }
-
-                // Step 4: Proceed to Next Page on Success
-                localStorage.setItem("adminJustRegistered", "true");
-                window.location.href = "main_menu.html";
+                // Step 3: Submit to the backend — register.php re-checks the email domain
+                // and does the real duplicate/barangay checks server-side.
+                // Adjust this path if your folder structure differs —
+                // this assumes public/Admin_Sign_Up.html and src/register.php as siblings.
+                $.ajax({
+                    url: "../src/register.php",
+                    method: "POST",
+                    data: {
+                        username: username,
+                        email: email,
+                        barangay: barangay,
+                        password: password
+                    },
+                    dataType: "json"
+                }).done(function (response) {
+                    if (response.success) {
+                        window.location.href = "Admin_Wait_Page.html";
+                    } else {
+                        $("#form-incomplete .dialog-title").text("Unable to Create Account");
+                        $("#form-incomplete .dialog-description").text(response.message);
+                        $("#form-incomplete").dialog("open");
+                    }
+                }).fail(function () {
+                    $("#form-incomplete .dialog-title").text("Connection Error");
+                    $("#form-incomplete .dialog-description").text(
+                        "Could not reach the server. Please check your connection and try again."
+                    );
+                    $("#form-incomplete").dialog("open");
+                });
             });
         });
     </script>
