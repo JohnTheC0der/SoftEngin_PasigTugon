@@ -210,7 +210,7 @@
                 Your requested domain for your barangay is still being processed. We will email you as soon as your site
                 is live. If you need assistance, please <a href="mailto:support@pasigtugon.gov.ph">contact us</a>.
             </p>
-            <a href="login.html" class="action-btn">Go Back to Login</a>
+            <a href="Admin_Log_In.html" class="action-btn">Go Back to Login</a>
         </div>
 
         <!-- STATE 2: READY (Shown when developers finish building the barangay page) -->
@@ -243,17 +243,20 @@
             }
         }
 
-        // Example backend call: Fetch admin status automatically from database/session
-        /*
-        fetch('/api/get-admin-status')
-            .then(res => res.json())
-            .then(data => {
+        // Ask the backend whether this admin's barangay has been approved yet.
+        // Relies on the session created during login — if the session has expired
+        // or nothing is found, the endpoint falls back to "pending" by default.
+        // Adjust this path if your folder structure differs —
+        // this assumes public/Admin_Wait_Page.html and src/api/get-admin-status.php
+        // are three levels apart (public/ -> src/ -> api/).
+        fetch('../src/api/get-admin-status.php')
+            .then(function (res) { return res.json(); })
+            .then(function (data) {
                 setDomainStatus(data.status, data.barangayUrl);
+            })
+            .catch(function () {
+                setDomainStatus('pending');
             });
-        */
-
-        // Default to pending on load
-        setDomainStatus('pending');
     </script>
 
 </body>
