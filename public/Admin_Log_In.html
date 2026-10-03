@@ -18,6 +18,7 @@
             --glass-bg: rgba(15, 23, 42, 0.55);
             --glass-border: rgba(255, 255, 255, 0.18);
             --input-bg: rgba(255, 255, 255, 0.95);
+            --error-red: #fca5a5;
             --transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
@@ -147,6 +148,16 @@
             box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.25);
         }
 
+        /* LOGIN ERROR MESSAGE */
+        .error-text {
+            display: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--error-red);
+            text-align: center;
+            margin-top: -8px;
+        }
+
         /* SUBMIT BUTTON */
         .login-btn {
             width: 100%;
@@ -174,6 +185,11 @@
 
         .login-btn:active {
             transform: translateY(0);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
         }
 
         /* FOOTER / SIGN-UP LINK */
@@ -227,7 +243,7 @@
         <p class="sub-title">Admin Login Station</p>
 
         <!-- Login Form -->
-        <form class="login-form" action="#" method="POST">
+        <form class="login-form" id="login-form" action="#" method="POST">
             <div class="input-group">
                 <label for="username" class="input-label">Username</label>
                 <input type="text" id="username" name="username" class="input-field" placeholder="Enter your username"
@@ -240,13 +256,59 @@
                     placeholder="Enter your password" required autocomplete="current-password">
             </div>
 
-            <button type="submit" class="login-btn">Log In</button>
+            <p id="login-error" class="error-text"></p>
+
+            <button type="submit" class="login-btn" id="login-submit-btn">Log In</button>
         </form>
 
         <p class="form-footer">
             No account yet? <a href="Admin_Sign_Up.html">Sign in here</a>
         </p>
     </main>
+
+    <script>
+        document.getElementById('login-form').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            var username = document.getElementById('username').value.trim();
+            var password = document.getElementById('password').value;
+            var errorEl = document.getElementById('login-error');
+            var submitBtn = document.getElementById('login-submit-btn');
+
+            errorEl.style.display = 'none';
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Logging in...';
+
+            // Adjust this path if your folder structure differs —
+            // this assumes public/Admin_Log_In.html and src/login.php as siblings.
+            fetch('../src/login.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'username=' + encodeURIComponent(username) + '&password=' + encodeURIComponent(password)
+            })
+                .then(function (res) { return res.json(); })
+                .then(function (data) {
+                    if (data.success) {
+                        // approved barangays go straight to the dashboard,
+                        // pending ones go to the wait page which polls their status
+                        window.location.href = (data.status === 'approved')
+                            ? 'Admin_Dashboard_Page.html'
+                            : 'Admin_Wait_Page.html';
+                    } else {
+                        errorEl.textContent = data.message;
+                        errorEl.style.display = 'block';
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Log In';
+                    }
+                })
+                .catch(function () {
+                    errorEl.textContent = 'Could not reach the server. Please try again.';
+                    errorEl.style.display = 'block';
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Log In';
+                });
+        });
+    </script>
 
 </body>
 

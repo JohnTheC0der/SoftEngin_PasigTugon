@@ -408,25 +408,7 @@
             $("#username, #email").on("input", checkAndGeneratePassword);
             $("#barangay").on("change", checkAndGeneratePassword);
 
-            // Handle submission dialog for incomplete form
-            $("#registration-form").on("submit", function (e) {
-                var username = $("#username").val().trim();
-                var email = $("#email").val().trim();
-                var barangay = $("#barangay").val();
-
-                if (!username || !email || !barangay) {
-                    e.preventDefault();
-                    $("#form-incomplete").dialog("open");
-                    return;
-                }
-
-                // Set the flag before navigating away
-                e.preventDefault(); // prevent actual POST for now
-                localStorage.setItem("adminJustRegistered", "true");
-                window.location.href = "main_menu.html";
-            });
-
-            // Initialize jQuery UI Dialog
+            // Initialize jQuery UI Dialog (reused for both "incomplete form" and server-error messages)
             $("#form-incomplete").dialog({
                 autoOpen: false,
                 modal: true,
@@ -440,6 +422,55 @@
                         $(this).dialog("close");
                     }
                 }
+            });
+
+            // Handle form submission: validate, then send to the backend
+            $("#registration-form").on("submit", function (e) {
+                e.preventDefault();
+
+                var username = $("#username").val().trim();
+                var email = $("#email").val().trim();
+                var barangay = $("#barangay").val();
+                var password = $("#password").val();
+
+                if (!username || !email || !barangay) {
+                    $("#form-incomplete .dialog-title").text("Unable to Submit");
+                    $("#form-incomplete .dialog-description").text(
+                        "Please make sure your details are completely filled out before submitting."
+                    );
+                    $("#form-incomplete").dialog("open");
+                    return;
+                }
+
+                // Adjust this path if your folder structure differs —
+                // this assumes public/Admin_Sign_Up.html and src/register.php as siblings.
+                $.ajax({
+                    url: "../src/register.php",
+                    method: "POST",
+                    data: {
+                        username: username,
+                        email: email,
+                        barangay: barangay,
+                        password: password
+                    },
+                    dataType: "json"
+                }).done(function (response) {
+                    if (response.success) {
+                        // No more localStorage flag — the wait page now checks
+                        // real approval status from the database on load.
+                        window.location.href = "Admin_Wait_Page.html";
+                    } else {
+                        $("#form-incomplete .dialog-title").text("Unable to Create Account");
+                        $("#form-incomplete .dialog-description").text(response.message);
+                        $("#form-incomplete").dialog("open");
+                    }
+                }).fail(function () {
+                    $("#form-incomplete .dialog-title").text("Connection Error");
+                    $("#form-incomplete .dialog-description").text(
+                        "Could not reach the server. Please check your connection and try again."
+                    );
+                    $("#form-incomplete").dialog("open");
+                });
             });
         });
     </script>
