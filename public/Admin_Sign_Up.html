@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
 
-    <!-- jQuery & jQuery UI CDN (Required for jQuery Dialog) -->
+    <!-- jQuery & jQuery UI CDN -->
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
@@ -46,7 +46,6 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            /* Updated to use local background.png with color overlay */
             background: url('background.png') center/cover no-repeat fixed;
             color: var(--white);
             padding: 20px;
@@ -109,7 +108,20 @@
             color: rgba(255, 255, 255, 0.85);
             letter-spacing: 0.18em;
             text-transform: uppercase;
-            margin-bottom: 32px;
+            margin-bottom: 24px;
+        }
+
+        /* RESTRICTED ACCESS NOTICE */
+        .notice-box {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            padding: 12px 16px;
+            border-radius: 14px;
+            margin-bottom: 24px;
+            font-size: 0.8rem;
+            line-height: 1.4;
+            color: #fca5a5;
+            text-align: left;
         }
 
         /* FORM STYLING */
@@ -160,7 +172,6 @@
             box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.25);
         }
 
-        /* CUSTOM SELECT DROPDOWN ARROW */
         .select-field {
             appearance: none;
             -webkit-appearance: none;
@@ -228,21 +239,49 @@
             color: var(--white);
         }
 
+        /* JQUERY UI DIALOG GLASSMORPHISM STYLES */
+        .ui-widget-overlay {
+            background: rgba(15, 23, 42, 0.75) !important;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            opacity: 1 !important;
+        }
+
+        .ui-dialog {
+            background: #ffffff !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            border-radius: 24px !important;
+            padding: 0 !important;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+            overflow: hidden;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+
+            position: fixed !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+        }
+
+        .ui-dialog .ui-dialog-titlebar {
+            display: none !important;
+        }
+
         .custom-dialog-content {
-            padding: 16px 24px 24px 24px !important;
+            padding: 32px 28px 16px 28px !important;
             text-align: center;
         }
 
         .dialog-icon-wrapper {
-            width: 64px;
-            height: 64px;
+            width: 68px;
+            height: 68px;
             background-color: #fef2f2;
             color: #ef4444;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 16px auto;
+            margin: 0 auto 20px auto;
+            box-shadow: 0 0 0 8px rgba(239, 68, 68, 0.1);
         }
 
         .dialog-icon-wrapper svg {
@@ -252,21 +291,23 @@
 
         .dialog-title {
             font-weight: 800;
-            font-size: 1.5rem;
-            color: var(--text-dark);
-            margin-bottom: 8px;
+            font-size: 1.35rem;
+            color: #0f172a;
+            margin-bottom: 10px;
+            letter-spacing: -0.01em;
         }
 
         .dialog-description {
-            font-size: 0.95rem;
-            color: var(--text-muted);
+            font-size: 0.92rem;
+            color: #64748b;
             line-height: 1.5;
+            margin: 0;
         }
 
         .ui-dialog .ui-dialog-buttonpane {
             background: #ffffff !important;
             border: none !important;
-            padding: 0 24px 24px 24px !important;
+            padding: 0 28px 28px 28px !important;
             margin: 0 !important;
         }
 
@@ -279,22 +320,25 @@
 
         .ui-dialog .ui-dialog-buttonpane button {
             width: 100% !important;
-            padding: 12px 24px !important;
+            padding: 14px 24px !important;
             font-family: inherit !important;
-            font-size: 1rem !important;
+            font-size: 0.95rem !important;
             font-weight: 700 !important;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
             color: #ffffff !important;
             background-color: var(--primary-blue) !important;
             border: none !important;
-            border-radius: 12px !important;
+            border-radius: 50px !important;
             cursor: pointer;
             transition: var(--transition) !important;
             margin: 0 !important;
-            box-shadow: 0 4px 12px rgba(11, 69, 172, 0.2) !important;
+            box-shadow: 0 10px 20px -5px rgba(14, 72, 161, 0.3) !important;
         }
 
         .ui-dialog .ui-dialog-buttonpane button:hover {
-            background-color: var(--btn-hover-blue) !important;
+            background-color: #ef4444 !important;
+            box-shadow: 0 12px 22px -5px rgba(239, 68, 68, 0.4) !important;
         }
 
         @media (max-width: 480px) {
@@ -314,6 +358,41 @@
 </head>
 
 <body>
+    <!-- Invalid Authorization Key Dialog -->
+    <div id="invalid-master-key" title="Pasig Tugon!" style="display:none;">
+        <div class="custom-dialog-content">
+            <div class="dialog-icon-wrapper">
+                <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                    </path>
+                </svg>
+            </div>
+            <h2 class="dialog-title">Invalid Authorization Key</h2>
+            <p class="dialog-description">The master key you entered is incorrect. Access is strictly restricted to
+                authorized Barangay Head Admins.</p>
+        </div>
+    </div>
+
+    <!-- Invalid Email Domain Dialog -->
+    <div id="invalid-email-domain" title="Pasig Tugon!" style="display:none;">
+        <div class="custom-dialog-content">
+            <div class="dialog-icon-wrapper">
+                <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
+                    </path>
+                </svg>
+            </div>
+            <h2 class="dialog-title">Unauthorized Email</h2>
+            <p class="dialog-description">Only official <strong>@pasigcity.gov.ph</strong> email addresses are permitted
+                to create admin accounts.</p>
+        </div>
+    </div>
+
+    <!-- Form Incomplete Dialog -->
     <div id="form-incomplete" title="Pasig Tugon!" style="display:none;">
         <div class="custom-dialog-content">
             <div class="dialog-icon-wrapper">
@@ -337,7 +416,11 @@
         </h1>
         <p class="sub-title">Admin Registration Station</p>
 
-        <!-- Login Form -->
+        <div class="notice-box">
+            <strong>⚠️ Restricted Access:</strong> Registration is strictly reserved for official Barangay Head Admins.
+        </div>
+
+        <!-- Registration Form -->
         <form class="login-form" id="registration-form" action="#" method="POST">
             <div class="input-group">
                 <label for="username" class="input-label">Username</label>
@@ -346,9 +429,9 @@
             </div>
 
             <div class="input-group">
-                <label for="email" class="input-label">Email</label>
-                <input type="email" id="email" name="email" class="input-field" placeholder="Enter your email" required
-                    autocomplete="email">
+                <label for="email" class="input-label">Official Email Address</label>
+                <input type="email" id="email" name="email" class="input-field" placeholder="username@pasigcity.gov.ph"
+                    required autocomplete="email">
             </div>
 
             <div class="input-group">
@@ -369,7 +452,13 @@
             </div>
 
             <div class="input-group">
-                <label for="password" class="input-label">Password</label>
+                <label for="admin-code" class="input-label">Admin Authorization Key</label>
+                <input type="password" id="admin-code" name="admin_code" class="input-field"
+                    placeholder="Enter LGU Authorization Key" required>
+            </div>
+
+            <div class="input-group">
+                <label for="password" class="input-label">Generated Account Password</label>
                 <input type="text" id="password" name="password" class="input-field"
                     placeholder="Auto-generated password" required readonly>
             </div>
@@ -384,21 +473,18 @@
 
     <script>
         function checkAndGeneratePassword() {
-            var username = document.getElementById("username").value.trim();
-            var email = document.getElementById("email").value.trim();
-            var barangay = document.getElementById("barangay").value;
+            var username = $("#username").val().trim();
+            var email = $("#email").val().trim();
+            var barangay = $("#barangay").val();
+            var adminCode = $("#admin-code").val().trim();
             var passwordField = document.getElementById("password");
 
-            if (username !== "" && email !== "" && barangay !== "") {
+            if (username !== "" && email !== "" && barangay !== "" && adminCode !== "") {
                 var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
-                var passwordLength = 12;
                 var generatedPassword = "";
-
-                for (var i = 0; i < passwordLength; i++) {
-                    var randomIndex = Math.floor(Math.random() * chars.length);
-                    generatedPassword += chars.charAt(randomIndex);
+                for (var i = 0; i < 12; i++) {
+                    generatedPassword += chars.charAt(Math.floor(Math.random() * chars.length));
                 }
-
                 passwordField.value = generatedPassword;
             } else {
                 passwordField.value = "";
@@ -406,30 +492,8 @@
         }
 
         $(document).ready(function () {
-            // Automatically run check whenever inputs or dropdown value change
-            $("#username, #email").on("input", checkAndGeneratePassword);
-            $("#barangay").on("change", checkAndGeneratePassword);
-
-            // Handle submission dialog for incomplete form
-            $("#registration-form").on("submit", function (e) {
-                var username = $("#username").val().trim();
-                var email = $("#email").val().trim();
-                var barangay = $("#barangay").val();
-
-                if (!username || !email || !barangay) {
-                    e.preventDefault();
-                    $("#form-incomplete").dialog("open");
-                    return;
-                }
-
-                // Set the flag before navigating away
-                e.preventDefault(); // prevent actual POST for now
-                localStorage.setItem("adminJustRegistered", "true");
-                window.location.href = "main_menu.html";
-            });
-
-            // Initialize jQuery UI Dialog
-            $("#form-incomplete").dialog({
+            // Initialize Dialog: Invalid Master Key
+            $("#invalid-master-key").dialog({
                 autoOpen: false,
                 modal: true,
                 resizable: false,
@@ -438,14 +502,85 @@
                 show: { effect: "fade", duration: 200 },
                 hide: { effect: "fadeOut", duration: 150 },
                 buttons: {
-                    Ok: function () {
+                    "Try Again": function () {
+                        $(this).dialog("close");
+                        $("#admin-code").focus();
+                    }
+                }
+            });
+
+            // Initialize Dialog: Invalid Email Domain
+            $("#invalid-email-domain").dialog({
+                autoOpen: false,
+                modal: true,
+                resizable: false,
+                draggable: false,
+                width: 400,
+                show: { effect: "fade", duration: 200 },
+                hide: { effect: "fadeOut", duration: 150 },
+                buttons: {
+                    "Try Again": function () {
+                        $(this).dialog("close");
+                        $("#email").focus();
+                    }
+                }
+            });
+
+            // Initialize Dialog: Form Incomplete
+            $("#form-incomplete").dialog({
+                autoOpen: false,
+                modal: true,
+                resizable: false,
+                draggable: false,
+                position: { my: "center", at: "center", of: window },
+                width: 400,
+                show: { effect: "fade", duration: 200 },
+                hide: { effect: "fadeOut", duration: 150 },
+                buttons: {
+                    "OK": function () {
                         $(this).dialog("close");
                     }
                 }
             });
+
+            // Password Generation Event Listeners
+            $("#username, #email, #admin-code").on("input", checkAndGeneratePassword);
+            $("#barangay").on("change", checkAndGeneratePassword);
+
+            // Form Submit Handler
+            $("#registration-form").on("submit", function (e) {
+                e.preventDefault();
+
+                var username = $("#username").val().trim();
+                var email = $("#email").val().trim();
+                var barangay = $("#barangay").val();
+                var adminCode = $("#admin-code").val().trim();
+                var masterKey = "PASIG2026"; // Replace with secure server check in production
+
+                // Step 1: Check for Empty Fields
+                if (!username || !email || !barangay || !adminCode) {
+                    $("#form-incomplete").dialog("open");
+                    return;
+                }
+
+                // Step 2: Validate Email Domain
+                if (!email.toLowerCase().endsWith("@pasigcity.gov.ph")) {
+                    $("#invalid-email-domain").dialog("open");
+                    return;
+                }
+
+                // Step 3: Validate Authorization Master Key
+                if (adminCode !== masterKey) {
+                    $("#invalid-master-key").dialog("open");
+                    return;
+                }
+
+                // Step 4: Proceed to Next Page on Success
+                localStorage.setItem("adminJustRegistered", "true");
+                window.location.href = "main_menu.html";
+            });
         });
     </script>
-
 </body>
 
 </html>
