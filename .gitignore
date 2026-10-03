@@ -9,3 +9,7 @@ src/config.php
 # OS clutter
 .DS_Store
 Thumbs.db
+
+venv/
+__pycache__/
+*.pyc
