@@ -1,3 +1,12 @@
+<?php
+// Session guard — redirects to login if nobody is signed in.
+// Must run before any HTML is output, so this block stays at the very top of the file.
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    header('Location: Admin_Log_In.html');
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -653,8 +662,8 @@
             </button>
             <div class="dropdown-menu" id="dropdownMenu">
                 <a href="#" class="dropdown-item">Dashboard</a>
-                <a href="Admin_Concerns_Table_Page.html" class="dropdown-item">Concerns</a>
-                <a href="Admin_Setting_Page.html" class="dropdown-item">Settings</a>
+                <a href="Admin_Concerns_Table_Page.php" class="dropdown-item">Concerns</a>
+                <a href="Admin_Setting_Page.php" class="dropdown-item">Settings</a>
                 <a href="#" class="dropdown-item logout" id="logoutBtn">Log Out</a>
             </div>
         </div>
@@ -717,7 +726,7 @@
             <div class="concerns-section">
                 <div class="concerns-header-row">
                     <h2 class="concerns-title">Concerns</h2>
-                    <a class="view-all-btn" href="Admin_Concerns_Table_Page.html">View</a>
+                    <a class="view-all-btn" href="Admin_Concerns_Table_Page.php">View</a>
                 </div>
 
                 <div class="concerns-list">
@@ -771,8 +780,8 @@
         }
 
         function executeLogout() {
-            // Add redirect logic here
-            window.location.href = 'main_menu.html';
+            // logout.php destroys the PHP session, then redirects to the login page itself
+            window.location.href = '../src/logout.php';
         }
 
         // Event Listeners for Logout
