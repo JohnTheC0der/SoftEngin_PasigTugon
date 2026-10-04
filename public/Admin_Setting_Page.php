@@ -6,6 +6,14 @@ if (!isset($_SESSION['user_id'])) {
     header('Location: Admin_Log_In.html');
     exit;
 }
+
+// Placeholder values for the Database Backup card below — tbl_backups exists in the
+// schema, but reading/writing real backup records is a separate feature that hasn't
+// been built yet (no backup-saving logic exists anywhere in the app yet). These two
+// variables just stop the page from throwing "undefined variable" errors in the
+// meantime. The "Save Interval" and "Restore Last Backup" buttons are still UI-only.
+$last_backup = 'No backup on record';
+$backup_interval = 'Everyday';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -323,6 +331,13 @@ if (!isset($_SESSION['user_id'])) {
         .form_input::placeholder {
             font-weight: 600;
             opacity: 0.45;
+        }
+
+        .form_hint {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: #475569;
+            line-height: 1.4;
         }
 
         .backup_status {
@@ -715,13 +730,6 @@ if (!isset($_SESSION['user_id'])) {
                         </div>
                         <div class="card_body">
                             <div class="form_group">
-                                <label class="form_label">Change Password For</label>
-                                <select id="accountSelect" class="form_select">
-                                    <option value="admin">Administrator</option>
-                                    <option value="librarian">Librarian</option>
-                                </select>
-                            </div>
-                            <div class="form_group">
                                 <label class="form_label">Current Password</label>
                                 <input type="password" id="currentPass" class="form_input"
                                     placeholder="Enter current password">
@@ -729,6 +737,8 @@ if (!isset($_SESSION['user_id'])) {
                             <div class="form_group">
                                 <label class="form_label">New Password</label>
                                 <input type="password" id="newPass" class="form_input" placeholder="Enter new password">
+                                <span class="form_hint">Must be at least 8 characters, with an uppercase letter, a
+                                    number, and a symbol.</span>
                             </div>
                             <div class="form_group">
                                 <label class="form_label">Confirm New Password</label>
@@ -819,13 +829,40 @@ if (!isset($_SESSION['user_id'])) {
             setTimeout(() => t.classList.remove('show'), 3000);
         }
 
-        // ↓ Keep/replace these with your existing backend (fetch/AJAX) logic
         function updatePassword() {
             const cur = currentPass.value, n = newPass.value, c = confirmPass.value;
+
             if (!cur || !n || !c) return showToast('Please fill in all fields.', true);
             if (n !== c) return showToast('New passwords do not match.', true);
-            // TODO: send to your PHP endpoint
-            showToast('Password updated.');
+
+            // Client-side check for instant feedback — the real enforcement happens
+            // server-side in change-password.php, since this check alone can be bypassed.
+            const hasUppercase = /[A-Z]/.test(n);
+            const hasNumber = /[0-9]/.test(n);
+            const hasSymbol = /[^A-Za-z0-9]/.test(n);
+            if (n.length < 8 || !hasUppercase || !hasNumber || !hasSymbol) {
+                return showToast('Password must be 8+ characters with an uppercase letter, a number, and a symbol.', true);
+            }
+
+            // Adjust this path if your folder structure differs —
+            // this assumes public/Admin_Setting_Page.php and src/change-password.php as siblings.
+            fetch('../src/change-password.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'current_password=' + encodeURIComponent(cur) +
+                    '&new_password=' + encodeURIComponent(n) +
+                    '&confirm_password=' + encodeURIComponent(c)
+            })
+                .then(res => res.json())
+                .then(data => {
+                    showToast(data.message, !data.success);
+                    if (data.success) {
+                        currentPass.value = '';
+                        newPass.value = '';
+                        confirmPass.value = '';
+                    }
+                })
+                .catch(() => showToast('Could not reach the server. Please try again.', true));
         }
         function saveInterval() {
             // TODO: send backupInterval.value to your PHP endpoint

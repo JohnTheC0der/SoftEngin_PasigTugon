@@ -253,8 +253,8 @@ if (!isset($_SESSION['user_id'])) {
             background: var(--white);
             border-radius: 18px;
             padding: 16px;
-            margin-top: auto;
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+            flex-shrink: 0;
         }
 
         .graph-title {
@@ -264,6 +264,41 @@ if (!isset($_SESSION['user_id'])) {
             text-transform: uppercase;
             text-align: center;
             margin-top: 10px;
+        }
+
+        /* Scrollable container holding the line graph + both pie charts.
+           Only this region scrolls — the stats list above stays fixed in place. */
+        .graphs-scroll {
+            margin-top: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            max-height: 420px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .graphs-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .graphs-scroll::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 10px;
+        }
+
+        .pie-chart-wrapper {
+            max-width: 200px;
+            margin: 0 auto;
+        }
+
+        .loading-text,
+        .empty-text {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-align: center;
+            padding: 20px 0;
         }
 
         /* RIGHT PANEL: MAIN DATA */
@@ -676,92 +711,62 @@ if (!isset($_SESSION['user_id'])) {
         <section class="sidebar-card">
             <div class="barangay-header">
                 <h1 class="barangay-title">Barangay</h1>
-                <p class="barangay-subtitle">Santolan</p>
+                <p class="barangay-subtitle" id="barangaySubtitle">Loading...</p>
             </div>
 
             <div class="stats-list">
                 <div class="stat-item">
-                    <div class="stat-badge">2</div>
-                    <span class="stat-label">Total of concerns</span>
+                    <div class="stat-badge" id="statTotalConcerns">—</div>
+                    <span class="stat-label">Total Concerns</span>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-badge">10</div>
-                    <span class="stat-label">Total visits</span>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-badge">8</div>
-                    <span class="stat-label">No. of connection formed</span>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-badge">0</div>
-                    <span class="stat-label">No. of concerns completed</span>
+                    <div class="stat-badge" id="statTotalArchived">—</div>
+                    <span class="stat-label">No. of Concerns Archived</span>
                 </div>
             </div>
 
-            <div class="graph-box">
-                <canvas id="concernsChart" height="120"></canvas>
-                <div class="graph-title">Concerns Graph</div>
+            <div class="graphs-scroll">
+                <div class="graph-box">
+                    <canvas id="concernsChart" height="160"></canvas>
+                    <div class="graph-title">Concerns Graph (Last 7 Days)</div>
+                </div>
+
+                <div class="graph-box">
+                    <div class="pie-chart-wrapper">
+                        <canvas id="sectorChart"></canvas>
+                    </div>
+                    <div class="graph-title">Concern Sectors</div>
+                </div>
+
+                <div class="graph-box">
+                    <div class="pie-chart-wrapper">
+                        <canvas id="priorityChart"></canvas>
+                    </div>
+                    <div class="graph-title">Concern Priority</div>
+                </div>
             </div>
         </section>
 
         <!-- RIGHT MAIN CONTENT PANEL -->
         <section class="main-panel">
 
-            <!-- WORDS CONNECTED -->
+            <!-- COMMON KEYWORDS -->
             <div class="words-section">
-                <h2 class="section-header">Words Connected</h2>
-                <div class="tag-cloud">
-                    <div class="tag-item">"Baha"</div>
-                    <div class="tag-item">"Sunog"</div>
-                    <div class="tag-item">"Allowance"</div>
-                    <div class="tag-item">"School"</div>
-                    <div class="tag-item">"Sugal"</div>
-                    <div class="tag-item">"Holdap"</div>
-                    <div class="tag-item">"Snatcher"</div>
-                    <div class="tag-item">"Magnanakaw"</div>
+                <h2 class="section-header">Common Keywords</h2>
+                <div class="tag-cloud" id="keywordsCloud">
+                    <div class="loading-text">Loading...</div>
                 </div>
             </div>
 
-            <!-- CONCERNS LIST -->
+            <!-- RECENT CONCERNS -->
             <div class="concerns-section">
                 <div class="concerns-header-row">
-                    <h2 class="concerns-title">Concerns</h2>
+                    <h2 class="concerns-title">Recent Concerns</h2>
                     <a class="view-all-btn" href="Admin_Concerns_Table_Page.php">View</a>
                 </div>
 
-                <div class="concerns-list">
-                    <div class="concern-row">
-                        <span class="concern-date">11/09/2026</span>
-                        <span class="concern-text">Laging nagbabaha dito sa s...</span>
-                    </div>
-                    <div class="concern-row">
-                        <span class="concern-date">11/11/2026</span>
-                        <span class="concern-text">MAY SUNOG PO DITO SA M...</span>
-                    </div>
-                    <div class="concern-row">
-                        <span class="concern-date">12/16/2026</span>
-                        <span class="concern-text">Ang daming nagsu-sugal po...</span>
-                    </div>
-                    <div class="concern-row">
-                        <span class="concern-date">1/3/2027</span>
-                        <span class="concern-text">Na-holdap po ako dito sa k...</span>
-                    </div>
-                    <div class="concern-row">
-                        <span class="concern-date">1/18/2027</span>
-                        <span class="concern-text">Magnanakaw yan si mirador...</span>
-                    </div>
-                    <div class="concern-row">
-                        <span class="concern-date">1/19/2027</span>
-                        <span class="concern-text">MAY SUNOG DITO SA DORE...</span>
-                    </div>
-                    <div class="concern-row">
-                        <span class="concern-date">1/19/2027</span>
-                        <span class="concern-text">Nasaan po yung allowance...</span>
-                    </div>
-                    <div class="concern-row">
-                        <span class="concern-date">1/19/2027</span>
-                        <span class="concern-text">Hoy barangay! Ilang beses...</span>
-                    </div>
+                <div class="concerns-list" id="recentConcernsList">
+                    <div class="loading-text">Loading...</div>
                 </div>
             </div>
 
@@ -812,37 +817,137 @@ if (!isset($_SESSION['user_id'])) {
             }
         });
 
-        // Concerns Graph Initialization (Chart.js)
-        const ctx = document.getElementById('concernsChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-                datasets: [{
-                    label: 'Concerns',
-                    data: [20, 40, 60, 80, 100, 110],
-                    borderColor: '#2563eb',
-                    backgroundColor: 'rgba(37, 99, 235, 0.1)',
-                    fill: true,
-                    tension: 0.4,
-                    borderWidth: 2,
-                    pointRadius: 3
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { display: false }
-                },
-                scales: {
-                    x: { display: false },
-                    y: {
-                        grid: { color: 'rgba(0, 0, 0, 0.05)' },
-                        ticks: { font: { size: 9 } }
-                    }
+        // Escapes text pulled from the database before injecting it into the page,
+        // so a concern containing HTML/script tags can't execute as markup (stored XSS).
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        const SECTOR_COLORS = {
+            'Health': '#ef4444',
+            'Infrastructure': '#2563eb',
+            'Crime': '#f59e0b',
+            'Environment': '#10b981'
+        };
+        const PRIORITY_COLORS = {
+            'High': '#ef4444',
+            'Medium': '#f59e0b',
+            'Low': '#10b981'
+        };
+
+        // Fetch everything the dashboard needs in one call.
+        // Adjust this path if your folder structure differs —
+        // this assumes public/Admin_Dashboard_Page.php and src/get-dashboard-data.php as siblings.
+        fetch('../src/get-dashboard-data.php')
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    document.getElementById('barangaySubtitle').textContent = 'Unavailable';
+                    return;
                 }
-            }
-        });
+
+                // Barangay name + quick stats
+                document.getElementById('barangaySubtitle').textContent = data.barangay_name;
+                document.getElementById('statTotalConcerns').textContent = data.total_concerns;
+                document.getElementById('statTotalArchived').textContent = data.total_archived;
+
+                // Common keywords
+                const keywordsCloud = document.getElementById('keywordsCloud');
+                keywordsCloud.innerHTML = '';
+                if (data.common_keywords.length === 0) {
+                    keywordsCloud.innerHTML = '<div class="empty-text">No keywords yet</div>';
+                } else {
+                    data.common_keywords.forEach(keyword => {
+                        const tag = document.createElement('div');
+                        tag.className = 'tag-item';
+                        tag.textContent = '"' + keyword + '"';
+                        keywordsCloud.appendChild(tag);
+                    });
+                }
+
+                // Recent concerns
+                const recentList = document.getElementById('recentConcernsList');
+                recentList.innerHTML = '';
+                if (data.recent_concerns.length === 0) {
+                    recentList.innerHTML = '<div class="empty-text">No concerns yet</div>';
+                } else {
+                    data.recent_concerns.forEach(concern => {
+                        const row = document.createElement('div');
+                        row.className = 'concern-row';
+                        row.innerHTML =
+                            '<span class="concern-date">' + escapeHtml(concern.date) + '</span>' +
+                            '<span class="concern-text">' + escapeHtml(concern.text) + '</span>';
+                        recentList.appendChild(row);
+                    });
+                }
+
+                // Concerns line graph (last 7 days)
+                new Chart(document.getElementById('concernsChart').getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: data.concerns_graph.labels,
+                        datasets: [{
+                            label: 'Concerns',
+                            data: data.concerns_graph.data,
+                            borderColor: '#2563eb',
+                            backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                            fill: true,
+                            tension: 0.4,
+                            borderWidth: 2,
+                            pointRadius: 3
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: { legend: { display: false } },
+                        scales: {
+                            x: { ticks: { font: { size: 9 } } },
+                            y: {
+                                beginAtZero: true,
+                                ticks: { precision: 0, font: { size: 9 } },
+                                grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                            }
+                        }
+                    }
+                });
+
+                // Sector pie chart (ongoing concerns only)
+                new Chart(document.getElementById('sectorChart').getContext('2d'), {
+                    type: 'pie',
+                    data: {
+                        labels: data.sector_chart.labels,
+                        datasets: [{
+                            data: data.sector_chart.data,
+                            backgroundColor: data.sector_chart.labels.map(l => SECTOR_COLORS[l] || '#94a3b8')
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: { legend: { position: 'bottom', labels: { font: { size: 10 }, color: '#0f172a' } } }
+                    }
+                });
+
+                // Priority pie chart (ongoing concerns only)
+                new Chart(document.getElementById('priorityChart').getContext('2d'), {
+                    type: 'pie',
+                    data: {
+                        labels: data.priority_chart.labels,
+                        datasets: [{
+                            data: data.priority_chart.data,
+                            backgroundColor: data.priority_chart.labels.map(l => PRIORITY_COLORS[l] || '#94a3b8')
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: { legend: { position: 'bottom', labels: { font: { size: 10 }, color: '#0f172a' } } }
+                    }
+                });
+            })
+            .catch(() => {
+                document.getElementById('barangaySubtitle').textContent = 'Error loading data';
+            });
     </script>
 
 </body>

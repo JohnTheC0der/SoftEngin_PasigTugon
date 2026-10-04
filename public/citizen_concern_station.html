@@ -523,6 +523,8 @@
 
                 var barangay = $(".custom-select").val();
                 var concern = $.trim($(".concern-input").val());
+                var $form = $(this);
+                var $submitBtn = $form.find(".btn-submit");
 
                 if (!barangay) {
                     $("#submission-dialog-fail").dialog("open");
@@ -534,8 +536,31 @@
                     return;
                 }
 
-                $("#submission-dialog").dialog("open");
-                this.reset();
+                $submitBtn.prop("disabled", true).text("Submitting...");
+
+                // Adjust this path if your folder structure differs —
+                // this assumes public/citizen_concern_station.html and src/submit-concern.php as siblings.
+                $.ajax({
+                    url: "../src/submit-concern.php",
+                    method: "POST",
+                    data: { barangay: barangay, concern_text: concern },
+                    dataType: "json"
+                }).done(function (response) {
+                    if (response.success) {
+                        $("#submission-dialog").dialog("open");
+                        $form[0].reset();
+                    } else {
+                        $("#submission-dialog-fail .dialog-description").text(response.message);
+                        $("#submission-dialog-fail").dialog("open");
+                    }
+                }).fail(function () {
+                    $("#submission-dialog-fail .dialog-description").text(
+                        "Could not reach the server. Please check your connection and try again."
+                    );
+                    $("#submission-dialog-fail").dialog("open");
+                }).always(function () {
+                    $submitBtn.prop("disabled", false).text("Submit");
+                });
             });
 
         });

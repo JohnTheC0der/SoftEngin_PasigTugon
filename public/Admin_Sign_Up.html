@@ -547,7 +547,11 @@
                     dataType: "json"
                 }).done(function (response) {
                     if (response.success) {
-                        window.location.href = "Admin_Wait_Page.html";
+                        // sessionStorage (not localStorage) — cleared automatically when the tab
+                        // closes, and the next page clears it immediately after displaying it anyway.
+                        sessionStorage.setItem("newAdminUsername", username);
+                        sessionStorage.setItem("newAdminPassword", password);
+                        window.location.href = "Admin_Account_Created.html";
                     } else {
                         $("#form-incomplete .dialog-title").text("Unable to Create Account");
                         $("#form-incomplete .dialog-description").text(response.message);
