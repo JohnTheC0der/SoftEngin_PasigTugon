@@ -402,6 +402,22 @@ if (!isset($_SESSION['user_id'])) {
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
         }
 
+        /* Only this inner region scrolls, so the header row stays pinned in view */
+        .table-scroll {
+            max-height: 560px;
+            overflow-y: auto;
+        }
+
+        .concerns-table thead th {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .btn-restore {
+            background-color: #10B981;
+        }
+
         .concerns-table {
             width: 100%;
             border-collapse: collapse;
@@ -506,14 +522,9 @@ if (!isset($_SESSION['user_id'])) {
             letter-spacing: 0.03em;
         }
 
-        .status-badge.done {
-            background-color: #A7F3D0;
-            color: #065F46;
-        }
-
-        .status-badge.delete {
-            background-color: #FCA5A5;
-            color: #991B1B;
+        .status-badge.archived {
+            background-color: #CBD5E1;
+            color: #334155;
         }
 
         .concern-cell-wrapper {
@@ -953,42 +964,42 @@ if (!isset($_SESSION['user_id'])) {
                     <!-- Filter Dropdown Container -->
                     <div class="filter-dropdown-container">
                         <button class="filter-dropdown-btn" id="filterBtn">
-                            <span id="currentFilterText">Filter</span>
+                            <span id="currentFilterText">Ongoing</span>
                             <svg width="18" height="12" viewBox="0 0 22 14" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <path d="M2 2L11 11L20 2" stroke="#072B60" stroke-width="3.5" stroke-linecap="round" />
                             </svg>
                         </button>
                         <div class="filter-menu" id="filterMenu">
-                            <div class="filter-option" onclick="setFilter('All')">All Concerns</div>
-                            <div class="filter-option" onclick="setFilter('Ongoing')">Ongoing</div>
-                            <div class="filter-option" onclick="setFilter('Done')">Done</div>
-                            <div class="filter-option" onclick="setFilter('Delete')">Delete</div>
+                            <div class="filter-option" onclick="setFilter('ongoing')">Ongoing</div>
+                            <div class="filter-option" onclick="setFilter('archived')">Archived</div>
+                            <div class="filter-option" onclick="setFilter('all')">All Concerns</div>
                         </div>
                     </div>
 
                     <!-- Action Buttons - Displayed ONLY when items are selected -->
                     <div class="action-buttons" id="actionButtons">
                         <button class="btn-pill btn-cancel" onclick="clearSelections()">Cancel</button>
-                        <button class="btn-pill btn-done" onclick="markSelectedDone()">Done</button>
-                        <button class="btn-pill btn-delete" onclick="deleteSelected()">Delete</button>
+                        <button class="btn-pill btn-done" id="archiveRestoreBtn" onclick="archiveOrRestoreSelected()">Archive</button>
                     </div>
                 </div>
 
                 <div class="table-container">
-                    <table class="concerns-table">
-                        <thead>
-                            <tr>
-                                <th></th>
-                                <th>Date</th>
-                                <th>Status</th>
-                                <th>Concerns</th>
-                            </tr>
-                        </thead>
-                        <tbody id="concernsTableBody">
-                            <!-- Table rows injected via JavaScript -->
-                        </tbody>
-                    </table>
+                    <div class="table-scroll">
+                        <table class="concerns-table">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Concerns</th>
+                                </tr>
+                            </thead>
+                            <tbody id="concernsTableBody">
+                                <!-- Table rows injected via JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
                 <div class="table-footer-info" id="tableFooterInfo">
@@ -1016,19 +1027,17 @@ if (!isset($_SESSION['user_id'])) {
     </div>
 
     <script>
-        // Initial Dataset
-        let concernsData = [
-            { id: 1, date: '11/09/2026', status: 'Ongoing', text: 'Laging nagbabaha dito sa San Rafael! Laging barado po yung kanal, tsaka ang kakapal po ng putik na nakabara sa mga kanal po. Please actionan niyo po iyan dahil tuwing nagbabaha abot kahit dibdib na po yung tubig kahit 15 feet palang po yung tubig sa riverbank river.', selected: false },
-            { id: 2, date: '11/11/2026', status: 'Ongoing', text: 'MAY SUNOG PO DITO SA MAY KALAYAAN STREET, PAKITAWAGAN ANG BOMBAYO AT MATINDI NA PO ANG USOK.', selected: false },
-            { id: 3, date: '12/16/2026', status: 'Ongoing', text: 'Ang daming nagsu-sugal po sa kanto namin tuwing gabi, nakakaabala na sa mga residente at nag-iingay hanggang 3am.', selected: false },
-            { id: 4, date: '1/3/2027', status: 'Ongoing', text: 'Na-holdap po ako dito sa kanto malapit sa convenience store. Paki-check po ang CCTV sa lugar na ito.', selected: false },
-            { id: 5, date: '1/18/2027', status: 'Ongoing', text: 'Magnanakaw yan si mirador, paki huli nyo na po bago pa makapanakit ng iba.', selected: false },
-            { id: 6, date: '1/19/2027', status: 'Ongoing', text: 'MAY SUNOG DITO SA DORENDO STREET PAKITULONGAN PO KAMI AGAD.', selected: false },
-            { id: 7, date: '1/19/2027', status: 'Ongoing', text: 'Nasaan po yung allowance ng mga estudyante ngayong buwan? Kailan po ipapamigay?', selected: false },
-            { id: 8, date: '1/19/2027', status: 'Ongoing', text: 'Hoy barangay! Ilang beses na po namin inireport ang sira-sirang poste ng ilaw dito pero wala pa ring aksyon.', selected: false }
-        ];
+        // Populated from the server via loadConcerns() — no more hardcoded sample data.
+        let concernsData = [];
+        let activeFilter = 'ongoing';
 
-        let activeFilter = 'All';
+        // Escapes text pulled from the database before injecting it as HTML,
+        // so a concern containing HTML/script tags can't execute as markup (stored XSS).
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
 
         $(document).ready(function () {
             // Dropdown toggles
@@ -1050,7 +1059,7 @@ if (!isset($_SESSION['user_id'])) {
             // Table row click (toggle selection)
             $('#concernsTableBody').on('click', 'tr[data-id]', function (e) {
                 if ($(e.target).hasClass('btn-view-spec')) return;
-                const id = $(this).data('id');
+                const id = parseInt($(this).data('id'));
                 const item = concernsData.find(c => c.id === id);
                 if (item) {
                     item.selected = !item.selected;
@@ -1061,7 +1070,7 @@ if (!isset($_SESSION['user_id'])) {
             // "View" button click (open modal)
             $('#concernsTableBody').on('click', '.btn-view-spec', function (e) {
                 e.stopPropagation();
-                const id = $(this).data('id');
+                const id = parseInt($(this).data('id'));
                 const item = concernsData.find(c => c.id === id);
                 if (item) {
                     $('#modalDate').text(item.date);
@@ -1070,15 +1079,38 @@ if (!isset($_SESSION['user_id'])) {
                 }
             });
 
-            // Render the table FIRST so nothing below can block it
-            renderTable();
+            loadConcerns();
         });
+
+        // Fetch concerns from the backend for the current filter.
+        // Adjust this path if your folder structure differs —
+        // this assumes public/Admin_Concerns_Table_Page.php and src/get-concerns.php as siblings.
+        function loadConcerns() {
+            $('#concernsTableBody').html(
+                '<tr><td colspan="4" style="text-align:center;padding:40px;font-weight:800;color:#083D8F;">LOADING...</td></tr>'
+            );
+
+            $.ajax({
+                url: '../src/get-concerns.php',
+                method: 'GET',
+                data: { filter: activeFilter },
+                dataType: 'json'
+            }).done(function (response) {
+                concernsData = (response.concerns || []).map(c => Object.assign({ selected: false }, c));
+                renderTable();
+            }).fail(function () {
+                $('#concernsTableBody').html(
+                    '<tr><td colspan="4" style="text-align:center;padding:40px;font-weight:800;color:#083D8F;">COULD NOT LOAD CONCERNS</td></tr>'
+                );
+            });
+        }
 
         // Set Filter
         function setFilter(filter) {
             activeFilter = filter;
-            $('#currentFilterText').text(filter === 'All' ? 'Filter' : filter);
-            renderTable();
+            const labels = { ongoing: 'Ongoing', archived: 'Archived', all: 'All Concerns' };
+            $('#currentFilterText').text(labels[filter] || 'Filter');
+            loadConcerns();
         }
 
         function closeModal(id = 'concernModal') {
@@ -1091,52 +1123,53 @@ if (!isset($_SESSION['user_id'])) {
             renderTable();
         }
 
-        // Mark selected concerns as Done
-        function markSelectedDone() {
-            concernsData.forEach(c => {
-                if (c.selected) {
-                    c.status = 'Done';
-                    c.selected = false;
-                }
-            });
-            renderTable();
-        }
+        // Archives or restores whichever concerns are currently selected, depending
+        // on the button's current mode (set in renderTable() based on selection status).
+        function archiveOrRestoreSelected() {
+            const selectedIds = concernsData.filter(c => c.selected).map(c => c.id);
+            if (selectedIds.length === 0) return;
 
-        // Delete selected concerns
-        function deleteSelected() {
-            concernsData.forEach(c => {
-                if (c.selected) {
-                    c.status = 'Delete';
-                    c.selected = false;
+            const action = $('#archiveRestoreBtn').data('mode') === 'restore' ? 'restore' : 'archive';
+
+            $.ajax({
+                url: '../src/update-concern-status.php',
+                method: 'POST',
+                data: { ids: selectedIds, action: action },
+                dataType: 'json'
+            }).done(function (response) {
+                if (response.success) {
+                    loadConcerns();
+                } else {
+                    alert(response.message || 'Could not update the selected concerns.');
                 }
+            }).fail(function () {
+                alert('Could not reach the server. Please try again.');
             });
-            renderTable();
         }
 
         // Render Table Function
         function renderTable() {
             const $tableBody = $('#concernsTableBody').empty();
 
-            // Filter Dataset
-            const filteredData = concernsData.filter(item => {
-                if (activeFilter === 'Ongoing') return item.status === 'Ongoing';
-                if (activeFilter === 'Done') return item.status === 'Done';
-                if (activeFilter === 'Delete') return item.status === 'Delete';
+            // Count total selected items and figure out whether the action button
+            // should say "Archive" (gray) or "Restore" (green) based on what's selected.
+            const selectedItems = concernsData.filter(c => c.selected);
+            const selectedCount = selectedItems.length;
 
-                return true;
-            });
-
-            // Count total selected items
-            const selectedCount = concernsData.filter(c => c.selected).length;
-
-            // Toggle action buttons bar based on selection
             if (selectedCount > 0) {
                 $('#actionButtons').css('display', 'flex');
+                const allArchived = selectedItems.every(c => c.status === 'archived');
+                const $btn = $('#archiveRestoreBtn');
+                if (allArchived) {
+                    $btn.text('Restore').removeClass('btn-done').addClass('btn-restore').data('mode', 'restore');
+                } else {
+                    $btn.text('Archive').removeClass('btn-restore').addClass('btn-done').data('mode', 'archive');
+                }
             } else {
                 $('#actionButtons').css('display', 'none');
             }
 
-            if (filteredData.length === 0) {
+            if (concernsData.length === 0) {
                 $tableBody.append(`
                     <tr>
                         <td colspan="4" style="text-align: center; padding: 40px; font-weight: 800; color: #083D8F;">
@@ -1146,20 +1179,21 @@ if (!isset($_SESSION['user_id'])) {
                 `);
                 $('#tableFooterInfo').text('SHOWING 0 OF 0 ENTRIES');
             } else {
-                const rows = filteredData.map(item => {
+                const rows = concernsData.map(item => {
                     const showViewButton = item.selected && selectedCount === 1;
-                    const badgeClass = item.status === 'Done' ? 'done' : (item.status === 'Delete' ? 'delete' : '');
+                    const badgeClass = item.status === 'archived' ? 'archived' : '';
+                    const statusLabel = item.status === 'archived' ? 'Archived' : 'Ongoing';
 
                     return `
                         <tr class="${item.selected ? 'selected' : ''}" data-id="${item.id}">
                             <td class="checkbox-cell">
                                 <div class="custom-checkbox"></div>
                             </td>
-                            <td>${item.date}</td>
-                            <td><span class="status-badge ${badgeClass}">${item.status}</span></td>
+                            <td>${escapeHtml(item.date)}</td>
+                            <td><span class="status-badge ${badgeClass}">${statusLabel}</span></td>
                             <td>
                                 <div class="concern-cell-wrapper">
-                                    <span class="concern-text-truncate">${item.text}</span>
+                                    <span class="concern-text-truncate">${escapeHtml(item.text)}</span>
                                     ${showViewButton ? `<button class="btn-view-spec" data-id="${item.id}">View</button>` : ''}
                                 </div>
                             </td>
@@ -1167,7 +1201,8 @@ if (!isset($_SESSION['user_id'])) {
                     `;
                 });
 
-                $tableBody.append(rows.join('')); $('#tableFooterInfo').text(`SHOWING ${filteredData.length} OF ${concernsData.length} ENTRIES`);
+                $tableBody.append(rows.join(''));
+                $('#tableFooterInfo').text(`SHOWING ${concernsData.length} OF ${concernsData.length} ENTRIES`);
             }
         }
 
