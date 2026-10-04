@@ -5,9 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pasig Tugon! - Admin Registration</title>
+
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
 
     <!-- jQuery & jQuery UI CDN -->
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
@@ -46,9 +49,10 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background: url('background.png') center/cover no-repeat fixed;
+            background: linear-gradient(135deg, rgba(14, 72, 161, 0.4), rgba(15, 23, 42, 0.8)),
+                url('background.png') center/cover no-repeat fixed;
             color: var(--white);
-            padding: 20px;
+            padding: 24px 20px;
         }
 
         /* CARD CONTAINER WITH GLASSMORPHISM */
@@ -64,37 +68,38 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(255, 255, 255, 0.05);
             text-align: center;
         }
 
         /* CITY SEAL LOGO */
         .city-seal {
-            width: 85px;
-            height: 85px;
+            width: 88px;
+            height: 88px;
             object-fit: contain;
             margin-bottom: 16px;
-            filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.3));
+            filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.35));
             transition: var(--transition);
         }
 
         .city-seal:hover {
-            transform: scale(1.05);
+            transform: scale(1.05) rotate(2deg);
         }
 
         /* BRANDING TITLES */
         .brand-title {
             font-weight: 900;
-            font-size: clamp(2.4rem, 4.5vw, 3rem);
+            font-size: clamp(2.2rem, 4.5vw, 2.8rem);
             letter-spacing: -0.02em;
             text-transform: uppercase;
-            line-height: 1.1;
-            margin-bottom: 6px;
+            line-height: 1.05;
+            margin-bottom: 8px;
         }
 
         .brand-title .blue-text {
             color: var(--accent-cyan);
-            text-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+            text-shadow: 0 0 24px rgba(56, 189, 248, 0.45);
         }
 
         .brand-title .white-text {
@@ -103,25 +108,39 @@
         }
 
         .sub-title {
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: 700;
             color: rgba(255, 255, 255, 0.85);
-            letter-spacing: 0.18em;
+            letter-spacing: 0.22em;
             text-transform: uppercase;
             margin-bottom: 24px;
+            padding: 6px 16px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         /* RESTRICTED ACCESS NOTICE */
         .notice-box {
             background: rgba(239, 68, 68, 0.15);
-            border: 1px solid rgba(239, 68, 68, 0.4);
-            padding: 12px 16px;
-            border-radius: 14px;
+            border: 1px solid rgba(239, 68, 68, 0.35);
+            padding: 14px 16px;
+            border-radius: 16px;
             margin-bottom: 24px;
-            font-size: 0.8rem;
-            line-height: 1.4;
+            font-size: 0.82rem;
+            line-height: 1.45;
             color: #fca5a5;
             text-align: left;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .notice-box svg {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+            margin-top: 2px;
         }
 
         /* FORM STYLING */
@@ -129,33 +148,49 @@
             width: 100%;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 18px;
             text-align: left;
         }
 
         .input-group {
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
         }
 
         .input-label {
-            font-size: 0.85rem;
+            font-size: 0.82rem;
             font-weight: 600;
             color: rgba(255, 255, 255, 0.9);
             letter-spacing: 0.03em;
         }
 
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 16px;
+            width: 18px;
+            height: 18px;
+            color: #64748b;
+            pointer-events: none;
+            transition: var(--transition);
+        }
+
         .input-field,
         .select-field {
             width: 100%;
-            padding: 14px 20px;
-            font-size: 0.98rem;
+            padding: 14px 20px 14px 44px;
+            font-size: 0.95rem;
             font-family: inherit;
             color: #0f172a;
             background: var(--input-bg);
             border: 2px solid transparent;
-            border-radius: 50px;
+            border-radius: 14px;
             outline: none;
             transition: var(--transition);
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
@@ -172,13 +207,18 @@
             box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.25);
         }
 
+        .input-field:focus+.input-icon,
+        .select-field:focus+.input-icon {
+            color: var(--primary-blue);
+        }
+
         .select-field {
             appearance: none;
             -webkit-appearance: none;
             -moz-appearance: none;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%230f172a' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
-            background-position: right 20px center;
+            background-position: right 18px center;
             padding-right: 48px;
             cursor: pointer;
         }
@@ -188,22 +228,57 @@
             background: #ffffff;
         }
 
+        /* PASSWORD TOGGLE BUTTON */
+        .toggle-password {
+            position: absolute;
+            right: 14px;
+            background: none;
+            border: none;
+            color: #64748b;
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            transition: var(--transition);
+        }
+
+        .toggle-password:hover {
+            color: #0f172a;
+        }
+
+        .toggle-password svg {
+            width: 18px;
+            height: 18px;
+        }
+
         /* SUBMIT BUTTON */
         .login-btn {
             width: 100%;
             padding: 16px 24px;
-            margin-top: 10px;
-            font-size: 1rem;
+            margin-top: 8px;
+            font-size: 0.95rem;
             font-weight: 700;
             letter-spacing: 0.08em;
             text-transform: uppercase;
             color: var(--white);
             background: var(--light-blue);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 14px;
             cursor: pointer;
             transition: var(--transition);
             box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .login-btn svg {
+            width: 18px;
+            height: 18px;
+            transition: var(--transition);
         }
 
         .login-btn:hover {
@@ -213,18 +288,21 @@
             border-color: rgba(255, 255, 255, 0.4);
         }
 
+        .login-btn:hover svg {
+            transform: translateX(3px);
+        }
+
         .login-btn:active {
             transform: translateY(0);
         }
 
         /* FOOTER / SIGN-UP LINK */
         .form-footer {
-            margin-top: 20px;
+            margin-top: 24px;
             text-align: center;
             font-size: 0.8rem;
-            color: rgba(255, 255, 255, 0.7);
-            letter-spacing: 0.05em;
-            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.75);
+            letter-spacing: 0.03em;
         }
 
         .form-footer a {
@@ -242,24 +320,19 @@
         /* JQUERY UI DIALOG GLASSMORPHISM STYLES */
         .ui-widget-overlay {
             background: rgba(15, 23, 42, 0.75) !important;
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
             opacity: 1 !important;
         }
 
         .ui-dialog {
             background: #ffffff !important;
             border: 1px solid rgba(255, 255, 255, 0.2) !important;
-            border-radius: 24px !important;
+            border-radius: 20px !important;
             padding: 0 !important;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
             overflow: hidden;
             font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
-
-            position: fixed !important;
-            top: 50% !important;
-            left: 50% !important;
-            transform: translate(-50%, -50%) !important;
         }
 
         .ui-dialog .ui-dialog-titlebar {
@@ -272,33 +345,33 @@
         }
 
         .dialog-icon-wrapper {
-            width: 68px;
-            height: 68px;
+            width: 64px;
+            height: 64px;
             background-color: #fef2f2;
             color: #ef4444;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 20px auto;
+            margin: 0 auto 18px auto;
             box-shadow: 0 0 0 8px rgba(239, 68, 68, 0.1);
         }
 
         .dialog-icon-wrapper svg {
-            width: 36px;
-            height: 36px;
+            width: 32px;
+            height: 32px;
         }
 
         .dialog-title {
             font-weight: 800;
-            font-size: 1.35rem;
+            font-size: 1.3rem;
             color: #0f172a;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             letter-spacing: -0.01em;
         }
 
         .dialog-description {
-            font-size: 0.92rem;
+            font-size: 0.9rem;
             color: #64748b;
             line-height: 1.5;
             margin: 0;
@@ -320,34 +393,29 @@
 
         .ui-dialog .ui-dialog-buttonpane button {
             width: 100% !important;
-            padding: 14px 24px !important;
+            padding: 13px 24px !important;
             font-family: inherit !important;
-            font-size: 0.95rem !important;
+            font-size: 0.9rem !important;
             font-weight: 700 !important;
             letter-spacing: 0.05em;
             text-transform: uppercase;
             color: #ffffff !important;
             background-color: var(--primary-blue) !important;
             border: none !important;
-            border-radius: 50px !important;
+            border-radius: 12px !important;
             cursor: pointer;
             transition: var(--transition) !important;
             margin: 0 !important;
-            box-shadow: 0 10px 20px -5px rgba(14, 72, 161, 0.3) !important;
+            box-shadow: 0 8px 16px -4px rgba(14, 72, 161, 0.3) !important;
         }
 
         .ui-dialog .ui-dialog-buttonpane button:hover {
-            background-color: #ef4444 !important;
-            box-shadow: 0 12px 22px -5px rgba(239, 68, 68, 0.4) !important;
+            background-color: var(--btn-hover-blue) !important;
         }
 
         @media (max-width: 480px) {
             .login-card {
-                padding: 36px 24px;
-            }
-
-            .brand-title {
-                font-size: 2.2rem;
+                padding: 36px 20px;
             }
 
             .sub-title {
@@ -358,12 +426,12 @@
 </head>
 
 <body>
+
     <!-- Invalid Email Domain Dialog -->
     <div id="invalid-email-domain" title="Pasig Tugon!" style="display:none;">
         <div class="custom-dialog-content">
             <div class="dialog-icon-wrapper">
-                <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg">
+                <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round"
                         d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
                     </path>
@@ -379,8 +447,7 @@
     <div id="form-incomplete" title="Pasig Tugon!" style="display:none;">
         <div class="custom-dialog-content">
             <div class="dialog-icon-wrapper">
-                <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg">
+                <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
                 </svg>
             </div>
@@ -400,47 +467,97 @@
         <p class="sub-title">Admin Registration Station</p>
 
         <div class="notice-box">
-            <strong>⚠️ Restricted Access:</strong> Registration is strictly reserved for official Barangay Head Admins.
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <div>
+                <strong>Restricted Access:</strong> Registration is strictly reserved for official Barangay Head Admins.
+            </div>
         </div>
 
         <!-- Registration Form -->
         <form class="login-form" id="registration-form" action="#" method="POST">
             <div class="input-group">
                 <label for="username" class="input-label">Username</label>
-                <input type="text" id="username" name="username" class="input-field" placeholder="Enter your username"
-                    required autocomplete="username">
+                <div class="input-wrapper">
+                    <input type="text" id="username" name="username" class="input-field"
+                        placeholder="Enter your username" required autocomplete="username">
+                    <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                </div>
             </div>
 
             <div class="input-group">
                 <label for="email" class="input-label">Official Email Address</label>
-                <input type="email" id="email" name="email" class="input-field" placeholder="username@pasigcity.gov.ph"
-                    required autocomplete="email">
+                <div class="input-wrapper">
+                    <input type="email" id="email" name="email" class="input-field"
+                        placeholder="username@pasigcity.gov.ph" required autocomplete="email">
+                    <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                </div>
             </div>
 
             <div class="input-group">
                 <label for="barangay" class="input-label">Choose your Barangay</label>
-                <select id="barangay" name="barangay" class="select-field" required>
-                    <option value="" disabled selected>Select your barangay</option>
-                    <option value="bagong-ilog">Bagong Ilog</option>
-                    <option value="bambang">Bambang</option>
-                    <option value="caniogan">Caniogan</option>
-                    <option value="kapitolyo">Kapitolyo</option>
-                    <option value="malinao">Malinao</option>
-                    <option value="oranbo">Oranbo</option>
-                    <option value="pinagbuhatan">Pinagbuhatan</option>
-                    <option value="san-antonio">San Antonio</option>
-                    <option value="san-joaquin">San Joaquin</option>
-                    <option value="ugong">Ugong</option>
-                </select>
+                <div class="input-wrapper">
+                    <select id="barangay" name="barangay" class="select-field" required>
+                        <option value="" disabled selected>Select your barangay</option>
+                        <option value="bagong-ilog">Bagong Ilog</option>
+                        <option value="bambang">Bambang</option>
+                        <option value="caniogan">Caniogan</option>
+                        <option value="kapitolyo">Kapitolyo</option>
+                        <option value="malinao">Malinao</option>
+                        <option value="oranbo">Oranbo</option>
+                        <option value="pinagbuhatan">Pinagbuhatan</option>
+                        <option value="san-antonio">San Antonio</option>
+                        <option value="san-joaquin">San Joaquin</option>
+                        <option value="ugong">Ugong</option>
+                    </select>
+                    <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                </div>
             </div>
 
             <div class="input-group">
-                <label for="password" class="input-label">Generated Account Password</label>
-                <input type="text" id="password" name="password" class="input-field"
-                    placeholder="Auto-generated password" required readonly>
+                <label for="password" class="input-label">Account Password</label>
+                <div class="input-wrapper">
+                    <input type="password" id="password" name="password" class="input-field"
+                        placeholder="Enter or generate password" required>
+                    <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                    <button type="button" class="toggle-password" id="togglePasswordBtn"
+                        title="Toggle Password Visibility">
+                        <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                    </button>
+                </div>
             </div>
 
-            <button type="submit" class="login-btn">Create Account</button>
+            <button type="submit" class="login-btn">
+                Create Account
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                    stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+            </button>
         </form>
 
         <p class="form-footer">
@@ -449,32 +566,50 @@
     </main>
 
     <script>
-        function checkAndGeneratePassword() {
+        function generatePasswordIfEmpty() {
             var username = $("#username").val().trim();
             var email = $("#email").val().trim();
             var barangay = $("#barangay").val();
-            var passwordField = document.getElementById("password");
+            var passwordField = $("#password");
 
-            if (username !== "" && email !== "" && barangay !== "") {
+            // Auto-generate password if empty upon completing other fields
+            if (username !== "" && email !== "" && barangay !== "" && passwordField.val() === "") {
                 var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
                 var generatedPassword = "";
                 for (var i = 0; i < 12; i++) {
                     generatedPassword += chars.charAt(Math.floor(Math.random() * chars.length));
                 }
-                passwordField.value = generatedPassword;
-            } else {
-                passwordField.value = "";
+                passwordField.val(generatedPassword);
             }
         }
 
         $(document).ready(function () {
+            // Password Visibility Toggle
+            $("#togglePasswordBtn").on("click", function () {
+                var passInput = $("#password");
+                var eyeIcon = $("#eyeIcon");
+
+                if (passInput.attr("type") === "password") {
+                    passInput.attr("type", "text");
+                    eyeIcon.html(`
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858-5.908a8.959 8.959 0 013.122-.387c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21M3 3l18 18" />
+                    `);
+                } else {
+                    passInput.attr("type", "password");
+                    eyeIcon.html(`
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    `);
+                }
+            });
+
             // Initialize Dialog: Invalid Email Domain
             $("#invalid-email-domain").dialog({
                 autoOpen: false,
                 modal: true,
                 resizable: false,
                 draggable: false,
-                width: 400,
+                width: 380,
                 show: { effect: "fade", duration: 200 },
                 hide: { effect: "fadeOut", duration: 150 },
                 buttons: {
@@ -491,8 +626,7 @@
                 modal: true,
                 resizable: false,
                 draggable: false,
-                position: { my: "center", at: "center", of: window },
-                width: 400,
+                width: 380,
                 show: { effect: "fade", duration: 200 },
                 hide: { effect: "fadeOut", duration: 150 },
                 buttons: {
@@ -502,9 +636,9 @@
                 }
             });
 
-            // Password Generation Event Listeners
-            $("#username, #email").on("input", checkAndGeneratePassword);
-            $("#barangay").on("change", checkAndGeneratePassword);
+            // Password Auto-Generation Listeners
+            $("#username, #email").on("input", generatePasswordIfEmpty);
+            $("#barangay").on("change", generatePasswordIfEmpty);
 
             // Form Submit Handler
             $("#registration-form").on("submit", function (e) {
@@ -513,13 +647,13 @@
                 var username = $("#username").val().trim();
                 var email = $("#email").val().trim();
                 var barangay = $("#barangay").val();
-                var password = $("#password").val();
+                var password = $("#password").val().trim();
 
                 // Step 1: Check for Empty Fields
-                if (!username || !email || !barangay) {
+                if (!username || !email || !barangay || !password) {
                     $("#form-incomplete .dialog-title").text("Unable to Submit");
                     $("#form-incomplete .dialog-description").text(
-                        "Please make sure your details are completely filled out before submitting."
+                        "Please make sure all details are completely filled out before submitting."
                     );
                     $("#form-incomplete").dialog("open");
                     return;
@@ -531,10 +665,7 @@
                     return;
                 }
 
-                // Step 3: Submit to the backend — register.php re-checks the email domain
-                // and does the real duplicate/barangay checks server-side.
-                // Adjust this path if your folder structure differs —
-                // this assumes public/Admin_Sign_Up.html and src/register.php as siblings.
+                // Step 3: AJAX Submit
                 $.ajax({
                     url: "../src/register.php",
                     method: "POST",
@@ -547,14 +678,12 @@
                     dataType: "json"
                 }).done(function (response) {
                     if (response.success) {
-                        // sessionStorage (not localStorage) — cleared automatically when the tab
-                        // closes, and the next page clears it immediately after displaying it anyway.
                         sessionStorage.setItem("newAdminUsername", username);
                         sessionStorage.setItem("newAdminPassword", password);
                         window.location.href = "Admin_Account_Created.html";
                     } else {
                         $("#form-incomplete .dialog-title").text("Unable to Create Account");
-                        $("#form-incomplete .dialog-description").text(response.message);
+                        $("#form-incomplete .dialog-description").text(response.message || "An unexpected error occurred.");
                         $("#form-incomplete").dialog("open");
                     }
                 }).fail(function () {

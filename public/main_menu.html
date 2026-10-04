@@ -4,17 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Pasig Tugon! Citizen Concern Station - report and track concerns in Pasig City.">
+    <meta name="theme-color" content="#0e48a1">
     <title>Pasig Tugon! - Citizen Concern Station</title>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
 
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
-
-    <link rel="icon" type="image/x-icon" href="PasigTugon_Logo.png">
-
+    <link rel="icon" type="image/png" href="PasigTugon_Logo.png">
 
     <style>
         :root {
@@ -23,8 +22,11 @@
             --accent-cyan: #38bdf8;
             --btn-hover-blue: #1d4ed8;
             --white: #ffffff;
-            --glass-bg: rgba(15, 23, 42, 0.45);
-            --glass-border: rgba(255, 255, 255, 0.15);
+            --ink: #0f172a;
+            --muted: #64748b;
+            --danger: #dc2626;
+            --glass-bg: rgba(15, 23, 42, 0.55);
+            --glass-border: rgba(255, 255, 255, 0.18);
             --transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
@@ -37,61 +39,74 @@
         }
 
         body {
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
             min-height: 100vh;
+            min-height: 100dvh;
             display: flex;
             justify-content: center;
             align-items: center;
-            /* Updated to use local background.png with color overlay */
-            background: url('background.png') center/cover no-repeat fixed;
+            background-color: #0f172a;
+            background-image: linear-gradient(135deg, rgba(14, 72, 161, 0.4), rgba(15, 23, 42, 0.8)),
+                url('background.png');
+            background-position: center;
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
             color: var(--white);
-            padding: 20px;
+            padding: 24px;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* CARD CONTAINER WITH GLASSMORPHISM */
+        :focus-visible {
+            outline: 3px solid var(--accent-cyan);
+            outline-offset: 3px;
+        }
+
+        /* ── Card ── */
         .menu-card {
             background: var(--glass-bg);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border);
             border-radius: 28px;
-            padding: 50px 40px;
+            padding: 48px 40px;
             width: 100%;
-            max-width: 520px;
+            max-width: 480px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
             text-align: center;
         }
 
-        /* CITY SEAL LOGO */
-        .city-seal {
-            width: 90px;
-            height: 90px;
-            object-fit: contain;
+        .logo-wrapper {
             margin-bottom: 20px;
-            filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.3));
+        }
+
+        .city-seal {
+            width: 96px;
+            height: 96px;
+            object-fit: contain;
+            filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.35));
             transition: var(--transition);
         }
 
         .city-seal:hover {
-            transform: scale(1.05);
+            transform: scale(1.06) rotate(2deg);
         }
 
-        /* BRANDING TITLES */
         .brand-title {
             font-weight: 900;
-            font-size: clamp(3rem, 5vw, 3.4rem);
+            font-size: clamp(2.2rem, 9vw, 3.2rem);
             letter-spacing: -0.02em;
             text-transform: uppercase;
-            line-height: 1.1;
-            margin-bottom: 8px;
+            line-height: 1.05;
+            margin-bottom: 12px;
         }
 
         .brand-title .blue-text {
             color: var(--accent-cyan);
-            text-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+            text-shadow: 0 0 24px rgba(56, 189, 248, 0.45);
         }
 
         .brand-title .white-text {
@@ -100,15 +115,19 @@
         }
 
         .sub-title {
-            font-size: 0.95rem;
+            font-size: 0.85rem;
             font-weight: 700;
-            color: rgba(255, 255, 255, 0.85);
-            letter-spacing: 0.18em;
+            color: rgba(255, 255, 255, 0.9);
+            letter-spacing: 0.2em;
             text-transform: uppercase;
-            margin-bottom: 40px;
+            margin-bottom: 36px;
+            padding: 6px 16px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        /* NAVIGATION BUTTONS */
+        /* ── Buttons ── */
         .action-group {
             width: 100%;
             display: flex;
@@ -118,20 +137,31 @@
 
         .menu-btn {
             width: 100%;
-            padding: 16px 24px;
-            font-size: 1rem;
+            padding: 16px 28px;
+            font-family: inherit;
+            font-size: 0.95rem;
             font-weight: 700;
-            letter-spacing: 0.1em;
+            letter-spacing: 0.08em;
             text-transform: uppercase;
             text-decoration: none;
             color: var(--white);
             background: var(--light-blue);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 16px;
             cursor: pointer;
             transition: var(--transition);
             box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.4);
-            display: inline-block;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .menu-btn svg {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+            transition: var(--transition);
         }
 
         .menu-btn:hover {
@@ -141,55 +171,234 @@
             border-color: rgba(255, 255, 255, 0.4);
         }
 
+        .menu-btn:hover svg {
+            transform: scale(1.15);
+        }
+
         .menu-btn:active {
             transform: translateY(-1px);
         }
 
+        /* Raised contrast: the old 0.85-alpha blue nearly vanished on the glass card */
         .menu-btn.admin-btn {
-            background: rgba(14, 72, 161, 0.8);
-            box-shadow: 0 10px 20px -5px rgba(14, 72, 161, 0.3);
+            background: var(--primary-blue);
+            box-shadow: 0 10px 20px -5px rgba(14, 72, 161, 0.5);
         }
 
         .menu-btn.admin-btn:hover {
-            background: var(--primary-blue);
-            box-shadow: 0 15px 25px -5px rgba(14, 72, 161, 0.5);
+            background: #0b3a85;
+            box-shadow: 0 15px 25px -5px rgba(14, 72, 161, 0.7);
         }
 
-        .ui-dialog .ui-dialog-buttonpane {
-            background: #fff !important;
-            border: none !important;
-            padding: 0 24px 24px !important;
-            margin: 0 !important;
-        }
-
-        .ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset {
-            float: none !important;
+        .super-admin-action-group {
+            width: 100%;
             display: flex;
             justify-content: center;
-            width: 100%;
+            margin-top: 28px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
         }
 
-        .ui-dialog .ui-dialog-buttonpane button {
-            width: 100% !important;
-            padding: 12px 24px !important;
-            font-family: inherit !important;
-            font-size: 1rem !important;
-            font-weight: 700 !important;
-            color: #fff !important;
-            background: #0e48a1 !important;
-            border: none !important;
-            border-radius: 12px !important;
+        .super-admin-link {
+            font-family: inherit;
+            background: none;
+            border: 0;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.85rem;
+            font-weight: 600;
             cursor: pointer;
-            margin: 0 !important;
-            box-shadow: 0 4px 12px rgba(11, 69, 172, 0.2) !important;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 8px;
         }
 
-        .ui-dialog .ui-dialog-buttonpane button:hover {
-            background: #1d4ed8 !important;
+        .super-admin-link:hover {
+            color: var(--accent-cyan);
+            background: rgba(255, 255, 255, 0.07);
         }
 
-        .ui-dialog-titlebar {
-            display: none !important;
+        .super-admin-link svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* ── Native <dialog> (replaces jQuery UI) ── */
+        .key-dialog {
+            margin: auto;
+            width: min(380px, calc(100% - 32px));
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 0;
+            background: #ffffff;
+            color: var(--ink);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+        }
+
+        .key-dialog::backdrop {
+            background: rgba(15, 23, 42, 0.7);
+            -webkit-backdrop-filter: blur(4px);
+            backdrop-filter: blur(4px);
+        }
+
+        .key-dialog[open] {
+            animation: dialog-in 0.2s ease-out;
+        }
+
+        @keyframes dialog-in {
+            from {
+                opacity: 0;
+                transform: translateY(8px) scale(0.98);
+            }
+
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        .key-dialog form {
+            padding: 24px;
+            text-align: center;
+        }
+
+        .dialog-icon {
+            width: 56px;
+            height: 56px;
+            background: #eff6ff;
+            color: var(--light-blue);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+        }
+
+        .dialog-title {
+            font-weight: 800;
+            font-size: 1.3rem;
+            color: var(--ink);
+            margin-bottom: 6px;
+        }
+
+        .dialog-text {
+            font-size: 0.875rem;
+            color: var(--muted);
+            line-height: 1.4;
+        }
+
+        .form-group {
+            margin-top: 20px;
+            text-align: left;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #334155;
+            margin-bottom: 6px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .form-input {
+            width: 100%;
+            font-family: inherit;
+            font-size: 0.95rem;
+            padding: 12px 44px 12px 14px;
+            color: var(--ink);
+            background: #f8fafc;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 12px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--light-blue);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+        }
+
+        .form-input.invalid {
+            border-color: var(--danger);
+        }
+
+        .toggle-key-btn {
+            position: absolute;
+            top: 50%;
+            right: 6px;
+            transform: translateY(-50%);
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: none;
+            border: 0;
+            border-radius: 8px;
+            color: var(--muted);
+            cursor: pointer;
+        }
+
+        .toggle-key-btn:hover {
+            color: var(--ink);
+            background: #e2e8f0;
+        }
+
+        .error-message {
+            margin-top: 8px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--danger);
+            min-height: 1.2em;
+        }
+
+        .dialog-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .dialog-actions button {
+            flex: 1;
+            font-family: inherit;
+            font-size: 0.95rem;
+            font-weight: 700;
+            padding: 12px 16px;
+            border-radius: 12px;
+            border: 0;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-primary {
+            color: #fff;
+            background: var(--primary-blue);
+            box-shadow: 0 4px 12px rgba(14, 72, 161, 0.25);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: var(--btn-hover-blue);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            color: #334155;
+            background: #e2e8f0;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e1;
         }
 
         @media (max-width: 480px) {
@@ -198,79 +407,255 @@
             }
 
             .sub-title {
-                font-size: 0.85rem;
-                letter-spacing: 0.12em;
+                font-size: 0.72rem;
+                letter-spacing: 0.14em;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            *,
+            *::before,
+            *::after {
+                animation: none !important;
+                transition: none !important;
             }
         }
     </style>
 </head>
 
 <body>
-    <div id="account-created-dialog" title="Pasig Tugon!" style="display:none;">
-        <div class="custom-dialog-content" style="padding:16px 24px 24px;text-align:center;">
-            <div style="width:64px;height:64px;background:#ecfdf5;color:#10b981;border-radius:50%;
-                    display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
-                <svg width="36" height="36" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-            </div>
-            <h2 style="font-weight:800;font-size:1.4rem;color:#0f172a;margin-bottom:8px;">
-                Account Created!
-            </h2>
-            <p style="font-size:0.95rem;color:#64748b;line-height:1.6;">
-                Your admin account has been successfully created.<br>
-                Click the <strong>Admin</strong> button below to log in.
-            </p>
-        </div>
-    </div>
-
     <main class="menu-card">
-        <!-- City Seal Logo -->
-        <img src="pasig_logo.webp" alt="Pasig City Seal" class="city-seal">
+        <div class="logo-wrapper">
+            <img src="pasig_logo.webp" alt="Pasig City Seal" class="city-seal" width="96" height="96">
+        </div>
 
-        <!-- Title Header -->
         <h1 class="brand-title">
-            <span class="blue-text">PASIG</span> <span class="white-text">TUGON!</span>
+            <span class="blue-text">Pasig</span> <span class="white-text">Tugon!</span>
         </h1>
         <p class="sub-title">Citizen Concern Station</p>
 
-        <!-- Role Selection Buttons -->
-        <div class="action-group">
-            <a href="citizen_concern_station.html" class="menu-btn">Citizens</a>
-            <a href="Admin_Log_In.html" class="menu-btn admin-btn">Admin</a>
+        <nav class="action-group" aria-label="Choose how to sign in">
+            <a href="citizen_concern_station.html" class="menu-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                    stroke-width="2" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                Citizens
+            </a>
+
+            <a href="Admin_Log_In.html" class="menu-btn admin-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                    stroke-width="2" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                Admin
+            </a>
+        </nav>
+
+        <div class="super-admin-action-group">
+            <button type="button" id="openSuperAdminModal" class="super-admin-link" aria-haspopup="dialog">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                    stroke-width="2" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                </svg>
+                Super Admin Access
+            </button>
         </div>
     </main>
 
+    <!-- ══════════════ SUPER ADMIN DIALOG ══════════════ -->
+    <dialog id="super-admin-modal" class="key-dialog" aria-labelledby="dialogTitle" aria-describedby="dialogDesc">
+        <form method="dialog" id="keyForm" novalidate>
+            <div class="dialog-icon" aria-hidden="true">
+                <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                </svg>
+            </div>
+
+            <h2 class="dialog-title" id="dialogTitle">Super Admin Authentication</h2>
+            <p class="dialog-text" id="dialogDesc">Enter your security key to open the Super Admin Dashboard.</p>
+
+            <div class="form-group">
+                <label class="form-label" for="superAdminKey">Super Admin Key</label>
+                <div class="input-wrapper">
+                    <input class="form-input" type="password" id="superAdminKey" placeholder="Enter security key"
+                        autocomplete="off" autocapitalize="off" spellcheck="false" aria-describedby="keyErrorMsg">
+                    <button type="button" class="toggle-key-btn" id="toggleKeyVisibility" aria-label="Show key"
+                        aria-pressed="false">
+                        <svg id="eyeIcon" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                            viewBox="0 0 24 24" aria-hidden="true"></svg>
+                    </button>
+                </div>
+                <p id="keyErrorMsg" class="error-message" role="alert" aria-live="assertive"></p>
+            </div>
+
+            <div class="dialog-actions">
+                <button type="button" class="btn-secondary" id="cancelKey">Cancel</button>
+                <button type="submit" class="btn-primary" id="submitKey">Open dashboard</button>
+            </div>
+        </form>
+    </dialog>
+
     <script>
-        // Reuse the same dialog button styles from signup page
-        const style = document.createElement('style');
+        (function () {
+            'use strict';
 
-        document.head.appendChild(style);
+            /*
+             * SECURITY NOTE: this check runs in the browser, so anyone can read or bypass it
+             * (view source, or open Super_Admin_Dashboard.html directly). Hashing keeps the key
+             * out of plain sight, but real protection must be enforced on your server:
+             * verify the key there and check a session on the dashboard page/API.
+             * SHA-256 of the current key; regenerate with: echo -n "yourkey" | sha256sum
+             */
+            var KEY_HASH = '4e6ba2b7d5d92c5539d145228334a218fdfda70b25b75608ce0d65aa8c25a617';
+            var DASHBOARD_URL = 'Super_Admin_Dashboard.html';
+            var MAX_ATTEMPTS = 5;
+            var LOCKOUT_MS = 30000;
 
-        $(document).ready(function () {
-            $("#account-created-dialog").dialog({
-                autoOpen: false,
-                modal: true,
-                resizable: false,
-                draggable: false,
-                width: 400,
-                show: { effect: "fade", duration: 200 },
-                hide: { effect: "fadeOut", duration: 150 },
-                buttons: {
-                    "Got it": function () {
-                        $(this).dialog("close");
-                    }
+            var dialog = document.getElementById('super-admin-modal');
+            var form = document.getElementById('keyForm');
+            var input = document.getElementById('superAdminKey');
+            var errorEl = document.getElementById('keyErrorMsg');
+            var toggleBtn = document.getElementById('toggleKeyVisibility');
+            var eyeIcon = document.getElementById('eyeIcon');
+            var submitBtn = document.getElementById('submitKey');
+            var openBtn = document.getElementById('openSuperAdminModal');
+
+            var attempts = 0;
+            var lockedUntil = 0;
+            var lockTimer = null;
+
+            var EYE = '<path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>' +
+                '<path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>';
+            var EYE_OFF = '<path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/>';
+            eyeIcon.innerHTML = EYE;
+
+            function sha256Hex(text) {
+                if (!(window.crypto && crypto.subtle)) {
+                    return Promise.reject(new Error('Secure context required'));
                 }
+                return crypto.subtle.digest('SHA-256', new TextEncoder().encode(text)).then(function (buf) {
+                    return Array.prototype.map.call(new Uint8Array(buf), function (b) {
+                        return b.toString(16).padStart(2, '0');
+                    }).join('');
+                });
+            }
+
+            function showError(msg) {
+                errorEl.textContent = msg;
+                input.classList.toggle('invalid', !!msg);
+                input.setAttribute('aria-invalid', msg ? 'true' : 'false');
+            }
+
+            function setVisibility(visible) {
+                input.type = visible ? 'text' : 'password';
+                eyeIcon.innerHTML = visible ? EYE_OFF : EYE;
+                toggleBtn.setAttribute('aria-pressed', String(visible));
+                toggleBtn.setAttribute('aria-label', visible ? 'Hide key' : 'Show key');
+            }
+
+            function updateLockout() {
+                var remaining = Math.ceil((lockedUntil - Date.now()) / 1000);
+                if (remaining > 0) {
+                    submitBtn.disabled = true;
+                    showError('Too many attempts. Try again in ' + remaining + 's.');
+                    lockTimer = setTimeout(updateLockout, 500);
+                } else {
+                    clearTimeout(lockTimer);
+                    lockedUntil = 0;
+                    attempts = 0;
+                    submitBtn.disabled = false;
+                    showError('');
+                }
+            }
+
+            function openDialog() {
+                input.value = '';
+                setVisibility(false);
+                showError('');
+                if (typeof dialog.showModal === 'function') {
+                    dialog.showModal();
+                } else {
+                    dialog.setAttribute('open', '');
+                }
+                if (lockedUntil > Date.now()) updateLockout();
+                input.focus();
+            }
+
+            function closeDialog() {
+                input.value = '';
+                if (typeof dialog.close === 'function') dialog.close();
+                else dialog.removeAttribute('open');
+                openBtn.focus();
+            }
+
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                if (lockedUntil > Date.now()) return;
+
+                var entered = input.value.trim();
+                if (!entered) {
+                    showError('Enter your security key.');
+                    input.focus();
+                    return;
+                }
+
+                submitBtn.disabled = true;
+                sha256Hex(entered).then(function (hash) {
+                    if (hash === KEY_HASH) {
+                        showError('');
+                        window.location.href = DASHBOARD_URL;
+                        return;
+                    }
+                    attempts += 1;
+                    submitBtn.disabled = false;
+                    if (attempts >= MAX_ATTEMPTS) {
+                        lockedUntil = Date.now() + LOCKOUT_MS;
+                        updateLockout();
+                    } else {
+                        showError('Incorrect key. ' + (MAX_ATTEMPTS - attempts) + ' attempt(s) left.');
+                    }
+                    input.select();
+                }).catch(function () {
+                    submitBtn.disabled = false;
+                    showError('Verification needs a secure (HTTPS) connection.');
+                });
             });
 
-            // Check if admin just registered
-            if (localStorage.getItem("adminJustRegistered") === "true") {
-                localStorage.removeItem("adminJustRegistered"); // clear immediately
-                $("#account-created-dialog").dialog("open");
-            }
-        });
-    </script>
+            input.addEventListener('input', function () {
+                if (lockedUntil <= Date.now()) showError('');
+            });
 
+            toggleBtn.addEventListener('click', function () {
+                setVisibility(input.type === 'password');
+                input.focus();
+            });
+
+            openBtn.addEventListener('click', openDialog);
+            document.getElementById('cancelKey').addEventListener('click', closeDialog);
+
+            // Click on the backdrop closes the dialog
+            dialog.addEventListener('click', function (e) {
+                if (e.target === dialog) closeDialog();
+            });
+
+            // Clear the key when closed any way (Esc, Cancel, backdrop)
+            dialog.addEventListener('close', function () {
+                input.value = '';
+            });
+
+            // Fall back gracefully if the seal image is missing
+            var seal = document.querySelector('.city-seal');
+            seal.addEventListener('error', function () {
+                seal.style.display = 'none';
+            });
+        })();
+    </script>
 </body>
 
 </html>

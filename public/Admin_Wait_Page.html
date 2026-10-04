@@ -243,20 +243,33 @@
             }
         }
 
+        function showStatusError() {
+            setDomainStatus('pending');
+            document.querySelector('#view-pending .status-badge').textContent = 'Status Check Failed';
+            document.querySelector('#view-pending .headline').textContent = 'Unable to Check Status';
+            document.querySelector('#view-pending .message-text').textContent =
+                'We could not verify your account status. Refresh this page to try again.';
+        }
+
         // Ask the backend whether this admin's barangay has been approved yet.
         // Relies on the session created during login — if the session has expired
         // or nothing is found, the endpoint falls back to "pending" by default.
-        // Adjust this path if your folder structure differs —
-        // this assumes public/Admin_Wait_Page.html and src/api/get-admin-status.php
-        // are three levels apart (public/ -> src/ -> api/).
-        fetch('../src/api/get-admin-status.php')
-            .then(function (res) { return res.json(); })
-            .then(function (data) {
-                setDomainStatus(data.status, data.barangayUrl);
+        fetch('../src/get-admin-status.php')
+            .then(function (res) {
+                if (!res.ok) {
+                    throw new Error('Status request failed.');
+                }
+                return res.json();
             })
-            .catch(function () {
-                setDomainStatus('pending');
-            });
+            .then(function (data) {
+                if (data.status === 'pending' || data.status === 'ready') {
+                    setDomainStatus(data.status, data.barangayUrl);
+                } else {
+                    showStatusError();
+                }
+            })
+            .catch(showStatusError);
+
     </script>
 
 </body>
