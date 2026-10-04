@@ -53,7 +53,7 @@ CREATE TABLE tbl_concerns (
     sector             ENUM('Health', 'Infrastructure', 'Crime', 'Environment') NOT NULL,
     confidence_score   DECIMAL(5,4),
     priority_level     ENUM('High', 'Medium', 'Low') NOT NULL,
-    status             ENUM('ongoing', 'done', 'deleted') NOT NULL DEFAULT 'ongoing',
+    status             ENUM('ongoing', 'archived') NOT NULL DEFAULT 'ongoing',
     submitted_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     resolved_at        TIMESTAMP NULL,
     FOREIGN KEY (barangay_id) REFERENCES tbl_barangay(barangay_id)
@@ -61,7 +61,8 @@ CREATE TABLE tbl_concerns (
         ON UPDATE CASCADE,
     INDEX idx_barangay_status (barangay_id, status),
     INDEX idx_priority (priority_level),
-    INDEX idx_sector (sector)
+    INDEX idx_sector (sector),
+    INDEX idx_submitted_at (submitted_at)
 );
 
 -- ---------------------------------------------------

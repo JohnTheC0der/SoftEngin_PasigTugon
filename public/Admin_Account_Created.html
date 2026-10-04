@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pasig Tugon! - Account Created</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/x-icon" href="PasigTugon_Logo.png">
+
+    <style>
+        :root {
+            --primary-blue: #0e48a1;
+            --light-blue: #2563eb;
+            --accent-cyan: #38bdf8;
+            --btn-hover-blue: #1d4ed8;
+            --white: #ffffff;
+            --glass-bg: rgba(15, 23, 42, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.18);
+            --text-dark: #0f172a;
+            --transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, rgba(14, 72, 161, 0.88), rgba(7, 29, 73, 0.94)),
+                url('background.png') center/cover no-repeat fixed;
+            color: var(--white);
+            padding: 20px;
+        }
+
+        .status-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--glass-border);
+            border-radius: 28px;
+            padding: 48px 36px;
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+            text-align: center;
+        }
+
+        .city-seal {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            margin-bottom: 16px;
+            filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.3));
+        }
+
+        .brand-title {
+            font-weight: 900;
+            font-size: clamp(2rem, 4vw, 2.5rem);
+            letter-spacing: -0.02em;
+            text-transform: uppercase;
+            line-height: 1.1;
+            margin-bottom: 4px;
+        }
+
+        .brand-title .blue-text {
+            color: var(--accent-cyan);
+        }
+
+        .sub-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.8);
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            margin-bottom: 24px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-bottom: 20px;
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.4);
+        }
+
+        .headline {
+            font-weight: 900;
+            font-size: 1.8rem;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            color: var(--accent-cyan);
+        }
+
+        .message-text {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.85);
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .credentials-box {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 18px;
+            padding: 20px;
+            margin-bottom: 20px;
+            color: var(--text-dark);
+            text-align: left;
+        }
+
+        .credential-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+        }
+
+        .credential-row + .credential-row {
+            border-top: 1px solid rgba(15, 23, 42, 0.1);
+        }
+
+        .credential-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #64748b;
+        }
+
+        .credential-value {
+            font-size: 1rem;
+            font-weight: 800;
+            font-family: 'Courier New', monospace;
+            color: var(--primary-blue);
+            word-break: break-all;
+            text-align: right;
+        }
+
+        .warning-text {
+            width: 100%;
+            background: rgba(245, 158, 11, 0.15);
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #fbbf24;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+
+        .action-btn {
+            width: 100%;
+            padding: 16px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--white);
+            background: var(--light-blue);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: var(--transition);
+            box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.4);
+        }
+
+        .action-btn:hover {
+            background: var(--btn-hover-blue);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+
+<body>
+
+    <main class="status-card">
+        <img src="pasig_logo.webp" alt="Pasig City Seal" class="city-seal">
+
+        <h1 class="brand-title">
+            <span class="blue-text">PASIG</span> TUGON!
+        </h1>
+        <p class="sub-title">Admin Registration</p>
+
+        <div class="status-badge">✓ Account Created</div>
+        <h2 class="headline">Save Your Credentials</h2>
+        <p class="message-text">
+            Your admin account has been created. Write down or save your password now —
+            for security, it will not be shown to you again after you leave this page.
+        </p>
+
+        <div class="credentials-box">
+            <div class="credential-row">
+                <span class="credential-label">Username</span>
+                <span class="credential-value" id="displayUsername">—</span>
+            </div>
+            <div class="credential-row">
+                <span class="credential-label">Password</span>
+                <span class="credential-value" id="displayPassword">—</span>
+            </div>
+        </div>
+
+        <p class="warning-text">
+            ⚠ For your security, please change this password in Settings once your account has been approved and you've
+            logged in for the first time.
+        </p>
+
+        <a href="Admin_Wait_Page.html" class="action-btn" id="continueBtn">Continue</a>
+    </main>
+
+    <script>
+        var username = sessionStorage.getItem("newAdminUsername");
+        var password = sessionStorage.getItem("newAdminPassword");
+
+        // If someone lands here directly without just registering, there's nothing to show —
+        // send them back to the sign-up form instead of displaying blank credentials.
+        if (!username || !password) {
+            window.location.href = "Admin_Sign_Up.html";
+        } else {
+            document.getElementById("displayUsername").textContent = username;
+            document.getElementById("displayPassword").textContent = password;
+        }
+
+        // Clear the stored credentials the moment the admin moves on, so they
+        // can't be read back from sessionStorage later in the same tab.
+        document.getElementById("continueBtn").addEventListener("click", function () {
+            sessionStorage.removeItem("newAdminUsername");
+            sessionStorage.removeItem("newAdminPassword");
+        });
+    </script>
+
+</body>
+
+</html>
