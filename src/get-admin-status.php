@@ -4,7 +4,7 @@
 
 session_start();
 header('Content-Type: application/json');
-require_once '../db_connect.php';
+require_once __DIR__ . '/db_connect.php';
 
 if (!isset($_SESSION['user_id'])) {
     echo json_encode(['status' => 'pending', 'barangayUrl' => '#']);
@@ -33,5 +33,7 @@ try {
         'barangayUrl' => $status === 'ready' ? 'Admin_Dashboard_Page.php' : '#'
     ]);
 } catch (PDOException $e) {
-    echo json_encode(['status' => 'pending', 'barangayUrl' => '#']);
+    http_response_code(500);
+    error_log($e->getMessage());
+    echo json_encode(['status' => 'error', 'barangayUrl' => '#']);
 }

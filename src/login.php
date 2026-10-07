@@ -4,7 +4,7 @@
 
 session_start();
 header('Content-Type: application/json');
-require_once 'db_connect.php';
+require_once __DIR__ . '/db_connect.php';
 
 $response = ['success' => false, 'message' => ''];
 
@@ -42,6 +42,7 @@ try {
         exit;
     }
 
+    session_regenerate_id(true);
     $_SESSION['user_id']     = $user['user_id'];
     $_SESSION['barangay_id'] = $user['barangay_id']; // null for super_admin
     $_SESSION['role']        = $user['role'];
