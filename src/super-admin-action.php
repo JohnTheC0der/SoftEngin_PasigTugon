@@ -138,12 +138,47 @@ if ($action === 'approve') {
     }
 
     try {
+        // Find which barangay this archived admin belongs to
+        $stmt = $pdo->prepare("SELECT barangay_id FROM tbl_users WHERE user_id = ? AND role = 'admin'");
+        $stmt->execute([$userId]);
+        $barangayId = $stmt->fetchColumn();
+
+        if ($barangayId === false) {
+            $response['message'] = 'Admin account not found.';
+            echo json_encode($response);
+            exit;
+        }
+
+        // Guard: refuse to restore if another active admin already occupies this barangay
+        // (this can happen if a new admin registered for the same barangay after this one was archived)
+        $stmt = $pdo->prepare(
+            "SELECT user_id FROM tbl_users WHERE barangay_id = ? AND user_id != ? AND is_active = TRUE"
+        );
+        $stmt->execute([$barangayId, $userId]);
+        if ($stmt->fetch()) {
+            $response['message'] = 'This barangay already has an active admin. Archive or reject that account first.';
+            echo json_encode($response);
+            exit;
+        }
+
+        $pdo->beginTransaction();
+
         $stmt = $pdo->prepare("UPDATE tbl_users SET is_active = TRUE WHERE user_id = ?");
         $stmt->execute([$userId]);
 
+        // Fully reinstate — re-approve the barangay too, so the restored admin goes
+        // straight back to their dashboard instead of being stuck on the wait page.
+        $stmt = $pdo->prepare(
+            "UPDATE tbl_barangay SET approval_status = 'approved', approved_at = NOW() WHERE barangay_id = ?"
+        );
+        $stmt->execute([$barangayId]);
+
+        $pdo->commit();
+
         $response['success'] = true;
-        $response['message'] = 'Account restored.';
+        $response['message'] = 'Account restored and barangay re-approved.';
     } catch (PDOException $e) {
+        if ($pdo->inTransaction()) $pdo->rollBack();
         http_response_code(500);
         $response['message'] = 'Database error.';
     }

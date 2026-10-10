@@ -1,3 +1,13 @@
+<?php
+// Session guard — the only way into this page is logging in as a super_admin through
+// Admin_Log_In.html (username + password). Anyone who loads this URL directly without
+// a valid super_admin session is bounced straight back to the login page.
+session_start();
+if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'super_admin') {
+    header('Location: Admin_Log_In.html');
+    exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -1016,10 +1026,7 @@
             Pending Approvals
         </button>
         <button class="tab-btn" data-tab="barangays">
-            All Barangay Admins
-        </button>
-        <button class="tab-btn" data-tab="superadmins">
-            Super Admins
+            Active Barangay Admins
         </button>
     </div>
 
@@ -1158,7 +1165,7 @@
             <div class="outer-card">
                 <div class="card-top-row">
                     <div>
-                        <div class="card-header-title">All Barangay Admins</div>
+                        <div class="card-header-title">Active Barangay Admins</div>
                         <div class="card-subtitle">Manage accounts across all Pasig City barangays</div>
                     </div>
                 </div>
@@ -1175,10 +1182,7 @@
                             placeholder="Search barangay or admin…">
                     </div>
                     <select class="filter-select" id="filterStatus">
-                        <option value="ALL">All Statuses</option>
-                        <option value="APPROVED">Approved</option>
-                        <option value="PENDING">Pending</option>
-                        <option value="REJECTED">Rejected</option>
+                        <option value="ACTIVE">Active</option>
                         <option value="ARCHIVED">Archived</option>
                     </select>
                 </div>
@@ -1212,86 +1216,9 @@
             </div>
         </div>
 
-        <!-- ═══ TAB 3: SUPER ADMINS ═══ -->
-        <div class="tab-panel" id="tab-superadmins">
-            <div class="outer-card">
-                <div class="card-top-row">
-                    <div>
-                        <div class="card-header-title">Super Admins</div>
-                        <div class="card-subtitle">Manage system administrators</div>
-                    </div>
-                    <button class="action-btn btn-primary" id="openAddAdminModalBtn">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"
-                            viewBox="0 0 24 24">
-                            <path d="M12 5v14M5 12h14" />
-                        </svg>
-                        Add Super Admin
-                    </button>
-                </div>
-                <hr class="header-divider">
-
-                <div class="inner-box">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Username</th>
-                                <th>Email</th>
-                                <th>Created At</th>
-                                <th>Status</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="superadminsTbody">
-                            <tr class="loading-row">
-                                <td colspan="6">
-                                    <div class="spinner"></div>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-
     </div>
 
     <!-- ══════════════════════════════ MODALS ══════════════════════════════ -->
-
-    <!-- Add Super Admin Modal -->
-    <div class="modal-overlay" id="addAdminModal">
-        <div class="modal-panel">
-            <div class="modal-header">
-                <div class="modal-title">⚡ Add New Super Admin</div>
-                <button class="modal-close" id="closeAddAdminModalBtn">&times;</button>
-            </div>
-            <div class="modal-body">
-                <form id="addAdminForm">
-                    <div class="form-group">
-                        <label class="form-label" for="adminUsername">Username</label>
-                        <input class="form-input" type="text" id="adminUsername" required
-                            placeholder="e.g. superadmin_pasig">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="adminEmail">Email Address</label>
-                        <input class="form-input" type="email" id="adminEmail" required
-                            placeholder="e.g. admin@pasig.gov.ph">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" for="adminPassword">Password</label>
-                        <input class="form-input" type="password" id="adminPassword" required
-                            placeholder="••••••••••••">
-                        <div class="form-hint">Must be at least 8 characters long.</div>
-                    </div>
-                    <div class="form-error" id="addAdminError"></div>
-                    <div class="modal-actions" style="margin-top: 24px;">
-                        <button type="button" class="swiss-btn neutral" id="cancelAddAdminBtn">Cancel</button>
-                        <button type="submit" class="swiss-btn primary">Create Admin</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
 
     <!-- Confirmation Action Modal -->
     <div class="modal-overlay" id="confirmModal">
@@ -1316,7 +1243,192 @@
     <div class="toast-container" id="toastContainer"></div>
 
     <script>
+        // All barangay admin rows as last fetched from the server — tabs/filters/search
+        // all operate on this one array client-side rather than re-fetching each time.
+        let allAdmins = [];
+        let pendingConfirmAction = null; // { action, userId, label } — set right before the confirm modal opens
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text == null ? '' : text;
+            return div.innerHTML;
+        }
+
+        function formatDate(raw) {
+            if (!raw) return '—';
+            const d = new Date(raw.replace(' ', 'T'));
+            return isNaN(d) ? raw : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        function showToast(message, type) {
+            const toast = $('<div class="toast ' + (type || 'success') + '">' + escapeHtml(message) + '</div>');
+            $('#toastContainer').append(toast);
+            setTimeout(() => toast.fadeOut(300, () => toast.remove()), 3500);
+        }
+
+        // Adjust these paths if your folder structure differs —
+        // this assumes public/Super_Admin_Dashboard.php and src/*.php as siblings.
+        function loadData() {
+            $('#pendingTbody, #barangaysTbody').html('<tr class="loading-row"><td colspan="7"><div class="spinner"></div></td></tr>');
+
+            $.ajax({
+                url: '../src/get-super-admin-data.php',
+                method: 'GET',
+                dataType: 'json'
+            }).done(function (response) {
+                if (response.error) {
+                    showToast(response.error, 'error');
+                    return;
+                }
+                allAdmins = response.barangay_admins || [];
+                renderStats();
+                renderPendingTable();
+                renderBarangaysTable();
+            }).fail(function () {
+                showToast('Could not reach the server.', 'error');
+            });
+        }
+
+        function renderStats() {
+            const distinctBarangays = new Set(allAdmins.map(a => a.barangay_name)).size;
+            const pending = allAdmins.filter(a => a.approval_status === 'pending' && a.is_active).length;
+            const approved = allAdmins.filter(a => a.approval_status === 'approved' && a.is_active).length;
+            const archived = allAdmins.filter(a => !a.is_active).length;
+
+            $('#statTotal').text(distinctBarangays);
+            $('#statPending').text(pending);
+            $('#statApproved').text(approved);
+            $('#statArchived').text(archived);
+        }
+
+        // ── TAB 1: PENDING APPROVALS ──
+        // Shows admins genuinely awaiting review — excludes archived admins, whose
+        // barangay also shows 'pending' (that just means the slot is open again).
+        function renderPendingTable() {
+            const search = $('#searchPending').val().toLowerCase().trim();
+            let rows = allAdmins.filter(a => a.approval_status === 'pending' && a.is_active);
+
+            if (search) {
+                rows = rows.filter(a =>
+                    a.barangay_name.toLowerCase().includes(search) ||
+                    a.username.toLowerCase().includes(search)
+                );
+            }
+
+            const $tbody = $('#pendingTbody').empty();
+
+            if (rows.length === 0) {
+                $tbody.append('<tr class="empty-row"><td colspan="7">No pending approvals</td></tr>');
+                return;
+            }
+
+            rows.forEach((a, i) => {
+                $tbody.append(`
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td>${escapeHtml(a.barangay_name)}</td>
+                        <td>${escapeHtml(a.username)}</td>
+                        <td>${escapeHtml(a.email)}</td>
+                        <td>${formatDate(a.created_at)}</td>
+                        <td><span class="pill pending">Pending</span></td>
+                        <td>
+                            <div class="btn-group">
+                                <button class="row-btn approve" data-user-id="${a.user_id}" data-barangay="${escapeHtml(a.barangay_name)}">Approve</button>
+                                <button class="row-btn reject" data-user-id="${a.user_id}" data-barangay="${escapeHtml(a.barangay_name)}">Reject</button>
+                            </div>
+                        </td>
+                    </tr>
+                `);
+            });
+        }
+
+        // ── TAB 2: ACTIVE BARANGAY ADMINS (with Active/Archived filter) ──
+        function renderBarangaysTable() {
+            const search = $('#searchBarangays').val().toLowerCase().trim();
+            const filter = $('#filterStatus').val(); // 'ACTIVE' | 'ARCHIVED'
+
+            let rows = allAdmins.filter(a =>
+                filter === 'ARCHIVED' ? !a.is_active : (a.is_active && a.approval_status === 'approved')
+            );
+
+            if (search) {
+                rows = rows.filter(a =>
+                    a.barangay_name.toLowerCase().includes(search) ||
+                    a.username.toLowerCase().includes(search)
+                );
+            }
+
+            const $tbody = $('#barangaysTbody').empty();
+
+            if (rows.length === 0) {
+                $tbody.append('<tr class="empty-row"><td colspan="7">No ' + (filter === 'ARCHIVED' ? 'archived' : 'active') + ' admins found</td></tr>');
+                return;
+            }
+
+            rows.forEach((a, i) => {
+                const pillClass = a.is_active ? 'active' : 'archived';
+                const pillLabel = a.is_active ? 'Active' : 'Archived';
+                const actionBtn = a.is_active
+                    ? `<button class="row-btn archive" data-user-id="${a.user_id}" data-barangay="${escapeHtml(a.barangay_name)}">Archive</button>`
+                    : `<button class="row-btn restore" data-user-id="${a.user_id}" data-barangay="${escapeHtml(a.barangay_name)}">Restore</button>`;
+
+                $tbody.append(`
+                    <tr>
+                        <td>${i + 1}</td>
+                        <td>${escapeHtml(a.barangay_name)}</td>
+                        <td>${escapeHtml(a.username)}</td>
+                        <td>${escapeHtml(a.email)}</td>
+                        <td>${formatDate(a.created_at)}</td>
+                        <td><span class="pill ${pillClass}">${pillLabel}</span></td>
+                        <td><div class="btn-group">${actionBtn}</div></td>
+                    </tr>
+                `);
+            });
+        }
+
+        // ── CONFIRM MODAL ──
+        const CONFIRM_CONFIG = {
+            approve: { icon: '✅', header: '', title: 'Approve Admin', heading: 'Approve this admin?', btnClass: 'success', msg: b => `This grants the admin for <span class="modal-highlight">${b}</span> full access to their barangay dashboard.` },
+            reject: { icon: '🚫', header: 'danger', title: 'Reject Admin', heading: 'Reject this registration?', btnClass: 'danger', msg: b => `The registration for <span class="modal-highlight">${b}</span> will be marked rejected.` },
+            archive: { icon: '📦', header: 'amber', title: 'Archive Admin', heading: 'Archive this admin?', btnClass: 'danger', msg: b => `This deactivates the account and frees up <span class="modal-highlight">${b}</span> for a new admin to register.` },
+            restore: { icon: '♻️', header: '', title: 'Restore Admin', heading: 'Restore this admin?', btnClass: 'success', msg: b => `This reactivates the account for <span class="modal-highlight">${b}</span>, if the barangay is still unoccupied.` }
+        };
+
+        function openConfirm(action, userId, barangayName) {
+            const cfg = CONFIRM_CONFIG[action];
+            pendingConfirmAction = { action, userId };
+
+            $('#confirmModalHeader').attr('class', 'modal-header' + (cfg.header ? ' ' + cfg.header : ''));
+            $('#confirmModalTitle').text(cfg.title);
+            $('#confirmModalIcon').text(cfg.icon);
+            $('#confirmModalHeading').text(cfg.heading);
+            $('#confirmModalMessage').html(cfg.msg(barangayName));
+            $('#actionConfirmBtn').attr('class', 'swiss-btn ' + cfg.btnClass);
+            $('#confirmModal').addClass('active');
+        }
+
+        function runPendingAction() {
+            if (!pendingConfirmAction) return;
+            const { action, userId } = pendingConfirmAction;
+
+            $.ajax({
+                url: '../src/super-admin-action.php',
+                method: 'POST',
+                data: { action: action, user_id: userId },
+                dataType: 'json'
+            }).done(function (response) {
+                $('#confirmModal').removeClass('active');
+                showToast(response.message, response.success ? 'success' : 'error');
+                if (response.success) loadData();
+            }).fail(function () {
+                $('#confirmModal').removeClass('active');
+                showToast('Could not reach the server.', 'error');
+            });
+        }
+
         $(document.body).ready(function () {
+            loadData();
+
             // Dropdown Menu Toggle
             $('#menuBtn').on('click', function (e) {
                 e.stopPropagation();
@@ -1327,28 +1439,45 @@
                 $('#dropdownMenu').removeClass('show');
             });
 
+            // Logout
+            $('#logoutBtn').on('click', function (e) {
+                e.preventDefault();
+                window.location.href = '../src/logout.php';
+            });
+
             // Tab Navigation Switching
             $('.tab-btn').on('click', function () {
                 const targetTab = $(this).data('tab');
-
                 $('.tab-btn').removeClass('active');
                 $(this).addClass('active');
-
                 $('.tab-panel').removeClass('active');
                 $('#tab-' + targetTab).addClass('active');
             });
 
-            // Modal Handlers
-            $('#openAddAdminModalBtn').on('click', function () {
-                $('#addAdminModal').addClass('active');
+            // Search + filter (live, client-side against the already-fetched data)
+            $('#searchPending').on('input', renderPendingTable);
+            $('#searchBarangays').on('input', renderBarangaysTable);
+            $('#filterStatus').on('change', renderBarangaysTable);
+
+            // Row action buttons (event-delegated since rows are rendered dynamically)
+            $('#pendingTbody').on('click', '.row-btn.approve', function () {
+                openConfirm('approve', $(this).data('user-id'), $(this).data('barangay'));
+            });
+            $('#pendingTbody').on('click', '.row-btn.reject', function () {
+                openConfirm('reject', $(this).data('user-id'), $(this).data('barangay'));
+            });
+            $('#barangaysTbody').on('click', '.row-btn.archive', function () {
+                openConfirm('archive', $(this).data('user-id'), $(this).data('barangay'));
+            });
+            $('#barangaysTbody').on('click', '.row-btn.restore', function () {
+                openConfirm('restore', $(this).data('user-id'), $(this).data('barangay'));
             });
 
-            $('#closeAddAdminModalBtn, #cancelAddAdminBtn').on('click', function () {
-                $('#addAdminModal').removeClass('active');
-            });
-
+            // Confirm modal controls
+            $('#actionConfirmBtn').on('click', runPendingAction);
             $('#closeConfirmModalBtn, #cancelConfirmBtn').on('click', function () {
                 $('#confirmModal').removeClass('active');
+                pendingConfirmAction = null;
             });
         });
     </script>

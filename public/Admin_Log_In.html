@@ -411,9 +411,13 @@
                 .then(function (res) { return res.json(); })
                 .then(function (data) {
                     if (data.success) {
-                        window.location.href = (data.status === 'approved')
-                            ? 'Admin_Dashboard_Page.php'
-                            : 'Admin_Wait_Page.html';
+                        if (data.role === 'super_admin') {
+                            window.location.href = 'Super_Admin_Dashboard.php';
+                        } else {
+                            window.location.href = (data.status === 'approved')
+                                ? 'Admin_Dashboard_Page.php'
+                                : 'Admin_Wait_Page.html';
+                        }
                     } else {
                         errorEl.textContent = data.message || 'Invalid username or password.';
                         errorEl.style.display = 'block';
