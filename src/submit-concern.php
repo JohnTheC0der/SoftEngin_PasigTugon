@@ -70,6 +70,22 @@ function classifyText(PDO $pdo, string $text): array
     ];
 }
 
+// Calls the Python model. Returns null on any failure so the caller can fall back.
+function classifyWithModel(string $text): ?array
+{
+    $python = defined('PYTHON_BIN') ? PYTHON_BIN : 'python';
+    $script = __DIR__ . '/../ml_engine/predict.py';
+
+    $cmd = escapeshellarg($python) . ' ' . escapeshellarg($script) . ' ' . escapeshellarg($text);
+    $output = shell_exec($cmd);
+    $data = json_decode($output ?? '', true);
+
+    if (!is_array($data) || isset($data['error'])) {
+        return null;
+    }
+    return $data;   // keys: sector, confidence, priority, keywords
+}
+
 try {
     // Find or create the barangay row, same pattern as register.php —
     // citizens can submit concerns to a barangay before any admin has signed up for it.
@@ -87,17 +103,19 @@ try {
         $barangayId = $pdo->lastInsertId();
     }
 
-    $classification = classifyText($pdo, $concernText);
+    $classification = classifyWithModel($concernText) ?? classifyText($pdo, $concernText);
 
     $stmt = $pdo->prepare(
-        "INSERT INTO tbl_concerns (barangay_id, raw_text, extracted_keywords, sector, priority_level, status)
-         VALUES (?, ?, ?, ?, ?, 'ongoing')"
+        "INSERT INTO tbl_concerns (barangay_id, raw_text, extracted_keywords, sector, confidence_score, priority_level, status)
+        VALUES (?, ?, ?, ?, ?, ?, 'ongoing')"
     );
+    
     $stmt->execute([
         $barangayId,
         $concernText,
         $classification['keywords'],
         $classification['sector'],
+        $classification['confidence'] ?? null,
         $classification['priority']
     ]);
 
