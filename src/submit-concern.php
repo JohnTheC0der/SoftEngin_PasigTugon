@@ -2,12 +2,10 @@
 // Handles POST requests from citizen_concern_station.html
 // Expects: barangay (slug like "bagong-ilog"), concern_text
 //
-// IMPORTANT: Your Python/ML teammate's Multinomial Naive Bayes classifier isn't
-// wired in yet (per the PHP<->Python bridge discussed earlier — shell_exec or a
-// Flask microservice). Until that's ready, this uses a simple keyword lookup
-// against tbl_urgency_keywords as a placeholder so the pipeline is end-to-end
-// testable. Swap the classifyText() function below for the real model call
-// once it's available — nothing else in this file needs to change.
+// Classification is done by the Python ML engine (ml_engine/predict.py):
+// sector + confidence from the Naive Bayes model, priority from ml_engine/priority.py.
+// If the engine can't run, or its confidence is too low, the concern is saved with
+// no sector/priority and status 'for_review' so an admin classifies it manually.
 
 header('Content-Type: application/json');
 require_once 'db_connect.php';
@@ -29,46 +27,11 @@ if (strlen($concernText) < 15) {
     exit;
 }
 
+// Model confidence at or below this means "don't trust the model": the concern is
+// saved with no sector/priority and an admin must set them manually (status 'for_review').
+const LOW_CONFIDENCE_THRESHOLD = 0.4;
+
 $barangayName = ucwords(str_replace('-', ' ', $barangaySlug));
-
-// TEMPORARY classifier — replace with a call to the real MNB model later.
-// Looks for known urgency keywords in the text and picks the sector/priority
-// of whichever matched keyword has the highest urgency_weight.
-function classifyText(PDO $pdo, string $text): array
-{
-    $stmt = $pdo->query("SELECT keyword, sector, urgency_weight FROM tbl_urgency_keywords");
-    $keywords = $stmt->fetchAll();
-
-    $bestMatch = null;
-    $matchedKeywords = [];
-    $textLower = mb_strtolower($text);
-
-    foreach ($keywords as $row) {
-        if (mb_strpos($textLower, mb_strtolower($row['keyword'])) !== false) {
-            $matchedKeywords[] = $row['keyword'];
-            if ($bestMatch === null || $row['urgency_weight'] > $bestMatch['urgency_weight']) {
-                $bestMatch = $row;
-            }
-        }
-    }
-
-    if ($bestMatch === null) {
-        // No known keyword matched — fall back to a low-priority Infrastructure default
-        return [
-            'sector'   => 'Infrastructure',
-            'priority' => 'Low',
-            'keywords' => ''
-        ];
-    }
-
-    $priorityMap = [3 => 'High', 2 => 'Medium', 1 => 'Low'];
-
-    return [
-        'sector'   => $bestMatch['sector'],
-        'priority' => $priorityMap[$bestMatch['urgency_weight']] ?? 'Low',
-        'keywords' => implode(', ', array_unique($matchedKeywords))
-    ];
-}
 
 // Calls the Python model. Returns null on any failure so the caller can fall back.
 function classifyWithModel(string $text): ?array
@@ -103,20 +66,25 @@ try {
         $barangayId = $pdo->lastInsertId();
     }
 
-    $classification = classifyWithModel($concernText) ?? classifyText($pdo, $concernText);
+    $classification = classifyWithModel($concernText);   // null if the engine failed
+
+    $confidence = $classification['confidence'] ?? null;
+    // Engine failed (null) or model isn't confident enough -> manual review
+    $needsReview = $classification === null || (float) $confidence <= LOW_CONFIDENCE_THRESHOLD;
 
     $stmt = $pdo->prepare(
         "INSERT INTO tbl_concerns (barangay_id, raw_text, extracted_keywords, sector, confidence_score, priority_level, status)
-        VALUES (?, ?, ?, ?, ?, ?, 'ongoing')"
+        VALUES (?, ?, ?, ?, ?, ?, ?)"
     );
-    
+
     $stmt->execute([
         $barangayId,
         $concernText,
-        $classification['keywords'],
-        $classification['sector'],
-        $classification['confidence'] ?? null,
-        $classification['priority']
+        $classification['keywords'] ?? '',
+        $needsReview ? null : $classification['sector'],
+        $confidence,
+        $needsReview ? null : $classification['priority'],
+        $needsReview ? 'for_review' : 'ongoing'
     ]);
 
     $response['success'] = true;
