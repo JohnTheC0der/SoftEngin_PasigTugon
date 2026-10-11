@@ -437,22 +437,13 @@ if (!isset($_SESSION['user_id'])) {
             text-transform: uppercase;
         }
 
-        .concerns-table th:nth-child(1) {
-            width: 5%;
-            text-align: center;
-        }
-
-        .concerns-table th:nth-child(2) {
-            width: 15%;
-        }
-
-        .concerns-table th:nth-child(3) {
-            width: 15%;
-        }
-
-        .concerns-table th:nth-child(4) {
-            width: 65%;
-        }
+        .concerns-table th:nth-child(1) { width: 4%; text-align: center; }
+        .concerns-table th:nth-child(2) { width: 9%; }
+        .concerns-table th:nth-child(3) { width: 11%; }
+        .concerns-table th:nth-child(4) { width: 12%; }
+        .concerns-table th:nth-child(5) { width: 9%; }
+        .concerns-table th:nth-child(6) { width: 8%; }
+        .concerns-table th:nth-child(7) { width: 47%; }
 
         .concerns-table tbody tr {
             border-bottom: 1px solid rgba(8, 61, 143, 0.2);
@@ -527,6 +518,116 @@ if (!isset($_SESSION['user_id'])) {
             color: #334155;
         }
 
+        .status-badge.review {
+            background-color: #FDE68A;
+            color: #78350F;
+        }
+
+        .status-badge.p-high { background-color: #FECACA; color: #991B1B; }
+        .status-badge.p-medium { background-color: #FED7AA; color: #9A3412; }
+        .status-badge.p-low { background-color: #BBF7D0; color: #166534; }
+
+        .muted-cell { color: #1E3A8A; opacity: 0.55; font-weight: 700; }
+
+        /* FILTER ROW */
+        .filters-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            flex: 1;
+        }
+
+        .filter-select {
+            background-color: #38A2EF;
+            color: #072B60;
+            font-weight: 800;
+            font-size: 0.95rem;
+            padding: 10px 16px;
+            border-radius: 50px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+        }
+
+        .search-input {
+            flex: 1;
+            min-width: 200px;
+            background: #FFFFFF;
+            color: #0A3C91;
+            font-weight: 700;
+            font-size: 0.95rem;
+            padding: 10px 18px;
+            border-radius: 50px;
+            border: 2px solid transparent;
+            outline: none;
+        }
+
+        .search-input:focus { border-color: #083D8F; }
+        .search-input::placeholder { color: #6B8FC7; }
+
+        .review-banner {
+            display: none;
+            margin-bottom: 1rem;
+            background: #FDE68A;
+            color: #78350F;
+            font-weight: 800;
+            font-size: 0.9rem;
+            padding: 10px 18px;
+            border-radius: 14px;
+            cursor: pointer;
+        }
+
+        .review-banner u { text-decoration: underline; }
+
+        /* Concern card detail rows */
+        .modal-detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px 16px;
+            margin-bottom: 1rem;
+            padding: 0 4px;
+        }
+
+        .modal-detail-grid .full { grid-column: 1 / -1; }
+
+        .detail-label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: #93C5FD;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 4px;
+        }
+
+        .detail-value { color: #FFFFFF; font-weight: 800; font-size: 1rem; }
+
+        .modal-select {
+            width: 100%;
+            padding: 9px 12px;
+            border-radius: 12px;
+            border: none;
+            font-weight: 800;
+            font-size: 0.95rem;
+            color: #032B69;
+            background: #E0F2FE;
+        }
+
+        .review-box {
+            display: none;
+            margin-top: 1rem;
+            padding: 14px;
+            border-radius: 16px;
+            background: rgba(253, 230, 138, 0.12);
+            border: 1px solid rgba(253, 230, 138, 0.4);
+        }
+
+        .review-box p { color: #FDE68A; font-weight: 700; font-size: 0.85rem; margin-bottom: 10px; }
+        .review-box .row { display: flex; gap: 12px; margin-bottom: 12px; }
+        .review-box .row > div { flex: 1; }
+        .review-error { color: #FCA5A5; font-weight: 700; font-size: 0.85rem; margin-bottom: 8px; display: none; }
+
         .concern-cell-wrapper {
             display: flex;
             justify-content: space-between;
@@ -538,7 +639,7 @@ if (!isset($_SESSION['user_id'])) {
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 580px;
+            max-width: 380px;
         }
 
         .btn-view-spec {
@@ -962,6 +1063,7 @@ if (!isset($_SESSION['user_id'])) {
             <div class="inner-box">
                 <div class="controls-bar">
                     <!-- Filter Dropdown Container -->
+                    <div class="filters-row">
                     <div class="filter-dropdown-container">
                         <button class="filter-dropdown-btn" id="filterBtn">
                             <span id="currentFilterText">Ongoing</span>
@@ -972,9 +1074,27 @@ if (!isset($_SESSION['user_id'])) {
                         </button>
                         <div class="filter-menu" id="filterMenu">
                             <div class="filter-option" onclick="setFilter('ongoing')">Ongoing</div>
+                            <div class="filter-option" onclick="setFilter('for_review')">For Review</div>
                             <div class="filter-option" onclick="setFilter('archived')">Archived</div>
                             <div class="filter-option" onclick="setFilter('all')">All Concerns</div>
                         </div>
+                    </div>
+
+                    <select class="filter-select" id="sectorFilter" aria-label="Filter by sector">
+                        <option value="">All Sectors</option>
+                        <option>Health</option>
+                        <option>Infrastructure</option>
+                        <option>Crime</option>
+                        <option>Environment</option>
+                    </select>
+                    <select class="filter-select" id="priorityFilter" aria-label="Filter by priority">
+                        <option value="">All Priorities</option>
+                        <option>High</option>
+                        <option>Medium</option>
+                        <option>Low</option>
+                    </select>
+                    <input type="search" class="search-input" id="searchInput"
+                        placeholder="Search words in concerns or keywords..." autocomplete="off">
                     </div>
 
                     <!-- Action Buttons - Displayed ONLY when items are selected -->
@@ -984,6 +1104,8 @@ if (!isset($_SESSION['user_id'])) {
                     </div>
                 </div>
 
+                <div class="review-banner" id="reviewBanner" onclick="setFilter('for_review')"></div>
+
                 <div class="table-container">
                     <div class="table-scroll">
                         <table class="concerns-table">
@@ -992,6 +1114,9 @@ if (!isset($_SESSION['user_id'])) {
                                     <th></th>
                                     <th>Date</th>
                                     <th>Status</th>
+                                    <th>Sector</th>
+                                    <th>Priority</th>
+                                    <th>Conf.</th>
                                     <th>Concerns</th>
                                 </tr>
                             </thead>
@@ -1020,8 +1145,40 @@ if (!isset($_SESSION['user_id'])) {
                 <span class="modal-date-value" id="modalDate">--/--/----</span>
             </div>
 
+            <div class="modal-detail-grid">
+                <div><span class="detail-label">Status</span><span class="detail-value" id="modalStatus">-</span></div>
+                <div><span class="detail-label">Confidence</span><span class="detail-value" id="modalConfidence">-</span></div>
+                <div><span class="detail-label">Sector</span><span class="detail-value" id="modalSector">-</span></div>
+                <div><span class="detail-label">Priority</span><span class="detail-value" id="modalPriority">-</span></div>
+                <div class="full"><span class="detail-label">Keywords</span><span class="detail-value" id="modalKeywords">-</span></div>
+            </div>
+
             <div class="modal-text-content" id="modalContent">
                 Select a concern to view details.
+            </div>
+
+            <!-- Shown only for concerns with status = for_review -->
+            <div class="review-box" id="reviewBox">
+                <p>The system wasn't confident enough to classify this concern. Set the sector and priority yourself.</p>
+                <div class="row">
+                    <div>
+                        <span class="detail-label">Sector</span>
+                        <select class="modal-select" id="reviewSector">
+                            <option value="">Choose...</option>
+                            <option>Health</option><option>Infrastructure</option>
+                            <option>Crime</option><option>Environment</option>
+                        </select>
+                    </div>
+                    <div>
+                        <span class="detail-label">Priority</span>
+                        <select class="modal-select" id="reviewPriority">
+                            <option value="">Choose...</option>
+                            <option>High</option><option>Medium</option><option>Low</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="review-error" id="reviewError"></div>
+                <button class="btn-pill btn-done" id="reviewSaveBtn" style="width:100%" onclick="saveReview()">Save</button>
             </div>
         </div>
     </div>
@@ -1030,6 +1187,8 @@ if (!isset($_SESSION['user_id'])) {
         // Populated from the server via loadConcerns() — no more hardcoded sample data.
         let concernsData = [];
         let activeFilter = 'ongoing';
+        let openConcernId = null;
+        const STATUS_LABELS = { ongoing: 'Ongoing', for_review: 'For Review', archived: 'Archived' };
 
         // Escapes text pulled from the database before injecting it as HTML,
         // so a concern containing HTML/script tags can't execute as markup (stored XSS).
@@ -1072,22 +1231,70 @@ if (!isset($_SESSION['user_id'])) {
                 e.stopPropagation();
                 const id = parseInt($(this).data('id'));
                 const item = concernsData.find(c => c.id === id);
-                if (item) {
-                    $('#modalDate').text(item.date);
-                    $('#modalContent').text(item.text);
-                    $('#concernModal').addClass('active');
-                }
+                if (item) openConcernCard(item);
             });
+
+            $('#sectorFilter, #priorityFilter').on('change', renderTable);
+            $('#searchInput').on('input', renderTable);
 
             loadConcerns();
         });
+
+        // Fills and opens the concern card
+        function openConcernCard(item) {
+            openConcernId = item.id;
+            $('#modalDate').text(item.date);
+            $('#modalContent').text(item.text);
+            $('#modalStatus').text(STATUS_LABELS[item.status] || item.status);
+            $('#modalConfidence').text(item.confidence === null ? '—' : item.confidence.toFixed(2));
+            $('#modalSector').text(item.sector || '—');
+            $('#modalPriority').text(item.priority || '—');
+            $('#modalKeywords').text(item.keywords || '—');
+            $('#reviewError').hide();
+
+            if (item.status === 'for_review') {
+                $('#reviewSector, #reviewPriority').val('');
+                $('#reviewBox').show();
+            } else {
+                $('#reviewBox').hide();
+            }
+            $('#concernModal').addClass('active');
+        }
+
+        // Saves the manually chosen sector + priority; the server flips status to 'ongoing'
+        function saveReview() {
+            const sector = $('#reviewSector').val();
+            const priority = $('#reviewPriority').val();
+            if (!sector || !priority) {
+                $('#reviewError').text('Please choose both a sector and a priority level.').show();
+                return;
+            }
+            $('#reviewSaveBtn').prop('disabled', true);
+            $.ajax({
+                url: '../src/review-concern.php',
+                method: 'POST',
+                data: { id: openConcernId, sector: sector, priority: priority },
+                dataType: 'json'
+            }).done(function (response) {
+                if (response.success) {
+                    closeModal('concernModal');
+                    loadConcerns();
+                } else {
+                    $('#reviewError').text(response.message || 'Could not save.').show();
+                }
+            }).fail(function () {
+                $('#reviewError').text('Could not reach the server. Please try again.').show();
+            }).always(function () {
+                $('#reviewSaveBtn').prop('disabled', false);
+            });
+        }
 
         // Fetch concerns from the backend for the current filter.
         // Adjust this path if your folder structure differs —
         // this assumes public/Admin_Concerns_Table_Page.php and src/get-concerns.php as siblings.
         function loadConcerns() {
             $('#concernsTableBody').html(
-                '<tr><td colspan="4" style="text-align:center;padding:40px;font-weight:800;color:#083D8F;">LOADING...</td></tr>'
+                '<tr><td colspan="7" style="text-align:center;padding:40px;font-weight:800;color:#083D8F;">LOADING...</td></tr>'
             );
 
             $.ajax({
@@ -1097,10 +1304,14 @@ if (!isset($_SESSION['user_id'])) {
                 dataType: 'json'
             }).done(function (response) {
                 concernsData = (response.concerns || []).map(c => Object.assign({ selected: false }, c));
+                const n = response.review_count || 0;
+                $('#reviewBanner').html(n > 0
+                    ? `${n} concern${n > 1 ? 's' : ''} need${n > 1 ? '' : 's'} manual review — <u>view</u>`
+                    : '').css('display', n > 0 && activeFilter !== 'for_review' ? 'block' : 'none');
                 renderTable();
             }).fail(function () {
                 $('#concernsTableBody').html(
-                    '<tr><td colspan="4" style="text-align:center;padding:40px;font-weight:800;color:#083D8F;">COULD NOT LOAD CONCERNS</td></tr>'
+                    '<tr><td colspan="7" style="text-align:center;padding:40px;font-weight:800;color:#083D8F;">COULD NOT LOAD CONCERNS</td></tr>'
                 );
             });
         }
@@ -1108,13 +1319,9 @@ if (!isset($_SESSION['user_id'])) {
         // Set Filter
         function setFilter(filter) {
             activeFilter = filter;
-            const labels = { ongoing: 'Ongoing', archived: 'Archived', all: 'All Concerns' };
+            const labels = { ongoing: 'Ongoing', for_review: 'For Review', archived: 'Archived', all: 'All Concerns' };
             $('#currentFilterText').text(labels[filter] || 'Filter');
             loadConcerns();
-        }
-
-        function closeModal(id = 'concernModal') {
-            document.getElementById(id).classList.remove('active');
         }
 
         // Action Handlers
@@ -1151,6 +1358,19 @@ if (!isset($_SESSION['user_id'])) {
         function renderTable() {
             const $tableBody = $('#concernsTableBody').empty();
 
+            // Sector / priority dropdowns + keyword search, combined (all must match)
+            const sectorSel = $('#sectorFilter').val();
+            const prioritySel = $('#priorityFilter').val();
+            const terms = $('#searchInput').val().toLowerCase().split(/\s+/).filter(Boolean);
+            const visible = concernsData.filter(c => {
+                if (sectorSel && c.sector !== sectorSel) return false;
+                if (prioritySel && c.priority !== prioritySel) return false;
+                const hay = (c.text + ' ' + (c.keywords || '')).toLowerCase();
+                return terms.every(t => hay.includes(t));
+            });
+            // A row hidden by a filter must not stay selected (it could be archived by accident)
+            concernsData.forEach(c => { if (!visible.includes(c)) c.selected = false; });
+
             // Count total selected items and figure out whether the action button
             // should say "Archive" (gray) or "Restore" (green) based on what's selected.
             const selectedItems = concernsData.filter(c => c.selected);
@@ -1169,20 +1389,25 @@ if (!isset($_SESSION['user_id'])) {
                 $('#actionButtons').css('display', 'none');
             }
 
-            if (concernsData.length === 0) {
+            if (visible.length === 0) {
                 $tableBody.append(`
                     <tr>
-                        <td colspan="4" style="text-align: center; padding: 40px; font-weight: 800; color: #083D8F;">
+                        <td colspan="7" style="text-align: center; padding: 40px; font-weight: 800; color: #083D8F;">
                             NO CONCERNS FOUND
                         </td>
                     </tr>
                 `);
-                $('#tableFooterInfo').text('SHOWING 0 OF 0 ENTRIES');
+                $('#tableFooterInfo').text(`SHOWING 0 OF ${concernsData.length} ENTRIES`);
             } else {
-                const rows = concernsData.map(item => {
+                const rows = visible.map(item => {
                     const showViewButton = item.selected && selectedCount === 1;
-                    const badgeClass = item.status === 'archived' ? 'archived' : '';
-                    const statusLabel = item.status === 'archived' ? 'Archived' : 'Ongoing';
+                    const badgeClass = { archived: 'archived', for_review: 'review' }[item.status] || '';
+                    const statusLabel = STATUS_LABELS[item.status] || item.status;
+                    const sectorCell = item.sector ? escapeHtml(item.sector) : '<span class="muted-cell">—</span>';
+                    const priorityCell = item.priority
+                        ? `<span class="status-badge p-${item.priority.toLowerCase()}">${escapeHtml(item.priority)}</span>`
+                        : '<span class="muted-cell">—</span>';
+                    const confCell = item.confidence === null ? '<span class="muted-cell">—</span>' : item.confidence.toFixed(2);
 
                     return `
                         <tr class="${item.selected ? 'selected' : ''}" data-id="${item.id}">
@@ -1191,6 +1416,9 @@ if (!isset($_SESSION['user_id'])) {
                             </td>
                             <td>${escapeHtml(item.date)}</td>
                             <td><span class="status-badge ${badgeClass}">${statusLabel}</span></td>
+                            <td>${sectorCell}</td>
+                            <td>${priorityCell}</td>
+                            <td>${confCell}</td>
                             <td>
                                 <div class="concern-cell-wrapper">
                                     <span class="concern-text-truncate">${escapeHtml(item.text)}</span>
@@ -1202,7 +1430,7 @@ if (!isset($_SESSION['user_id'])) {
                 });
 
                 $tableBody.append(rows.join(''));
-                $('#tableFooterInfo').text(`SHOWING ${concernsData.length} OF ${concernsData.length} ENTRIES`);
+                $('#tableFooterInfo').text(`SHOWING ${visible.length} OF ${concernsData.length} ENTRIES`);
             }
         }
 
@@ -1211,7 +1439,8 @@ if (!isset($_SESSION['user_id'])) {
             document.getElementById(id).classList.add('active');
         }
 
-        function closeModal(id) {
+        // Default argument matters: the concern card's X button calls closeModal() with no id
+        function closeModal(id = 'concernModal') {
             document.getElementById(id).classList.remove('active');
         }
 

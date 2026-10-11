@@ -187,6 +187,69 @@
             box-shadow: 0 0 0 4px rgba(11, 69, 172, 0.15);
         }
 
+        /* BACK BUTTON */
+        .btn-back {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            margin-top: 4px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--primary-blue);
+            background: transparent;
+            border: 2px solid var(--primary-blue);
+            border-radius: 30px;
+            transition: var(--transition);
+        }
+
+        .btn-back:hover {
+            background: rgba(11, 69, 172, 0.08);
+        }
+
+        /* CAPTCHA */
+        .captcha-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .captcha-row img {
+            border-radius: 12px;
+            border: 2px solid var(--primary-blue);
+            max-width: 100%;
+            height: auto;
+        }
+
+        .captcha-refresh {
+            background: var(--primary-blue);
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 1.3rem;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .captcha-input {
+            width: 100%;
+            padding: 14px 18px;
+            font-family: inherit;
+            font-size: 1rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-dark);
+            background-color: #f8fafc;
+            border: 2px solid var(--primary-blue);
+            border-radius: 14px;
+            outline: none;
+        }
+
         /* SUBMIT BUTTON */
         .btn-submit {
             width: 100%;
@@ -469,8 +532,22 @@
                     <textarea class="concern-input" placeholder="Write your concern here..." required></textarea>
                 </div>
 
+                <!-- Honeypot: hidden from people, bots tend to fill it in -->
+                <div style="position:absolute;left:-9999px;" aria-hidden="true">
+                    <label>Website <input type="text" id="website" name="website" tabindex="-1" autocomplete="off"></label>
+                </div>
+
+                <!-- CAPTCHA -->
+                <div class="captcha-row">
+                    <img id="captcha-img" src="../src/captcha.php" alt="Verification code" width="240" height="72">
+                    <button type="button" id="captcha-refresh" class="captcha-refresh" aria-label="Get a new code">&#8635;</button>
+                </div>
+                <input type="text" id="captcha-input" class="captcha-input" maxlength="5"
+                    placeholder="Type the code shown above" autocomplete="off" required>
+
                 <!-- Submit Action Button -->
                 <button type="submit" class="btn-submit">Submit</button>
+                <a href="main_menu.html" class="btn-back">Back</a>
             </form>
         </div>
     </main>
@@ -518,6 +595,24 @@
                 return false; // Valid text
             }
 
+            // Only barangays with an approved admin can receive concerns: disable the rest
+            $.getJSON("../src/get-barangays.php").done(function (res) {
+                var available = res.available || [];
+                $(".custom-select option").each(function () {
+                    var v = $(this).val();
+                    if (v && available.indexOf(v) === -1) {
+                        $(this).prop("disabled", true).text($(this).text() + " (not yet available)");
+                    }
+                });
+            });
+
+            // The captcha code is single-use, so get a fresh image after every attempt
+            function reloadCaptcha() {
+                $("#captcha-img").attr("src", "../src/captcha.php?t=" + Date.now());
+                $("#captcha-input").val("");
+            }
+            $("#captcha-refresh").on("click", reloadCaptcha);
+
             $("#concern-form").on("submit", function (e) {
                 e.preventDefault();
 
@@ -536,6 +631,13 @@
                     return;
                 }
 
+                var captcha = $.trim($("#captcha-input").val());
+                if (!captcha) {
+                    $("#submission-dialog-fail .dialog-description").text("Please type the verification code shown in the image.");
+                    $("#submission-dialog-fail").dialog("open");
+                    return;
+                }
+
                 $submitBtn.prop("disabled", true).text("Submitting...");
 
                 // Adjust this path if your folder structure differs —
@@ -543,7 +645,7 @@
                 $.ajax({
                     url: "../src/submit-concern.php",
                     method: "POST",
-                    data: { barangay: barangay, concern_text: concern },
+                    data: { barangay: barangay, concern_text: concern, captcha: captcha, website: $("#website").val() },
                     dataType: "json"
                 }).done(function (response) {
                     if (response.success) {
@@ -560,6 +662,7 @@
                     $("#submission-dialog-fail").dialog("open");
                 }).always(function () {
                     $submitBtn.prop("disabled", false).text("Submit");
+                    reloadCaptcha();
                 });
             });
 

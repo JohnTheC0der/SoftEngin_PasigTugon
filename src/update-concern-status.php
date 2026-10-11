@@ -31,7 +31,11 @@ if (!in_array($action, ['archive', 'restore'], true)) {
     exit;
 }
 
-$newStatus = $action === 'archive' ? 'archived' : 'ongoing';
+// Restoring a concern that never got a sector/priority sends it back to 'for_review',
+// not 'ongoing' (it still needs the manual review step).
+$statusExpr = $action === 'archive'
+    ? "'archived'"
+    : "IF(sector IS NULL OR priority_level IS NULL, 'for_review', 'ongoing')";
 
 // Sanitize ids to integers only
 $ids = array_filter(array_map('intval', $ids));
@@ -47,10 +51,10 @@ try {
     $placeholders = implode(',', array_fill(0, count($ids), '?'));
     $stmt = $pdo->prepare(
         "UPDATE tbl_concerns
-         SET status = ?
+         SET status = $statusExpr
          WHERE barangay_id = ? AND concern_id IN ($placeholders)"
     );
-    $stmt->execute(array_merge([$newStatus], [$barangayId], $ids));
+    $stmt->execute(array_merge([$barangayId], $ids));
 
     $response['success'] = true;
     $response['updated'] = $stmt->rowCount();
