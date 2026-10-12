@@ -3,38 +3,47 @@ import json
 from pathlib import Path
 import joblib
 from preprocess import clean
-from priority import get_priority
 
 BASE_DIR = Path(__file__).parent
-MODEL_PATH = BASE_DIR / "model.joblib"
 
-def load_model():
-    return joblib.load(MODEL_PATH)
 
-def analyze(text, model):
-    cleaned = clean(text)
+def load_models():
+    # Two saved models, both created by train.py
+    sector_model = joblib.load(BASE_DIR / "sector_model.joblib")
+    priority_model = joblib.load(BASE_DIR / "priority_model.joblib")
+    return sector_model, priority_model
 
-    # 1. Sector: the model's probability for each sector, take the highest
+
+def predict_label(model, cleaned):
+    # predict_proba gives one probability per label, e.g. [0.12, 0.05, 0.71, 0.12]
     probabilities = model.predict_proba([cleaned])[0]
-    best = probabilities.argmax()
-    sector = str(model.classes_[best])
-    confidence = round(float(probabilities[best]), 4)
+    best = probabilities.argmax()                       # position of the biggest probability
+    label = str(model.classes_[best])                   # classes_ holds the label names in the same order
+    return label, round(float(probabilities[best]), 4)
 
-    # 2. Priority: rule-based, from priority.py
-    result = get_priority(text, sector)
-    keywords = result["keywords"]
 
-    # 3. No urgent keywords? Use up to 3 words the model recognizes
-    if not keywords:
-        vocab = model.named_steps["vec"].vocabulary_
-        keywords = [w for w in dict.fromkeys(cleaned.split()) if w in vocab][:3]
+def top_keywords(model, cleaned, n=3):
+    # Picks the words in this complaint with the highest TF-IDF weight (the most distinctive ones).
+    vectorizer = model.named_steps["vec"]
+    row = vectorizer.transform([cleaned])               # the complaint as TF-IDF numbers
+    names = vectorizer.get_feature_names_out()          # every word the model knows
+    ranked = sorted(zip(row.indices, row.data), key=lambda pair: pair[1], reverse=True)
+    return [str(names[i]) for i, _ in ranked[:n]]
 
+
+def analyze(text, sector_model, priority_model):
+    cleaned = clean(text)
+    sector, confidence = predict_label(sector_model, cleaned)
+    priority, priority_confidence = predict_label(priority_model, cleaned)
+    keywords = top_keywords(sector_model, cleaned)
     return {
         "sector": sector,
         "confidence": confidence,
-        "priority": result["priority"],
+        "priority": priority,
+        "priority_confidence": priority_confidence,
         "keywords": ", ".join(keywords),
     }
+
 
 def main():
     text = sys.argv[1].strip() if len(sys.argv) > 1 else ""
@@ -43,14 +52,15 @@ def main():
         return 1
 
     try:
-        model = load_model()
-        output = analyze(text, model)
+        sector_model, priority_model = load_models()
+        output = analyze(text, sector_model, priority_model)
     except Exception as e:
         print(json.dumps({"error": f"Prediction failed: {e}"}))
         return 1
 
     print(json.dumps(output))
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())
