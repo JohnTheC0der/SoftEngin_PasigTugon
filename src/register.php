@@ -18,6 +18,15 @@ if ($username === '' || $email === '' || $barangaySlug === '' || $password === '
     exit;
 }
 
+// Only real barangays can be applied for (must match the dropdown in Admin_Sign_Up.html)
+$validBarangays = ['bagong-ilog', 'bambang', 'caniogan', 'kapitolyo', 'malinao',
+                   'oranbo', 'pinagbuhatan', 'san-antonio', 'san-joaquin', 'ugong'];
+if (!in_array($barangaySlug, $validBarangays, true)) {
+    $response['message'] = 'Please select a valid barangay.';
+    echo json_encode($response);
+    exit;
+}
+
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     $response['message'] = 'Please enter a valid email address.';
     echo json_encode($response);
@@ -27,7 +36,7 @@ if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
 // Registration is restricted to official Pasig City government email addresses.
 // This mirrors the check already done in the browser, but enforced here too since
 // a direct POST request to this endpoint would otherwise skip the frontend check entirely.
-if (strtolower(substr(strrchr($email, '@'), 1)) !== 'pasigcity.gov.ph') {
+if (!str_ends_with(strtolower($email), '@pasigcity.gov.ph')) {
     $response['message'] = 'Only official @pasigcity.gov.ph email addresses are permitted to create admin accounts.';
     echo json_encode($response);
     exit;

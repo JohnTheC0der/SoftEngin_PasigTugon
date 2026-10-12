@@ -43,17 +43,17 @@ CREATE TABLE tbl_users (
 
 -- ---------------------------------------------------
 -- Table: tbl_concerns
--- Raw complaint text, extracted keywords, sector, and priority
+-- Raw complaint text, extracted keywords, sector, and priority (set by ml_engine/)
 -- ---------------------------------------------------
 CREATE TABLE tbl_concerns (
     concern_id         INT AUTO_INCREMENT PRIMARY KEY,
     barangay_id        INT NOT NULL,
     raw_text           TEXT NOT NULL,
     extracted_keywords VARCHAR(500),
-    sector             ENUM('Health', 'Infrastructure', 'Crime', 'Environment') NOT NULL,
+    sector             ENUM('Health', 'Infrastructure', 'Crime', 'Environment') NULL COMMENT 'NULL while status = for_review (model confidence too low)',
     confidence_score   DECIMAL(5,4),
-    priority_level     ENUM('High', 'Medium', 'Low') NOT NULL,
-    status             ENUM('ongoing', 'archived') NOT NULL DEFAULT 'ongoing',
+    priority_level     ENUM('High', 'Medium', 'Low') NULL COMMENT 'NULL while status = for_review',
+    status             ENUM('ongoing', 'for_review', 'archived') NOT NULL DEFAULT 'ongoing',
     submitted_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     resolved_at        TIMESTAMP NULL,
     FOREIGN KEY (barangay_id) REFERENCES tbl_barangay(barangay_id)
@@ -63,17 +63,6 @@ CREATE TABLE tbl_concerns (
     INDEX idx_priority (priority_level),
     INDEX idx_sector (sector),
     INDEX idx_submitted_at (submitted_at)
-);
-
--- ---------------------------------------------------
--- Table: tbl_urgency_keywords
--- Reference table backing the Priority Assessment Matrix
--- ---------------------------------------------------
-CREATE TABLE tbl_urgency_keywords (
-    keyword_id     INT AUTO_INCREMENT PRIMARY KEY,
-    keyword        VARCHAR(100) NOT NULL UNIQUE,
-    sector         ENUM('Health', 'Infrastructure', 'Crime', 'Environment') NOT NULL,
-    urgency_weight TINYINT NOT NULL DEFAULT 1 COMMENT '1 = Low, 2 = Medium, 3 = High'
 );
 
 -- ---------------------------------------------------
@@ -92,18 +81,4 @@ CREATE TABLE tbl_backups (
         ON UPDATE CASCADE
 );
 
--- ---------------------------------------------------
--- Seed data: sample urgency keywords for the classifier
--- (matches the examples shown in your mockups/flowchart)
--- ---------------------------------------------------
-INSERT INTO tbl_urgency_keywords (keyword, sector, urgency_weight) VALUES
-('sunog',      'Crime',          3),
-('fire',       'Crime',          3),
-('baha',       'Infrastructure', 3),
-('flooding',   'Infrastructure', 3),
-('holdap',     'Crime',          3),
-('collapse',   'Infrastructure', 3),
-('outbreak',   'Health',         3),
-('snatcher',   'Crime',          2),
-('magnanakaw', 'Crime',          2),
-('allowance',  'Health',         1);
+-- Note: urgency keywords live in ml_engine/priority.py (URGENCY_WEIGHTS), not in the database.

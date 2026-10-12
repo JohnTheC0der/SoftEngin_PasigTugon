@@ -1,11 +1,13 @@
 from preprocess import clean
 
+# SINGLE SOURCE OF TRUTH for urgency keywords. The website/database does not keep its own list.
+# To change what counts as urgent: edit this dictionary and commit (no retraining needed).
 # Urgency weight per keyword: 3 = High, 2 = Medium, 1 = Low.
-# Whole-word matching, so word forms are listed explicitly.
+# Whole-word matching ("baha" will not match "bahay"), so every word form must be listed.
 URGENCY_WEIGHTS = {
     # 3 = High: immediate danger to life or property
-    "sunog": 3, "nasusunog": 3, "fire": 3,
-    "baha": 3, "bumabaha": 3, "nagbabaha": 3, "bumaha": 3, "flood": 3, "flooding": 3,
+    "sunog": 3, "nasusunog": 3, "nasunog": 3, "sinunog": 3, "fire": 3,
+    "baha": 3, "bumabaha": 3, "nagbabaha": 3, "bumaha": 3, "binaha": 3, "flood": 3, "flooding": 3,
     "holdap": 3, "hinoldap": 3, "baril": 3, "pagnanakaw": 3,
     "outbreak": 3, "collapse": 3, "gumuho": 3, "bumigay": 3, "ambulansya": 3,
     # 2 = Medium: serious, but not an immediate emergency
