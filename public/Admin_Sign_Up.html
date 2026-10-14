@@ -298,9 +298,10 @@
 
         /* FOOTER / SIGN-UP LINK */
         .form-footer {
-            margin-top: 24px;
+            margin-top: 25px;
+            width: 100%;
             text-align: center;
-            font-size: 0.8rem;
+            font-size: 0.82rem;
             color: rgba(255, 255, 255, 0.75);
             letter-spacing: 0.03em;
         }
@@ -315,6 +316,45 @@
         .form-footer a:hover {
             text-decoration: underline;
             color: var(--white);
+        }
+
+        /* FOOTER / BACK TO HOME */
+        .back-to-home-footer {
+            margin-top: 24px;
+            padding-top: 18px;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            width: 100%;
+            text-align: center;
+            font-size: 0.82rem;
+            color: rgba(255, 255, 255, 0.75);
+            letter-spacing: 0.03em;
+        }
+
+        .back-to-home-footer a {
+            color: var(--accent-cyan);
+            font-weight: 700;
+            text-decoration: none;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            /* Space between icon and text */
+        }
+
+        .back-to-home-footer a svg {
+            width: 16px;
+            height: 16px;
+            transition: var(--transition);
+        }
+
+        .back-to-home-footer a:hover {
+            text-decoration: underline;
+            color: var(--white);
+        }
+
+        .back-to-home-footer a:hover svg {
+            transform: translateX(-3px);
+            /* Subtle slide effect on hover */
         }
 
         /* JQUERY UI DIALOG GLASSMORPHISM STYLES */
@@ -561,7 +601,19 @@
         </form>
 
         <p class="form-footer">
-            Already have an account? <a href="Admin_Log_In.html">Sign in here</a>
+            Already have an account? <a href="Admin_Log_In.html">Log In here</a>
+        </p>
+        </form>
+
+        <p class="back-to-home-footer">
+            <a href="main_menu.html">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                    stroke-width="2" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                Back to Home
+            </a>
         </p>
     </main>
 

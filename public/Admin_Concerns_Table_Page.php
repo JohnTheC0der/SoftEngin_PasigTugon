@@ -222,6 +222,54 @@ if (!isset($_SESSION['user_id'])) {
             color: #fca5a5;
         }
 
+        /* TAB BAR (sits under the navbar) */
+        .tab-bar {
+            display: flex;
+            gap: 8px;
+            padding: 0 40px;
+            background: rgba(4, 39, 120, 0.45);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--card-border);
+            position: relative;
+            z-index: 40;
+            overflow-x: auto;
+        }
+
+        .tab-link {
+            padding: 18px 28px;
+            font-size: 0.85rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            white-space: nowrap;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            border-bottom: 3px solid transparent;
+            transition: var(--transition);
+        }
+
+        .tab-link:hover {
+            color: var(--white);
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .tab-link.active {
+            color: var(--accent-cyan);
+            background: rgba(56, 189, 248, 0.1);
+            border-bottom-color: var(--accent-cyan);
+        }
+
+        @media (max-width: 600px) {
+            .tab-bar {
+                padding: 0 16px;
+            }
+
+            .tab-link {
+                padding: 16px 18px;
+            }
+        }
+
         /* MAIN LAYOUT */
         .main-wrapper {
             flex: 1;
@@ -437,13 +485,34 @@ if (!isset($_SESSION['user_id'])) {
             text-transform: uppercase;
         }
 
-        .concerns-table th:nth-child(1) { width: 4%; text-align: center; }
-        .concerns-table th:nth-child(2) { width: 9%; }
-        .concerns-table th:nth-child(3) { width: 11%; }
-        .concerns-table th:nth-child(4) { width: 12%; }
-        .concerns-table th:nth-child(5) { width: 9%; }
-        .concerns-table th:nth-child(6) { width: 8%; }
-        .concerns-table th:nth-child(7) { width: 47%; }
+        .concerns-table th:nth-child(1) {
+            width: 4%;
+            text-align: center;
+        }
+
+        .concerns-table th:nth-child(2) {
+            width: 9%;
+        }
+
+        .concerns-table th:nth-child(3) {
+            width: 11%;
+        }
+
+        .concerns-table th:nth-child(4) {
+            width: 12%;
+        }
+
+        .concerns-table th:nth-child(5) {
+            width: 9%;
+        }
+
+        .concerns-table th:nth-child(6) {
+            width: 8%;
+        }
+
+        .concerns-table th:nth-child(7) {
+            width: 47%;
+        }
 
         .concerns-table tbody tr {
             border-bottom: 1px solid rgba(8, 61, 143, 0.2);
@@ -523,11 +592,26 @@ if (!isset($_SESSION['user_id'])) {
             color: #78350F;
         }
 
-        .status-badge.p-high { background-color: #FECACA; color: #991B1B; }
-        .status-badge.p-medium { background-color: #FED7AA; color: #9A3412; }
-        .status-badge.p-low { background-color: #BBF7D0; color: #166534; }
+        .status-badge.p-high {
+            background-color: #FECACA;
+            color: #991B1B;
+        }
 
-        .muted-cell { color: #1E3A8A; opacity: 0.55; font-weight: 700; }
+        .status-badge.p-medium {
+            background-color: #FED7AA;
+            color: #9A3412;
+        }
+
+        .status-badge.p-low {
+            background-color: #BBF7D0;
+            color: #166534;
+        }
+
+        .muted-cell {
+            color: #1E3A8A;
+            opacity: 0.55;
+            font-weight: 700;
+        }
 
         /* FILTER ROW */
         .filters-row {
@@ -563,8 +647,13 @@ if (!isset($_SESSION['user_id'])) {
             outline: none;
         }
 
-        .search-input:focus { border-color: #083D8F; }
-        .search-input::placeholder { color: #6B8FC7; }
+        .search-input:focus {
+            border-color: #083D8F;
+        }
+
+        .search-input::placeholder {
+            color: #6B8FC7;
+        }
 
         .review-banner {
             display: none;
@@ -578,7 +667,9 @@ if (!isset($_SESSION['user_id'])) {
             cursor: pointer;
         }
 
-        .review-banner u { text-decoration: underline; }
+        .review-banner u {
+            text-decoration: underline;
+        }
 
         /* Concern card detail rows */
         .modal-detail-grid {
@@ -589,7 +680,9 @@ if (!isset($_SESSION['user_id'])) {
             padding: 0 4px;
         }
 
-        .modal-detail-grid .full { grid-column: 1 / -1; }
+        .modal-detail-grid .full {
+            grid-column: 1 / -1;
+        }
 
         .detail-label {
             display: block;
@@ -601,7 +694,11 @@ if (!isset($_SESSION['user_id'])) {
             margin-bottom: 4px;
         }
 
-        .detail-value { color: #FFFFFF; font-weight: 800; font-size: 1rem; }
+        .detail-value {
+            color: #FFFFFF;
+            font-weight: 800;
+            font-size: 1rem;
+        }
 
         .modal-select {
             width: 100%;
@@ -623,10 +720,30 @@ if (!isset($_SESSION['user_id'])) {
             border: 1px solid rgba(253, 230, 138, 0.4);
         }
 
-        .review-box p { color: #FDE68A; font-weight: 700; font-size: 0.85rem; margin-bottom: 10px; }
-        .review-box .row { display: flex; gap: 12px; margin-bottom: 12px; }
-        .review-box .row > div { flex: 1; }
-        .review-error { color: #FCA5A5; font-weight: 700; font-size: 0.85rem; margin-bottom: 8px; display: none; }
+        .review-box p {
+            color: #FDE68A;
+            font-weight: 700;
+            font-size: 0.85rem;
+            margin-bottom: 10px;
+        }
+
+        .review-box .row {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .review-box .row>div {
+            flex: 1;
+        }
+
+        .review-error {
+            color: #FCA5A5;
+            font-weight: 700;
+            font-size: 0.85rem;
+            margin-bottom: 8px;
+            display: none;
+        }
 
         .concern-cell-wrapper {
             display: flex;
@@ -1047,13 +1164,17 @@ if (!isset($_SESSION['user_id'])) {
                 </svg>
             </button>
             <div class="dropdown-menu" id="navDropdown">
-                <a href="Admin_Dashboard_Page.php" class="dropdown-item">Dashboard</a>
-                <a href="Admin_Concerns_Table_Page.php" class="dropdown-item">Concerns</a>
                 <a href="Admin_Setting_Page.php" class="dropdown-item">Settings</a>
                 <a href="#" class="dropdown-item logout" id="logoutBtn">Log Out</a>
             </div>
         </div>
     </nav>
+
+    <!-- TAB BAR -->
+    <div class="tab-bar">
+        <a href="Admin_Dashboard_Page.php" class="tab-link">Dashboard</a>
+        <a href="Admin_Concerns_Table_Page.php" class="tab-link active">Concerns</a>
+    </div>
 
     <main class="main-wrapper">
         <div class="outer-card">
@@ -1064,37 +1185,37 @@ if (!isset($_SESSION['user_id'])) {
                 <div class="controls-bar">
                     <!-- Filter Dropdown Container -->
                     <div class="filters-row">
-                    <div class="filter-dropdown-container">
-                        <button class="filter-dropdown-btn" id="filterBtn">
-                            <span id="currentFilterText">Ongoing</span>
-                            <svg width="18" height="12" viewBox="0 0 22 14" fill="none"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path d="M2 2L11 11L20 2" stroke="#072B60" stroke-width="3.5" stroke-linecap="round" />
-                            </svg>
-                        </button>
-                        <div class="filter-menu" id="filterMenu">
-                            <div class="filter-option" onclick="setFilter('ongoing')">Ongoing</div>
-                            <div class="filter-option" onclick="setFilter('for_review')">For Review</div>
-                            <div class="filter-option" onclick="setFilter('archived')">Archived</div>
-                            <div class="filter-option" onclick="setFilter('all')">All Concerns</div>
+                        <div class="filter-dropdown-container">
+                            <button class="filter-dropdown-btn" id="filterBtn">
+                                <span id="currentFilterText">Ongoing</span>
+                                <svg width="18" height="12" viewBox="0 0 22 14" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M2 2L11 11L20 2" stroke="#072B60" stroke-width="3.5" stroke-linecap="round" />
+                                </svg>
+                            </button>
+                            <div class="filter-menu" id="filterMenu">
+                                <div class="filter-option" onclick="setFilter('ongoing')">Ongoing</div>
+                                <div class="filter-option" onclick="setFilter('for_review')">For Review</div>
+                                <div class="filter-option" onclick="setFilter('archived')">Archived</div>
+                                <div class="filter-option" onclick="setFilter('all')">All Concerns</div>
+                            </div>
                         </div>
-                    </div>
 
-                    <select class="filter-select" id="sectorFilter" aria-label="Filter by sector">
-                        <option value="">All Sectors</option>
-                        <option>Health</option>
-                        <option>Infrastructure</option>
-                        <option>Crime</option>
-                        <option>Environment</option>
-                    </select>
-                    <select class="filter-select" id="priorityFilter" aria-label="Filter by priority">
-                        <option value="">All Priorities</option>
-                        <option>High</option>
-                        <option>Medium</option>
-                        <option>Low</option>
-                    </select>
-                    <input type="search" class="search-input" id="searchInput"
-                        placeholder="Search words in concerns or keywords..." autocomplete="off">
+                        <select class="filter-select" id="sectorFilter" aria-label="Filter by sector">
+                            <option value="">All Sectors</option>
+                            <option>Health</option>
+                            <option>Infrastructure</option>
+                            <option>Crime</option>
+                            <option>Environment</option>
+                        </select>
+                        <select class="filter-select" id="priorityFilter" aria-label="Filter by priority">
+                            <option value="">All Priorities</option>
+                            <option>High</option>
+                            <option>Medium</option>
+                            <option>Low</option>
+                        </select>
+                        <input type="search" class="search-input" id="searchInput"
+                            placeholder="Search words in concerns or keywords..." autocomplete="off">
                     </div>
 
                     <!-- Action Buttons - Displayed ONLY when items are selected -->
@@ -1165,15 +1286,19 @@ if (!isset($_SESSION['user_id'])) {
                         <span class="detail-label">Sector</span>
                         <select class="modal-select" id="reviewSector">
                             <option value="">Choose...</option>
-                            <option>Health</option><option>Infrastructure</option>
-                            <option>Crime</option><option>Environment</option>
+                            <option>Health</option>
+                            <option>Infrastructure</option>
+                            <option>Crime</option>
+                            <option>Environment</option>
                         </select>
                     </div>
                     <div>
                         <span class="detail-label">Priority</span>
                         <select class="modal-select" id="reviewPriority">
                             <option value="">Choose...</option>
-                            <option>High</option><option>Medium</option><option>Low</option>
+                            <option>High</option>
+                            <option>Medium</option>
+                            <option>Low</option>
                         </select>
                     </div>
                 </div>
@@ -1188,7 +1313,11 @@ if (!isset($_SESSION['user_id'])) {
         let concernsData = [];
         let activeFilter = 'ongoing';
         let openConcernId = null;
-        const STATUS_LABELS = { ongoing: 'Ongoing', for_review: 'For Review', archived: 'Archived' };
+        const STATUS_LABELS = {
+            ongoing: 'Ongoing',
+            for_review: 'For Review',
+            archived: 'Archived'
+        };
 
         // Escapes text pulled from the database before injecting it as HTML,
         // so a concern containing HTML/script tags can't execute as markup (stored XSS).
@@ -1198,25 +1327,25 @@ if (!isset($_SESSION['user_id'])) {
             return div.innerHTML;
         }
 
-        $(document).ready(function () {
+        $(document).ready(function() {
             // Dropdown toggles
-            $('#menuToggleBtn').on('click', function (e) {
+            $('#menuToggleBtn').on('click', function(e) {
                 e.stopPropagation();
                 $('#navDropdown').toggleClass('show');
             });
 
-            $('#filterBtn').on('click', function (e) {
+            $('#filterBtn').on('click', function(e) {
                 e.stopPropagation();
                 $('#filterMenu').toggleClass('show');
             });
 
             // Close dropdowns when clicking outside
-            $(document).on('click', function () {
+            $(document).on('click', function() {
                 $('#navDropdown, #filterMenu').removeClass('show');
             });
 
             // Table row click (toggle selection)
-            $('#concernsTableBody').on('click', 'tr[data-id]', function (e) {
+            $('#concernsTableBody').on('click', 'tr[data-id]', function(e) {
                 if ($(e.target).hasClass('btn-view-spec')) return;
                 const id = parseInt($(this).data('id'));
                 const item = concernsData.find(c => c.id === id);
@@ -1227,7 +1356,7 @@ if (!isset($_SESSION['user_id'])) {
             });
 
             // "View" button click (open modal)
-            $('#concernsTableBody').on('click', '.btn-view-spec', function (e) {
+            $('#concernsTableBody').on('click', '.btn-view-spec', function(e) {
                 e.stopPropagation();
                 const id = parseInt($(this).data('id'));
                 const item = concernsData.find(c => c.id === id);
@@ -1273,18 +1402,22 @@ if (!isset($_SESSION['user_id'])) {
             $.ajax({
                 url: '../src/review-concern.php',
                 method: 'POST',
-                data: { id: openConcernId, sector: sector, priority: priority },
+                data: {
+                    id: openConcernId,
+                    sector: sector,
+                    priority: priority
+                },
                 dataType: 'json'
-            }).done(function (response) {
+            }).done(function(response) {
                 if (response.success) {
                     closeModal('concernModal');
                     loadConcerns();
                 } else {
                     $('#reviewError').text(response.message || 'Could not save.').show();
                 }
-            }).fail(function () {
+            }).fail(function() {
                 $('#reviewError').text('Could not reach the server. Please try again.').show();
-            }).always(function () {
+            }).always(function() {
                 $('#reviewSaveBtn').prop('disabled', false);
             });
         }
@@ -1300,16 +1433,20 @@ if (!isset($_SESSION['user_id'])) {
             $.ajax({
                 url: '../src/get-concerns.php',
                 method: 'GET',
-                data: { filter: activeFilter },
+                data: {
+                    filter: activeFilter
+                },
                 dataType: 'json'
-            }).done(function (response) {
-                concernsData = (response.concerns || []).map(c => Object.assign({ selected: false }, c));
+            }).done(function(response) {
+                concernsData = (response.concerns || []).map(c => Object.assign({
+                    selected: false
+                }, c));
                 const n = response.review_count || 0;
-                $('#reviewBanner').html(n > 0
-                    ? `${n} concern${n > 1 ? 's' : ''} need${n > 1 ? '' : 's'} manual review — <u>view</u>`
-                    : '').css('display', n > 0 && activeFilter !== 'for_review' ? 'block' : 'none');
+                $('#reviewBanner').html(n > 0 ?
+                    `${n} concern${n > 1 ? 's' : ''} need${n > 1 ? '' : 's'} manual review — <u>view</u>` :
+                    '').css('display', n > 0 && activeFilter !== 'for_review' ? 'block' : 'none');
                 renderTable();
-            }).fail(function () {
+            }).fail(function() {
                 $('#concernsTableBody').html(
                     '<tr><td colspan="7" style="text-align:center;padding:40px;font-weight:800;color:#083D8F;">COULD NOT LOAD CONCERNS</td></tr>'
                 );
@@ -1319,7 +1456,12 @@ if (!isset($_SESSION['user_id'])) {
         // Set Filter
         function setFilter(filter) {
             activeFilter = filter;
-            const labels = { ongoing: 'Ongoing', for_review: 'For Review', archived: 'Archived', all: 'All Concerns' };
+            const labels = {
+                ongoing: 'Ongoing',
+                for_review: 'For Review',
+                archived: 'Archived',
+                all: 'All Concerns'
+            };
             $('#currentFilterText').text(labels[filter] || 'Filter');
             loadConcerns();
         }
@@ -1341,15 +1483,18 @@ if (!isset($_SESSION['user_id'])) {
             $.ajax({
                 url: '../src/update-concern-status.php',
                 method: 'POST',
-                data: { ids: selectedIds, action: action },
+                data: {
+                    ids: selectedIds,
+                    action: action
+                },
                 dataType: 'json'
-            }).done(function (response) {
+            }).done(function(response) {
                 if (response.success) {
                     loadConcerns();
                 } else {
                     alert(response.message || 'Could not update the selected concerns.');
                 }
-            }).fail(function () {
+            }).fail(function() {
                 alert('Could not reach the server. Please try again.');
             });
         }
@@ -1369,7 +1514,9 @@ if (!isset($_SESSION['user_id'])) {
                 return terms.every(t => hay.includes(t));
             });
             // A row hidden by a filter must not stay selected (it could be archived by accident)
-            concernsData.forEach(c => { if (!visible.includes(c)) c.selected = false; });
+            concernsData.forEach(c => {
+                if (!visible.includes(c)) c.selected = false;
+            });
 
             // Count total selected items and figure out whether the action button
             // should say "Archive" (gray) or "Restore" (green) based on what's selected.
@@ -1401,12 +1548,15 @@ if (!isset($_SESSION['user_id'])) {
             } else {
                 const rows = visible.map(item => {
                     const showViewButton = item.selected && selectedCount === 1;
-                    const badgeClass = { archived: 'archived', for_review: 'review' }[item.status] || '';
+                    const badgeClass = {
+                        archived: 'archived',
+                        for_review: 'review'
+                    } [item.status] || '';
                     const statusLabel = STATUS_LABELS[item.status] || item.status;
                     const sectorCell = item.sector ? escapeHtml(item.sector) : '<span class="muted-cell">—</span>';
-                    const priorityCell = item.priority
-                        ? `<span class="status-badge p-${item.priority.toLowerCase()}">${escapeHtml(item.priority)}</span>`
-                        : '<span class="muted-cell">—</span>';
+                    const priorityCell = item.priority ?
+                        `<span class="status-badge p-${item.priority.toLowerCase()}">${escapeHtml(item.priority)}</span>` :
+                        '<span class="muted-cell">—</span>';
                     const confCell = item.confidence === null ? '<span class="muted-cell">—</span>' : item.confidence.toFixed(2);
 
                     return `
@@ -1449,31 +1599,29 @@ if (!isset($_SESSION['user_id'])) {
             window.location.href = '../src/logout.php';
         }
 
-        document.getElementById('logoutBtn').addEventListener('click', function (e) {
+        document.getElementById('logoutBtn').addEventListener('click', function(e) {
             e.preventDefault();
             document.getElementById('navDropdown').classList.remove('show');
             openModal('logoutModal');
         });
 
         // Close modal when clicking backdrop
-        document.getElementById('logoutModal').addEventListener('click', function (e) {
+        document.getElementById('logoutModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 closeModal('logoutModal');
             }
         });
 
-        document.getElementById('concernModal').addEventListener('click', function (e) {
+        document.getElementById('concernModal').addEventListener('click', function(e) {
             if (e.target === this) closeModal('concernModal');
         });
 
-        document.addEventListener('keydown', function (e) {
+        document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 closeModal('concernModal');
                 closeModal('logoutModal');
             }
         });
-
-
     </script>
 </body>
 

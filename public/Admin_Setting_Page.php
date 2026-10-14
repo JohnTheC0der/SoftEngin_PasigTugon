@@ -180,6 +180,54 @@ $backup_interval = 'Everyday';
             color: #fca5a5;
         }
 
+        /* TAB BAR (sits under the navbar) */
+        .tab-bar {
+            display: flex;
+            gap: 8px;
+            padding: 0 40px;
+            background: rgba(4, 39, 120, 0.45);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--card-border);
+            position: relative;
+            z-index: 40;
+            overflow-x: auto;
+        }
+
+        .tab-link {
+            padding: 18px 28px;
+            font-size: 0.85rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            white-space: nowrap;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            border-bottom: 3px solid transparent;
+            transition: var(--transition);
+        }
+
+        .tab-link:hover {
+            color: var(--white);
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .tab-link.active {
+            color: var(--accent-cyan);
+            background: rgba(56, 189, 248, 0.1);
+            border-bottom-color: var(--accent-cyan);
+        }
+
+        @media (max-width: 600px) {
+            .tab-bar {
+                padding: 0 16px;
+            }
+
+            .tab-link {
+                padding: 16px 18px;
+            }
+        }
+
         /* ── LAYOUT ── */
         .main-wrapper {
             flex: 1;
@@ -700,13 +748,17 @@ $backup_interval = 'Everyday';
                 </svg>
             </button>
             <div class="dropdown-menu" id="navDropdown">
-                <a href="Admin_Dashboard_Page.php" class="dropdown-item">Dashboard</a>
-                <a href="Admin_Concerns_Table_Page.php" class="dropdown-item">Concerns</a>
-                <a href="Admin_Setting_Page.php" class="dropdown-item">Settings</a>
+                <a href="Admin_Setting_Page.php" class="dropdown-item active">Settings</a>
                 <a href="#" class="dropdown-item logout" id="logoutBtn">Log Out</a>
             </div>
         </div>
     </nav>
+
+    <!-- TAB BAR -->
+    <div class="tab-bar">
+        <a href="Admin_Dashboard_Page.php" class="tab-link">Dashboard</a>
+        <a href="Admin_Concerns_Table_Page.php" class="tab-link">Concerns</a>
+    </div>
 
     <!-- MAIN -->
     <main class="main-wrapper">
@@ -775,15 +827,15 @@ $backup_interval = 'Everyday';
                             <div class="form_group">
                                 <label class="form_label">Auto-Backup Interval</label>
                                 <select id="backupInterval" class="form_select">
-                                    <option <?php echo $backup_interval==='Everyday' ? 'selected' : '' ; ?>>Everyday
+                                    <option <?php echo $backup_interval === 'Everyday' ? 'selected' : ''; ?>>Everyday
                                     </option>
-                                    <option <?php echo $backup_interval==='Every 2 Days' ? 'selected' : '' ; ?>>Every 2
+                                    <option <?php echo $backup_interval === 'Every 2 Days' ? 'selected' : ''; ?>>Every 2
                                         Days</option>
-                                    <option <?php echo $backup_interval==='Every 3 Days' ? 'selected' : '' ; ?>>Every 3
+                                    <option <?php echo $backup_interval === 'Every 3 Days' ? 'selected' : ''; ?>>Every 3
                                         Days</option>
-                                    <option <?php echo $backup_interval==='Every 5 Days' ? 'selected' : '' ; ?>>Every 5
+                                    <option <?php echo $backup_interval === 'Every 5 Days' ? 'selected' : ''; ?>>Every 5
                                         Days</option>
-                                    <option <?php echo $backup_interval==='Every 7 Days' ? 'selected' : '' ; ?>>Every 7
+                                    <option <?php echo $backup_interval === 'Every 7 Days' ? 'selected' : ''; ?>>Every 7
                                         Days</option>
                                 </select>
                             </div>
@@ -802,9 +854,18 @@ $backup_interval = 'Everyday';
 
     <script>
         // Modals
-        function openModal(id) { document.getElementById(id).classList.add('active'); }
-        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
-        function openExitModal() { openModal('logoutModal'); }
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        function openExitModal() {
+            openModal('logoutModal');
+        }
+
         function executeLogout() {
             // logout.php destroys the PHP session, then redirects to the login page itself
             window.location.href = '../src/logout.php';
@@ -812,13 +873,22 @@ $backup_interval = 'Everyday';
 
         // Navbar dropdown
         const dropdown = document.getElementById('navDropdown');
-        document.getElementById('menuToggleBtn').addEventListener('click', e => { e.stopPropagation(); dropdown.classList.toggle('show'); });
+        document.getElementById('menuToggleBtn').addEventListener('click', e => {
+            e.stopPropagation();
+            dropdown.classList.toggle('show');
+        });
         document.addEventListener('click', () => dropdown.classList.remove('show'));
-        document.getElementById('logoutBtn').addEventListener('click', e => { e.preventDefault(); dropdown.classList.remove('show'); openExitModal(); });
+        document.getElementById('logoutBtn').addEventListener('click', e => {
+            e.preventDefault();
+            dropdown.classList.remove('show');
+            openExitModal();
+        });
 
         // Close modals on backdrop click
         document.querySelectorAll('.modal_overlay').forEach(o =>
-            o.addEventListener('click', e => { if (e.target === o) o.classList.remove('active'); }));
+            o.addEventListener('click', e => {
+                if (e.target === o) o.classList.remove('active');
+            }));
 
         // Toast
         function showToast(msg, isError) {
@@ -830,7 +900,9 @@ $backup_interval = 'Everyday';
         }
 
         function updatePassword() {
-            const cur = currentPass.value, n = newPass.value, c = confirmPass.value;
+            const cur = currentPass.value,
+                n = newPass.value,
+                c = confirmPass.value;
 
             if (!cur || !n || !c) return showToast('Please fill in all fields.', true);
             if (n !== c) return showToast('New passwords do not match.', true);
@@ -847,12 +919,14 @@ $backup_interval = 'Everyday';
             // Adjust this path if your folder structure differs —
             // this assumes public/Admin_Setting_Page.php and src/change-password.php as siblings.
             fetch('../src/change-password.php', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: 'current_password=' + encodeURIComponent(cur) +
-                    '&new_password=' + encodeURIComponent(n) +
-                    '&confirm_password=' + encodeURIComponent(c)
-            })
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: 'current_password=' + encodeURIComponent(cur) +
+                        '&new_password=' + encodeURIComponent(n) +
+                        '&confirm_password=' + encodeURIComponent(c)
+                })
                 .then(res => res.json())
                 .then(data => {
                     showToast(data.message, !data.success);
@@ -864,10 +938,12 @@ $backup_interval = 'Everyday';
                 })
                 .catch(() => showToast('Could not reach the server. Please try again.', true));
         }
+
         function saveInterval() {
             // TODO: send backupInterval.value to your PHP endpoint
             showToast('Backup interval saved.');
         }
+
         function confirmRestore() {
             closeModal('restoreModal');
             // TODO: call your restore endpoint
