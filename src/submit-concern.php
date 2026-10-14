@@ -125,6 +125,8 @@ try {
     $confidence = $classification['confidence'] ?? null;
     // Engine failed (null) or model isn't confident enough -> manual review
     $needsReview = $classification === null || (float) $confidence <= LOW_CONFIDENCE_THRESHOLD;
+    $safetyFlag = $classification !== null && !empty($classification['safety_override']);
+    $priorityToSave = (!$needsReview || $safetyFlag) ? $classification['priority'] : null;
 
     $stmt = $pdo->prepare(
         "INSERT INTO tbl_concerns (barangay_id, raw_text, extracted_keywords, sector, confidence_score, priority_level, status)
