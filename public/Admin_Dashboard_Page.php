@@ -167,6 +167,54 @@ if (!isset($_SESSION['user_id'])) {
             color: #fca5a5;
         }
 
+        /* TAB BAR (sits under the navbar) */
+        .tab-bar {
+            display: flex;
+            gap: 8px;
+            padding: 0 40px;
+            background: rgba(4, 39, 120, 0.45);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--card-border);
+            position: relative;
+            z-index: 40;
+            overflow-x: auto;
+        }
+
+        .tab-link {
+            padding: 18px 28px;
+            font-size: 0.85rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            white-space: nowrap;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            border-bottom: 3px solid transparent;
+            transition: var(--transition);
+        }
+
+        .tab-link:hover {
+            color: var(--white);
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .tab-link.active {
+            color: var(--accent-cyan);
+            background: rgba(56, 189, 248, 0.1);
+            border-bottom-color: var(--accent-cyan);
+        }
+
+        @media (max-width: 600px) {
+            .tab-bar {
+                padding: 0 16px;
+            }
+
+            .tab-link {
+                padding: 16px 18px;
+            }
+        }
+
         /* MAIN DASHBOARD LAYOUT */
         .dashboard-grid {
             display: grid;
@@ -722,13 +770,17 @@ if (!isset($_SESSION['user_id'])) {
                 </svg>
             </button>
             <div class="dropdown-menu" id="dropdownMenu">
-                <a href="#" class="dropdown-item">Dashboard</a>
-                <a href="Admin_Concerns_Table_Page.php" class="dropdown-item">Concerns</a>
                 <a href="Admin_Setting_Page.php" class="dropdown-item">Settings</a>
                 <a href="#" class="dropdown-item logout" id="logoutBtn">Log Out</a>
             </div>
         </div>
     </nav>
+
+    <!-- TAB BAR -->
+    <div class="tab-bar">
+        <a href="Admin_Dashboard_Page.php" class="tab-link active">Dashboard</a>
+        <a href="Admin_Concerns_Table_Page.php" class="tab-link">Concerns</a>
+    </div>
 
     <!-- DASHBOARD CONTAINER -->
     <main class="dashboard-grid">
@@ -822,14 +874,14 @@ if (!isset($_SESSION['user_id'])) {
         }
 
         // Event Listeners for Logout
-        document.getElementById('logoutBtn').addEventListener('click', function (e) {
+        document.getElementById('logoutBtn').addEventListener('click', function(e) {
             e.preventDefault();
             dropdownMenu.classList.remove('show');
             openModal('logoutModal');
         });
 
         // Close modal when clicking backdrop
-        document.getElementById('logoutModal').addEventListener('click', function (e) {
+        document.getElementById('logoutModal').addEventListener('click', function(e) {
             if (e.target === this) {
                 closeModal('logoutModal');
             }
@@ -948,13 +1000,38 @@ if (!isset($_SESSION['user_id'])) {
                     },
                     options: {
                         responsive: true,
-                        plugins: { legend: { display: true, position: 'bottom', labels: { font: { size: 10 }, color: '#0f172a', boxWidth: 12 } } },
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'bottom',
+                                labels: {
+                                    font: {
+                                        size: 10
+                                    },
+                                    color: '#0f172a',
+                                    boxWidth: 12
+                                }
+                            }
+                        },
                         scales: {
-                            x: { ticks: { font: { size: 9 } } },
+                            x: {
+                                ticks: {
+                                    font: {
+                                        size: 9
+                                    }
+                                }
+                            },
                             y: {
                                 beginAtZero: true,
-                                ticks: { precision: 0, font: { size: 9 } },
-                                grid: { color: 'rgba(0, 0, 0, 0.05)' }
+                                ticks: {
+                                    precision: 0,
+                                    font: {
+                                        size: 9
+                                    }
+                                },
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                }
                             }
                         }
                     }
@@ -972,7 +1049,17 @@ if (!isset($_SESSION['user_id'])) {
                     },
                     options: {
                         responsive: true,
-                        plugins: { legend: { position: 'bottom', labels: { font: { size: 10 }, color: '#0f172a' } } }
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    font: {
+                                        size: 10
+                                    },
+                                    color: '#0f172a'
+                                }
+                            }
+                        }
                     }
                 });
 
@@ -988,7 +1075,17 @@ if (!isset($_SESSION['user_id'])) {
                     },
                     options: {
                         responsive: true,
-                        plugins: { legend: { position: 'bottom', labels: { font: { size: 10 }, color: '#0f172a' } } }
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    font: {
+                                        size: 10
+                                    },
+                                    color: '#0f172a'
+                                }
+                            }
+                        }
                     }
                 });
             })
