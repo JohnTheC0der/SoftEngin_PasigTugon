@@ -1,0 +1,55 @@
+# Safety net: if a complaint contains ANY of these words, its priority is forced to High.
+# One word per line. Lines starting with # are comments. Lowercase only.
+# Keep this list SHORT: only words that signal danger to life or property.
+# Whole words only, so list the Tagalog word forms you want caught.
+
+# fire
+sunog
+nasusunog
+nasunog
+fire
+
+# weapons and violent crime
+baril
+binaril
+gun
+shooting
+kutsilyo
+knife
+stabbing
+saksak
+sinaksak
+holdap
+hinoldap
+holdaper
+robbery
+
+# medical emergencies
+outbreak
+ambulansya
+ambulance
+makahinga
+huminga
+rabies
+
+# collapse and trapped people
+collapse
+collapsed
+gumuho
+bumigay
+trapped
+landslide
+
+# chemical and gas danger
+toxic
+kemikal
+chemical
+
+# flooding (judgment call: remove these if staff find they over-flag minor puddles)
+baha
+bumabaha
+nagbabaha
+bumaha
+flood
+flooded
+flooding

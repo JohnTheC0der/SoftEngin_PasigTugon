@@ -1,7 +1,8 @@
 <?php
 // Returns everything the Admin Dashboard needs in one response:
-// barangay name, quick stats, sector/priority pie chart data, the 7-day
-// line graph, top 8 common keywords, and the 8 most recent concerns.
+// barangay name, quick stats (including how many concerns await manual review),
+// sector/priority pie chart data, the 7-day line graph, top 8 common keywords,
+// and the 8 most recent concerns.
 
 session_start();
 header('Content-Type: application/json');
@@ -33,6 +34,19 @@ try {
     $stmt->execute([$barangayId]);
     $response['total_archived'] = (int) $stmt->fetchColumn();
 
+    // --- Concerns waiting for manual review (sector confidence too low) ---
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM tbl_concerns WHERE barangay_id = ? AND status = 'for_review'");
+    $stmt->execute([$barangayId]);
+    $response['review_count'] = (int) $stmt->fetchColumn();
+
+    // ...of which the safety net already flagged High, so they are urgent
+    $stmt = $pdo->prepare(
+        "SELECT COUNT(*) FROM tbl_concerns
+         WHERE barangay_id = ? AND status = 'for_review' AND priority_level = 'High'"
+    );
+    $stmt->execute([$barangayId]);
+    $response['urgent_review_count'] = (int) $stmt->fetchColumn();
+
     // --- Sector pie chart (ongoing only, per spec) ---
     $stmt = $pdo->prepare(
         "SELECT sector, COUNT(*) AS total FROM tbl_concerns
@@ -59,29 +73,41 @@ try {
         'data'   => array_map('intval', array_column($priorityRows, 'total'))
     ];
 
-    // --- 7-day concerns line graph (all statuses — counts concerns received, not just active ones) ---
+    // --- 7-day concerns line graph ---
+    // 'total' counts every concern received that day (ongoing, for_review and archived),
+    // and 'for_review' is how many of those are currently waiting for manual review.
     $stmt = $pdo->prepare(
-        "SELECT DATE(submitted_at) AS day, COUNT(*) AS total
+        "SELECT DATE(submitted_at) AS day,
+                COUNT(*) AS total,
+                SUM(status = 'for_review') AS for_review
          FROM tbl_concerns
          WHERE barangay_id = ? AND submitted_at >= (CURDATE() - INTERVAL 6 DAY)
          GROUP BY DATE(submitted_at)"
     );
     $stmt->execute([$barangayId]);
     $countsByDay = [];
+    $reviewByDay = [];
     foreach ($stmt->fetchAll() as $row) {
         $countsByDay[$row['day']] = (int) $row['total'];
+        $reviewByDay[$row['day']] = (int) $row['for_review'];
     }
 
     // Fill in every one of the last 7 days, even the ones with zero concerns,
     // so the graph always has exactly 7 points.
     $graphLabels = [];
     $graphData = [];
+    $graphReviewData = [];
     for ($i = 6; $i >= 0; $i--) {
         $date = date('Y-m-d', strtotime("-$i days"));
         $graphLabels[] = date('M j', strtotime($date));
         $graphData[] = $countsByDay[$date] ?? 0;
+        $graphReviewData[] = $reviewByDay[$date] ?? 0;
     }
-    $response['concerns_graph'] = ['labels' => $graphLabels, 'data' => $graphData];
+    $response['concerns_graph'] = [
+        'labels'      => $graphLabels,
+        'data'        => $graphData,         // all concerns received per day
+        'review_data' => $graphReviewData    // of those, how many are awaiting manual review
+    ];
 
     // --- Common keywords (top 8) ---
     // extracted_keywords is stored as a comma-separated string per concern.

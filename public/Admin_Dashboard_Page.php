@@ -249,6 +249,32 @@ if (!isset($_SESSION['user_id'])) {
             color: rgba(255, 255, 255, 0.9);
         }
 
+        /* "Awaiting Manual Review" row: clickable, amber badge, optional red urgent line */
+        .stat-link {
+            text-decoration: none;
+            transition: background 0.2s ease;
+        }
+
+        .stat-link:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .stat-badge.review {
+            background: #f59e0b;
+            box-shadow: 0 4px 10px rgba(245, 158, 11, 0.4);
+        }
+
+        .stat-urgent {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: #fca5a5;
+        }
+
+        .stat-urgent:empty {
+            display: none;
+        }
+
         .graph-box {
             background: var(--white);
             border-radius: 18px;
@@ -723,6 +749,12 @@ if (!isset($_SESSION['user_id'])) {
                     <div class="stat-badge" id="statTotalArchived">—</div>
                     <span class="stat-label">No. of Concerns Archived</span>
                 </div>
+                <a class="stat-item stat-link" href="Admin_Concerns_Table_Page.php">
+                    <div class="stat-badge review" id="statReview">—</div>
+                    <span class="stat-label">Awaiting Manual Review
+                        <span class="stat-urgent" id="statUrgent"></span>
+                    </span>
+                </a>
             </div>
 
             <div class="graphs-scroll">
@@ -852,6 +884,11 @@ if (!isset($_SESSION['user_id'])) {
                 document.getElementById('barangaySubtitle').textContent = data.barangay_name;
                 document.getElementById('statTotalConcerns').textContent = data.total_concerns;
                 document.getElementById('statTotalArchived').textContent = data.total_archived;
+                document.getElementById('statReview').textContent = data.review_count || 0;
+                if (data.urgent_review_count > 0) {
+                    document.getElementById('statUrgent').textContent =
+                        data.urgent_review_count + ' urgent (High priority)';
+                }
 
                 // Common keywords
                 const keywordsCloud = document.getElementById('keywordsCloud');
@@ -889,7 +926,7 @@ if (!isset($_SESSION['user_id'])) {
                     data: {
                         labels: data.concerns_graph.labels,
                         datasets: [{
-                            label: 'Concerns',
+                            label: 'All concerns',
                             data: data.concerns_graph.data,
                             borderColor: '#2563eb',
                             backgroundColor: 'rgba(37, 99, 235, 0.1)',
@@ -897,11 +934,21 @@ if (!isset($_SESSION['user_id'])) {
                             tension: 0.4,
                             borderWidth: 2,
                             pointRadius: 3
+                        }, {
+                            label: 'For review',
+                            data: data.concerns_graph.review_data || [],
+                            borderColor: '#f59e0b',
+                            backgroundColor: 'transparent',
+                            borderDash: [5, 4],
+                            fill: false,
+                            tension: 0.4,
+                            borderWidth: 2,
+                            pointRadius: 3
                         }]
                     },
                     options: {
                         responsive: true,
-                        plugins: { legend: { display: false } },
+                        plugins: { legend: { display: true, position: 'bottom', labels: { font: { size: 10 }, color: '#0f172a', boxWidth: 12 } } },
                         scales: {
                             x: { ticks: { font: { size: 9 } } },
                             y: {

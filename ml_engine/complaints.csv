@@ -1,61 +1,242 @@
-﻿text,sector
-Laging nagbabaha dito sa amin barado ang kanal,Infrastructure
-May malaking butas sa kalsada delikado sa motor,Infrastructure
-Sira ang poste ng ilaw sa street namin,Infrastructure
-Walang tubig sa aming lugar ng dalawang araw,Infrastructure
-Gumuho ang pader sa gilid ng eskwelahan,Infrastructure
-May nag-holdap sa tindahan kagabi,Crime
-Nanakawan ang bahay namin may snatcher dito,Crime
-May nag-aaway at may dalang kutsilyo sa kanto,Crime
-Maraming lasing na nanggugulo tuwing gabi,Crime
-Ninakaw ang motor ko sa harap ng bahay,Crime
-Maraming basura na hindi nakokolekta,Environment
-May nagsusunog ng plastik at makapal ang usok,Environment
-Ang baho ng estero puno ng basura,Environment
-Maraming lamok at tubig na hindi umaagos,Environment
-Tapunan ng basura sa tabi ng ilog,Environment
-May outbreak ng dengue sa street namin,Health
-Maraming bata ang may ubo at lagnat dito,Health
-Walang gamot sa health center,Health
-May kaso ng tigdas sa barangay namin,Health
-Kailangan ng bakuna ang mga matatanda,Health
-Nasira ang tulay na tinatawid ng mga estudyante,Infrastructure
-Overflowing na ang drainage tuwing umuulan,Infrastructure
-The streetlight on our corner has been broken for weeks,Infrastructure
-Walang ilaw sa kalsada kaya madilim at delikado,Infrastructure
-Bumabaha na naman sa harap ng paaralan,Infrastructure
-May tumutulo na tubo sa gilid ng kalsada at nasasayang ang tubig,Infrastructure
-Napakaraming lubak sa daan papunta sa palengke,Infrastructure
-Basag na ang sidewalk at nadadapa ang mga matatanda,Infrastructure
-Bumigay ang bubong ng covered court sa ulan,Infrastructure
-Barado ang kanal sa tapat ng bahay namin,Infrastructure
-Sunog sa kabilang kanto tulungan po kayo,Crime
-May sunog sa katabing bahay at maraming usok,Crime
-Binasag ang bintana ng kotse ko kagabi,Crime
-May nagnanakaw ng mga kable sa poste,Crime
-Someone tried to break into our house last night,Crime
-May mga kabataang nagrarambulan sa tapat ng tindahan,Crime
-Hinoldap ang driver ng jeep sa terminal,Crime
-Nakaw ang cellphone ko sa palengke,Crime
-May nagpapaputok ng baril ang mga lasing sa kanto,Crime
-Suspicious na mga tao ang paikot-ikot sa subdivision namin,Crime
-Maraming nagtatapon ng basura sa estero,Environment
-Mabaho ang amoy ng basurahan na hindi nahahakot,Environment
-Illegal dumping near the river is getting worse,Environment
-May pabrika na naglalabas ng maitim na usok,Environment
-Maruming tubig ang umaagos sa kalye,Environment
-Tambak na basura sa tabi ng eskinita,Environment
-Maraming daga at ipis dahil sa basura,Environment
-Walang nagwawalis at puno ng dahon ang kalsada,Environment
-Ang ingay at usok ng mga trak na dumadaan buong araw,Environment
-Nagsusunog ng basura ang kapitbahay namin,Environment
-Maraming may sakit na dengue sa aming lugar,Health
-Walang doktor sa health center ngayong linggo,Health
-Mataas ang lagnat ng anak ko at marami ring kapitbahay ang ganoon,Health
-Kailangan namin ng libreng medical check up para sa matatanda,Health
-Naubusan ng bakuna ang barangay health center,Health
-Outbreak ng diarrhea sa mga bata sa aming street,Health
-Walang available na ambulansya kagabi,Health
-Maraming bata ang nagkakaroon ng sipon at ubo,Health
-Please send nurses to check on our senior citizens,Health
-Walang gamot para sa high blood sa health center,Health
+text,sector,priority
+Laging nagbabaha dito sa amin barado ang kanal,Infrastructure,High
+May malaking butas sa kalsada delikado sa motor,Infrastructure,Medium
+Sira ang poste ng ilaw sa street namin,Infrastructure,Low
+Walang tubig sa aming lugar ng dalawang araw,Infrastructure,Medium
+Gumuho ang pader sa gilid ng eskwelahan,Infrastructure,High
+Nasira ang tulay na tinatawid ng mga estudyante,Infrastructure,High
+Overflowing na ang drainage tuwing umuulan,Infrastructure,Medium
+The streetlight on our corner has been broken for weeks,Infrastructure,Low
+Walang ilaw sa kalsada kaya madilim at delikado,Infrastructure,Medium
+Bumabaha na naman sa harap ng paaralan,Infrastructure,High
+May tumutulo na tubo sa gilid ng kalsada at nasasayang ang tubig,Infrastructure,Low
+Napakaraming lubak sa daan papunta sa palengke,Infrastructure,Low
+Basag na ang sidewalk at nadadapa ang mga matatanda,Infrastructure,Medium
+Bumigay ang bubong ng covered court sa ulan,Infrastructure,High
+Barado ang kanal sa tapat ng bahay namin,Infrastructure,Low
+May nag-holdap sa tindahan kagabi,Crime,High
+Nanakawan ang bahay namin may snatcher dito,Crime,Medium
+May nag-aaway at may dalang kutsilyo sa kanto,Crime,High
+Maraming lasing na nanggugulo tuwing gabi,Crime,Low
+Ninakaw ang motor ko sa harap ng bahay,Crime,Medium
+Sunog sa kabilang kanto tulungan po kayo,Crime,High
+May sunog sa katabing bahay at maraming usok,Crime,High
+Binasag ang bintana ng kotse ko kagabi,Crime,Medium
+May nagnanakaw ng mga kable sa poste,Crime,Medium
+Someone tried to break into our house last night,Crime,Medium
+May mga kabataang nagrarambulan sa tapat ng tindahan,Crime,Medium
+Hinoldap ang driver ng jeep sa terminal,Crime,High
+Nakaw ang cellphone ko sa palengke,Crime,Medium
+May nagpapaputok ng baril ang mga lasing sa kanto,Crime,High
+Suspicious na mga tao ang paikot-ikot sa subdivision namin,Crime,Low
+Maraming basura na hindi nakokolekta,Environment,Low
+May nagsusunog ng plastik at makapal ang usok,Environment,Medium
+Ang baho ng estero puno ng basura,Environment,Low
+Maraming lamok at tubig na hindi umaagos,Environment,Medium
+Tapunan ng basura sa tabi ng ilog,Environment,Low
+Maraming nagtatapon ng basura sa estero,Environment,Low
+Mabaho ang amoy ng basurahan na hindi nahahakot,Environment,Low
+Illegal dumping near the river is getting worse,Environment,Medium
+May pabrika na naglalabas ng maitim na usok,Environment,Medium
+Maruming tubig ang umaagos sa kalye,Environment,Medium
+Tambak na basura sa tabi ng eskinita,Environment,Low
+Maraming daga at ipis dahil sa basura,Environment,Medium
+Walang nagwawalis at puno ng dahon ang kalsada,Environment,Low
+Ang ingay at usok ng mga trak na dumadaan buong araw,Environment,Low
+Nagsusunog ng basura ang kapitbahay namin,Environment,Medium
+May outbreak ng dengue sa street namin,Health,High
+Maraming bata ang may ubo at lagnat dito,Health,Medium
+Walang gamot sa health center,Health,Medium
+May kaso ng tigdas sa barangay namin,Health,High
+Kailangan ng bakuna ang mga matatanda,Health,Low
+Maraming may sakit na dengue sa aming lugar,Health,High
+Walang doktor sa health center ngayong linggo,Health,Medium
+Mataas ang lagnat ng anak ko at marami ring kapitbahay ang ganoon,Health,Medium
+Kailangan namin ng libreng medical check up para sa matatanda,Health,Low
+Naubusan ng bakuna ang barangay health center,Health,Medium
+Outbreak ng diarrhea sa mga bata sa aming street,Health,High
+Walang available na ambulansya kagabi,Health,High
+Maraming bata ang nagkakaroon ng sipon at ubo,Health,Low
+Please send nurses to check on our senior citizens,Health,Low
+Walang gamot para sa high blood sa health center,Health,Medium
+Nakabagsak na poste ng kuryente sa gitna ng kalsada,Infrastructure,High
+Bumigay ang bahagi ng tulay sa aming sapa at may tumatawid pa rin,Infrastructure,High
+Matagal nang walang tubig sa gripo namin tuwing umaga,Infrastructure,Medium
+Maraming butas ang daan papasok sa aming purok,Infrastructure,Low
+Hindi na gumagana ang ilaw trapiko sa kanto,Infrastructure,Medium
+Walang takip ang kanal sa tapat ng paaralan at delikado sa mga bata,Infrastructure,Medium
+Lumulubog sa tubig ang aming kalsada tuwing malakas ang ulan,Infrastructure,Medium
+Kailangang ayusin ang bakod ng basketball court na kinakalawang na,Infrastructure,Low
+Madulas ang hagdan ng footbridge kapag umuulan,Infrastructure,Low
+Pinipigilan ng sirang tubo ang pagdaloy ng tubig sa buong kalye,Infrastructure,Medium
+Sira ang drainage sa harap ng school kaya bumabaha agad,Infrastructure,High
+Maraming pothole sa main road at delikado sa mga motorista,Infrastructure,Medium
+Walang ilaw ang buong street namin simula kagabi,Infrastructure,Medium
+Na-clog ang canal kaya umaapaw na ang tubig sa bahay,Infrastructure,High
+Broken ang street light sa tapat ng simbahan,Infrastructure,Low
+Matagal nang di naaayos ang sidewalk sa may palengke,Infrastructure,Low
+May malaking crack sa pader ng school building at baka gumuho,Infrastructure,High
+Naputol ang water pipe sa kanto at walang tubig ang buong block,Infrastructure,Medium
+Paki-ayos po ang basketball court namin na sira ang flooring,Infrastructure,Low
+Delikado ang bridge sa creek kasi maluwag na ang mga bakal,Infrastructure,High
+Humina ang pressure ng tubig sa buong subdivision namin,Infrastructure,Low
+May open manhole sa gitna ng kalsada at wala man lang takip,Infrastructure,High
+Sira na ang waiting shed namin at tumutulo kapag umuulan,Infrastructure,Low
+Lubog na ang daan sa baha at hindi na madaanan ng tricycle,Infrastructure,High
+Hindi na gumagana ang ilaw sa loob ng barangay hall,Infrastructure,Low
+Maraming bako-bako sa kalsada papuntang public market,Infrastructure,Low
+The drainage outside our school is clogged and floods every time it rains,Infrastructure,Medium
+A large pothole on the main road is causing accidents,Infrastructure,High
+There is no water supply in our street for three days,Infrastructure,Medium
+The bridge near the creek is cracked and unsafe to cross,Infrastructure,High
+Please repair the broken streetlight near the basketball court,Infrastructure,Low
+Our road has been full of potholes for months,Infrastructure,Low
+A fallen electric pole is blocking the whole road,Infrastructure,High
+The sidewalk in front of the market is broken and uneven,Infrastructure,Low
+Flood water is already entering our houses because the canal is blocked,Infrastructure,High
+The covered court roof is leaking badly during rain,Infrastructure,Low
+An open manhole in the middle of the road is dangerous for drivers,Infrastructure,High
+The water pressure in our area is very weak in the mornings,Infrastructure,Low
+Traffic lights at the main intersection are not working,Infrastructure,Medium
+A wall beside the elementary school is leaning and might collapse,Infrastructure,High
+Several street lamps on our block have been out for a week,Infrastructure,Medium
+The footbridge handrail is loose and could injure someone,Infrastructure,Medium
+Our street gets flooded knee deep every time there is a heavy rain,Infrastructure,High
+The barangay road needs repaving because it is very bumpy,Infrastructure,Low
+A broken water pipe is leaking onto the street since yesterday,Infrastructure,Medium
+May lalaking may hawak na baril sa tapat ng bahay namin at nananakot,Crime,High
+Pinagnakawan ang tindahan namin habang wala kami,Crime,Medium
+Nawawala ang mga bisikleta namin sa bakuran,Crime,Low
+Binugbog ng grupo ng kabataan ang isang lalaki sa kanto,Crime,High
+May mga nagsusugal sa kalye at maingay hanggang madaling araw,Crime,Low
+Nakawan ng bag ang aking asawa sa terminal kanina,Crime,Medium
+May nagtangkang pumasok sa bahay ng kapitbahay namin kagabi,Crime,Medium
+Nasusunog ang bahay sa kabilang kalye tumawag na po kami,Crime,High
+May holdaper sa jeep kanina at may hawak na kutsilyo,Crime,High
+Na-snatch ang cellphone ko sa harap ng barangay hall,Crime,Medium
+May nag-break in sa bahay namin kagabi at nakuha ang laptop,Crime,Medium
+Maraming tambay sa kanto na nagva-vandal sa pader ng school,Crime,Low
+May rambol sa tapat ng tindahan at may nasaktan,Crime,High
+Na-hold up ang driver ng tricycle sa may terminal,Crime,High
+Pakiusap ayusin ang peace and order dahil may mga lasing na nanggugulo,Crime,Low
+May nagpaputok ng baril sa may covered court kagabi,Crime,High
+Ninakaw ang bike ko sa labas ng bahay at may CCTV naman,Crime,Medium
+May suspicious na tao na nag-uusisa sa mga bahay namin,Crime,Low
+Nawawala ang wallet ko pagkasakay ko ng jeep,Crime,Medium
+Maingay na videoke tuwing gabi hanggang madaling araw,Crime,Low
+May riot sa pagitan ng dalawang grupo ng kabataan sa palengke,Crime,High
+Nahuli namin ang magnanakaw pero nakatakas bago dumating ang pulis,Crime,Medium
+May nag-aaway na mag-asawa at may tinutukan ng kutsilyo,Crime,High
+Paulit-ulit na nagpapa-race ang mga motor sa street namin,Crime,Low
+May bumasag ng salamin ng sasakyan ko habang naka-park sa labas,Crime,Medium
+May nagbebenta ng ilegal na droga sa may eskinita namin,Crime,Medium
+A man with a gun is threatening people near the terminal,Crime,High
+Someone stole my motorcycle parked outside our house,Crime,Medium
+There was a robbery at the corner store last night,Crime,High
+Drunk men are shouting and disturbing the neighborhood every night,Crime,Low
+My phone was snatched while I was walking near the market,Crime,Medium
+Strangers are loitering around our subdivision at night,Crime,Low
+A group of teenagers is fighting with bats in front of the school,Crime,High
+Thieves are cutting electric cables from our street poles,Crime,Medium
+Our house was burglarized and they took our appliances,Crime,Medium
+A fire was set to a parked vehicle and it is spreading near houses,Crime,High
+Someone keeps spray painting graffiti on our walls,Crime,Low
+Street racers are speeding through our neighborhood late at night,Crime,Low
+A bag was stolen from a tricycle passenger near the church,Crime,Medium
+Please investigate the illegal gambling happening on our street,Crime,Low
+A stabbing happened near the basketball court earlier today,Crime,High
+People are selling illegal drugs openly beside the elementary school,Crime,Medium
+A fight broke out at the market and several people were hurt,Crime,High
+Someone is following people home at night in our area,Crime,Medium
+A house is on fire and the neighbors need firefighters right away,Crime,High
+May tumagas na kemikal mula sa pabrika at nakakahilo ang amoy,Environment,High
+Nagkalat ang patay na isda sa ilog at mabaho ang tubig,Environment,Medium
+Hindi nakokolekta ang basura sa aming kalye ng isang linggo na,Environment,Medium
+Maraming nagsusunog ng tuyong dahon tuwing hapon,Environment,Low
+Pumapasok ang maruming tubig mula sa estero sa mga bahay tuwing high tide,Environment,High
+Puno ng damo at basura ang bakanteng lote sa tabi ng aming bahay,Environment,Low
+May nag-leak na gas sa may factory at nakakahilo ang amoy,Environment,High
+Nag-overflow ang septic tank sa kalsada at ang baho,Environment,Medium
+Hindi pa rin nahahakot ang garbage namin simula Lunes,Environment,Medium
+Maraming plastic at basura ang naka-block sa estero,Environment,Medium
+May nagbu-burn ng goma sa tapat ng school at makapal ang usok,Environment,High
+Maraming lamok sa creek dahil sa stagnant na tubig,Environment,Medium
+Mabaho ang canal kasi puno ng basura,Environment,Low
+Walang trash bin sa park namin kaya nagkalat ang basura,Environment,Low
+May nagtapon ng toxic na kemikal sa ilog namin,Environment,High
+Maingay at mausok ang mga truck na dumadaan sa residential area,Environment,Low
+Gusto naming magpa-clean up drive para sa creek namin,Environment,Low
+May dumi ng aso sa sidewalk na hindi nililinis ng may-ari,Environment,Low
+Maraming daga sa palengke dahil sa tambak na garbage,Environment,Medium
+Naka-open ang manhole at lumalabas ang mabahong amoy,Environment,Medium
+Nagkalat na naman ang basura sa harap ng barangay hall,Environment,Low
+Nagsusunog ng styrofoam ang kapitbahay at hirap huminga ang mga bata,Environment,High
+Barado ng basura ang drainage kaya may stagnant na tubig,Environment,Medium
+Marumi na ang pampublikong CR sa may park,Environment,Low
+Maraming puno ang pinutol sa tabi ng ilog na walang permit,Environment,Medium
+Sobrang dumi ng hangin dahil sa construction dust sa buong street,Environment,Low
+A chemical spill from the factory is making people dizzy,Environment,High
+Garbage has not been collected on our street for a week,Environment,Medium
+The river smells terrible and is full of trash,Environment,Low
+Someone is burning plastic near the houses and the smoke is thick,Environment,Medium
+There are lots of mosquitoes because of stagnant water in the canal,Environment,Medium
+Illegal dumping is happening behind the market every night,Environment,Medium
+Sewage is overflowing onto our street and entering homes,Environment,High
+Our park needs more trash bins and regular cleaning,Environment,Low
+Dead fish are floating in the creek and the water looks black,Environment,Medium
+Smoke from the factory chimney is covering our whole neighborhood,Environment,Medium
+Please clean the vacant lot full of weeds and rubbish,Environment,Low
+Rats are everywhere because the garbage pile keeps growing,Environment,Medium
+A garbage fire is spreading toward the houses beside the dump,Environment,High
+Trucks leave dust and mud on the road every day,Environment,Low
+The public toilet near the market is dirty and smells bad,Environment,Low
+Noise and fumes from the generator are bothering us all night,Environment,Low
+Trees were cut down along the riverbank without permission,Environment,Low
+Foul smell is coming from the open drainage near the school,Environment,Low
+A gas leak smell is coming from the dumpsite and people feel sick,Environment,High
+May batang hindi makahinga at kailangan agad madala sa ospital,Health,High
+Maraming nagkakasakit ng leptospirosis matapos ang baha,Health,High
+Walang nars sa health center tuwing hapon,Health,Medium
+Kailangan ng libreng bakuna sa mga sanggol sa aming purok,Health,Low
+Nagtatae ang buong pamilya namin at maraming kapitbahay ang ganoon din,Health,High
+Naubos na ang gamot sa hika sa aming health center,Health,Medium
+Gusto naming magpa-schedule ng libreng pagpapatingin ng mata para sa matatanda,Health,Low
+Maraming batang may kuto at galis sa aming eskwelahan,Health,Low
+May matandang nawalan ng malay sa kalsada at walang sumundong ambulansya,Health,High
+Mataas ang presyon ng nanay ko at kailangan niya ng gamot,Health,Medium
+May mga bata sa aming lugar na may sakit sa balat,Health,Medium
+Kulang ang mga bitamina para sa mga buntis sa health center,Health,Medium
+Humaba ang pila sa health center at maraming naghihintay ng ilang oras,Health,Low
+May kaso ng rabies sa aso sa aming kalye at may nakagat na bata,Health,High
+May suspected dengue case sa bahay namin at mataas pa rin ang lagnat,Health,High
+Walang available na doctor sa health center ngayong gabi,Health,Medium
+Kailangan ng vaccination drive para sa mga bata sa barangay,Health,Low
+Maraming nagkakaroon ng ubo at colds sa school ng mga bata,Health,Low
+Na-heat stroke ang lolo ko at kailangan ng ambulance agad,Health,High
+Out of stock ang paracetamol sa barangay health center,Health,Medium
+Nagkaroon ng food poisoning sa handaan at dinala sa ospital ang ilan,Health,High
+Pakiusap magpadala ng nurse para i-check ang bed-ridden naming lola,Health,Medium
+Request para sa free medical mission sa aming covered court,Health,Low
+May covid cases na naman sa aming street at walang nagpapa-test,Health,Medium
+Maraming nahihirapang huminga dahil sa usok at wala silang inhaler,Health,High
+Gusto naming mag-inquire tungkol sa libreng dental check up,Health,Low
+Several children in our street have high fever and rashes,Health,High
+There is no doctor at the health center this week,Health,Medium
+We need free vaccines for toddlers in our area,Health,Low
+An elderly neighbor collapsed and we need an ambulance now,Health,High
+The health center ran out of medicine for high blood pressure,Health,Medium
+Please schedule a free medical check up for senior citizens,Health,Low
+There is a measles outbreak in our neighborhood,Health,High
+A pregnant woman in our street is in labor and needs transport to the hospital,Health,High
+Many residents have diarrhea after drinking the tap water,Health,High
+The clinic closes too early and workers cannot get checked,Health,Low
+Our health center lacks nurses on weekends,Health,Medium
+A child was bitten by a stray dog and needs an anti-rabies shot,Health,High
+Please conduct a dengue awareness program in our school,Health,Low
+We need vitamins for the malnourished children in our area,Health,Medium
+There is a long line at the health center every morning,Health,Low
+Several people have coughs and colds because of the weather,Health,Low
+The barangay health worker has not visited our bedridden relative in weeks,Health,Medium
+Free dental services would help many families in our community,Health,Low
+A man is having chest pains in the street and nobody has arrived to help,Health,High
+A man has fallen into the river of lego city,Health,High
