@@ -6,11 +6,19 @@
 session_start();
 header('Content-Type: application/json');
 require_once 'db_connect.php';
+require_once 'backup-lib.php';
 
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'super_admin') {
     http_response_code(403);
     echo json_encode(['error' => 'Not authorized.']);
     exit;
+}
+
+// Opportunistic auto-backup: if the chosen interval has passed, take one now.
+// Never allowed to break the dashboard (e.g. if the backup migration wasn't run yet).
+try {
+    (new PasigBackup($pdo))->runIfDue();
+} catch (Throwable $e) {
 }
 
 try {

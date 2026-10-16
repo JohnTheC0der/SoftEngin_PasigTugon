@@ -6,14 +6,11 @@ if (!isset($_SESSION['user_id'])) {
     header('Location: Admin_Log_In.html');
     exit;
 }
-
-// Placeholder values for the Database Backup card below — tbl_backups exists in the
-// schema, but reading/writing real backup records is a separate feature that hasn't
-// been built yet (no backup-saving logic exists anywhere in the app yet). These two
-// variables just stop the page from throwing "undefined variable" errors in the
-// meantime. The "Save Interval" and "Restore Last Backup" buttons are still UI-only.
-$last_backup = 'No backup on record';
-$backup_interval = 'Everyday';
+// Super admins have their own settings page (password + database backup)
+if (($_SESSION['role'] ?? '') === 'super_admin') {
+    header('Location: Super_Admin_Setting_Page.php');
+    exit;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -286,7 +283,8 @@ $backup_interval = 'Everyday';
 
         .settings_grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: minmax(0, 560px);
+            justify-content: center;
             gap: 24px;
         }
 
@@ -685,30 +683,6 @@ $backup_interval = 'Everyday';
 
     <div id="toast" class="toast"></div>
 
-    <!-- RESTORE CONFIRM MODAL -->
-    <div class="modal_overlay" id="restoreModal">
-        <div class="modal_panel">
-            <div class="modal_header_bar">
-                <h2 class="modal_header_title">Confirm Restore</h2>
-                <button class="modal_close_btn" onclick="closeModal('restoreModal')" aria-label="Close">&times;</button>
-            </div>
-            <div class="modal_body">
-                <p>You are about to restore the system to the state of the last backup. Any data recorded
-                    <strong>after</strong> this backup will be lost.
-                </p>
-                <div class="modal_highlight">
-                    Last Backup: <span id="restoreDate">
-                        <?php echo htmlspecialchars($last_backup); ?>
-                    </span>
-                </div>
-            </div>
-            <div class="modal_footer">
-                <button class="swiss_btn_modal cancel" onclick="closeModal('restoreModal')">Cancel</button>
-                <button class="swiss_btn_modal confirm" onclick="confirmRestore()">Yes, Restore</button>
-            </div>
-        </div>
-    </div>
-
     <!-- LOGOUT CONFIRM MODAL -->
     <div class="modal_overlay" id="logoutModal">
         <div class="modal_panel">
@@ -764,7 +738,7 @@ $backup_interval = 'Everyday';
     <main class="main-wrapper">
         <div class="outer-card">
             <h1 class="card-header-title">Settings</h1>
-            <p class="card-subtitle">Admin-only · Account credentials &amp; database maintenance</p>
+            <p class="card-subtitle">Admin-only · Account credentials</p>
             <hr class="header-divider">
 
             <div class="inner-box">
@@ -800,50 +774,6 @@ $backup_interval = 'Everyday';
                         </div>
                         <div class="card_footer">
                             <button class="swiss_btn" onclick="updatePassword()">Update Password</button>
-                        </div>
-                    </div>
-
-                    <!-- CARD 2: DATABASE BACKUP -->
-                    <div class="settings_card">
-                        <div class="card_header">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2.5">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                                <polyline points="7 10 12 15 17 10" />
-                                <line x1="12" y1="15" x2="12" y2="3" />
-                            </svg>
-                            <h3>Database Backup</h3>
-                        </div>
-                        <div class="card_body">
-                            <div class="backup_status">
-                                <div class="backup_status_dot"></div>
-                                <div>
-                                    <div class="backup_status_text">Last Backup</div>
-                                    <div class="backup_status_date">
-                                        <?php echo htmlspecialchars($last_backup); ?>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form_group">
-                                <label class="form_label">Auto-Backup Interval</label>
-                                <select id="backupInterval" class="form_select">
-                                    <option <?php echo $backup_interval === 'Everyday' ? 'selected' : ''; ?>>Everyday
-                                    </option>
-                                    <option <?php echo $backup_interval === 'Every 2 Days' ? 'selected' : ''; ?>>Every 2
-                                        Days</option>
-                                    <option <?php echo $backup_interval === 'Every 3 Days' ? 'selected' : ''; ?>>Every 3
-                                        Days</option>
-                                    <option <?php echo $backup_interval === 'Every 5 Days' ? 'selected' : ''; ?>>Every 5
-                                        Days</option>
-                                    <option <?php echo $backup_interval === 'Every 7 Days' ? 'selected' : ''; ?>>Every 7
-                                        Days</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="card_footer">
-                            <button class="swiss_btn" onclick="saveInterval()">Save Interval</button>
-                            <button class="swiss_btn btn_secondary" onclick="openModal('restoreModal')">Restore Last
-                                Backup</button>
                         </div>
                     </div>
 
@@ -939,16 +869,6 @@ $backup_interval = 'Everyday';
                 .catch(() => showToast('Could not reach the server. Please try again.', true));
         }
 
-        function saveInterval() {
-            // TODO: send backupInterval.value to your PHP endpoint
-            showToast('Backup interval saved.');
-        }
-
-        function confirmRestore() {
-            closeModal('restoreModal');
-            // TODO: call your restore endpoint
-            showToast('Restoring last backup…');
-        }
     </script>
 </body>
 
