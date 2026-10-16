@@ -1015,6 +1015,7 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'super_admin')
                 </svg>
             </button>
             <div class="dropdown-menu" id="dropdownMenu">
+                <a href="Super_Admin_Setting_Page.php" class="dropdown-item">Settings</a>
                 <a href="#" class="dropdown-item logout" id="logoutBtn">Log Out</a>
             </div>
         </div>
