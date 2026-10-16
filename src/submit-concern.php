@@ -3,9 +3,12 @@
 // Expects: barangay (slug like "bagong-ilog"), concern_text
 //
 // Classification is done by the Python ML engine (ml_engine/predict.py):
-// sector + confidence from the Naive Bayes model, priority from ml_engine/priority.py.
-// If the engine can't run, or its confidence is too low, the concern is saved with
-// no sector/priority and status 'for_review' so an admin classifies it manually.
+// sector + confidence from the sector Naive Bayes model, priority from a second Naive Bayes
+// model (trained on complaints.csv) plus a safety net (ml_engine/safety_keywords.txt) that
+// forces High when a life-threatening word appears.
+// If the engine can't run, or the sector confidence is too low, the concern is saved with
+// status 'for_review' so an admin sets the sector and priority manually. The one exception:
+// if the safety net fired, the High priority is still saved while the concern waits for review.
 
 session_start();
 header('Content-Type: application/json');
@@ -98,9 +101,10 @@ if ($wait > 0) {
     exit;
 }
 
-// Model confidence at or below this means "don't trust the model": the concern is
-// saved with no sector/priority and an admin must set them manually (status 'for_review').
-const LOW_CONFIDENCE_THRESHOLD = 0.4;
+// Sector confidence at or below this means "don't trust the model": the concern is saved
+// with no sector (and no priority, unless the safety net fired) and an admin must set them
+// manually (status 'for_review').
+const LOW_CONFIDENCE_THRESHOLD = 0.3;
 
 // Calls the Python model. Returns null on any failure so the caller can fall back.
 function classifyWithModel(string $text): ?array
@@ -115,7 +119,7 @@ function classifyWithModel(string $text): ?array
     if (!is_array($data) || isset($data['error'])) {
         return null;
     }
-    return $data;   // keys: sector, confidence, priority, keywords
+    return $data;   // keys: sector, confidence, priority, priority_confidence, safety_override, keywords
 }
 
 try {
@@ -125,6 +129,10 @@ try {
     $confidence = $classification['confidence'] ?? null;
     // Engine failed (null) or model isn't confident enough -> manual review
     $needsReview = $classification === null || (float) $confidence <= LOW_CONFIDENCE_THRESHOLD;
+
+    // Safety net: if a life-threatening word was found, keep the High priority even when the
+    // sector is too uncertain to trust. The concern still goes to 'for_review', so the admin
+    // can change both the sector and the priority in the review box.
     $safetyFlag = $classification !== null && !empty($classification['safety_override']);
     $priorityToSave = (!$needsReview || $safetyFlag) ? $classification['priority'] : null;
 
@@ -139,7 +147,7 @@ try {
         $classification['keywords'] ?? '',
         $needsReview ? null : $classification['sector'],
         $confidence,
-        $needsReview ? null : $classification['priority'],
+        $priorityToSave,
         $needsReview ? 'for_review' : 'ongoing'
     ]);
 

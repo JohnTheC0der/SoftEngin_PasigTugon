@@ -1278,9 +1278,9 @@ if (!isset($_SESSION['user_id'])) {
                 Select a concern to view details.
             </div>
 
-            <!-- Shown only for concerns with status = for_review -->
+            <!-- Shown for concerns with status = for_review or ongoing (not archived) -->
             <div class="review-box" id="reviewBox">
-                <p>The system wasn't confident enough to classify this concern. Set the sector and priority yourself.</p>
+                <p id="reviewNote">The system wasn't confident enough to classify this concern. Set the sector and priority yourself.</p>
                 <div class="row">
                     <div>
                         <span class="detail-label">Sector</span>
@@ -1381,8 +1381,14 @@ if (!isset($_SESSION['user_id'])) {
             $('#modalKeywords').text(item.keywords || '—');
             $('#reviewError').hide();
 
-            if (item.status === 'for_review') {
-                $('#reviewSector, #reviewPriority').val('');
+            if (item.status === 'for_review' || item.status === 'ongoing') {
+                // Pre-fill whatever is already saved: for_review concerns have no sector yet
+                // (and a priority only if the safety net fired), ongoing ones show the model's choice.
+                $('#reviewSector').val(item.sector || '');
+                $('#reviewPriority').val(item.priority || '');
+                $('#reviewNote').text(item.status === 'for_review'
+                    ? "The system wasn't confident enough to classify this concern. Set the sector and priority yourself."
+                    : 'The system classified this concern automatically. You can change the sector or priority if it is wrong.');
                 $('#reviewBox').show();
             } else {
                 $('#reviewBox').hide();
