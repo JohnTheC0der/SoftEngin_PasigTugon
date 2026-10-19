@@ -405,9 +405,9 @@
         <!-- Login Form -->
         <form class="login-form" id="login-form" action="#" method="POST">
             <div class="input-group">
-                <label for="username" class="input-label">Username</label>
-                <input type="text" id="username" name="username" class="input-field" placeholder="Enter your username"
-                    required autocomplete="username">
+                <label for="username" class="input-label">Email</label>
+                <input type="text" id="username" name="username" class="input-field" placeholder="Enter your email address"
+                    required autocomplete="email">
             </div>
 
             <div class="input-group">
@@ -470,7 +470,7 @@
             var params = new URLSearchParams(window.location.search);
             var notice = document.getElementById('signin-notice');
             if (params.get('registered') === 'citizen') {
-                notice.textContent = 'Your account is ready. Please sign in.';
+                notice.textContent = 'Your account is ready. Sign in with your email address and password.';
                 notice.style.display = 'block';
             } else if (params.get('registered') === 'staff') {
                 notice.textContent = 'Your staff account was created. You can sign in once a super admin approves it.';
@@ -523,7 +523,7 @@
                     // Staff Dashboard (or the wait page until approved), or Super Admin Dashboard.
                     window.location.href = data.redirect;
                 } else {
-                    showError(data.message || 'Invalid username or password.');
+                    showError(data.message || 'Invalid email or password.');
                 }
             } catch (err) {
                 showError('Could not reach the server. Please check your connection and try again.');

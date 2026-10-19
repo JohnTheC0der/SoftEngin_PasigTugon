@@ -1,6 +1,6 @@
 <?php
 // Handles POST requests from Sign_In.html — one sign-in for citizens, staff and super admins.
-// Expects: username, password
+// Expects: username (the field carries the person's EMAIL; an old-style username still works), password
 // Answers with the page to open next (relative to /public).
 
 session_start();
@@ -14,7 +14,7 @@ $username = trim($_POST['username'] ?? '');
 $password = $_POST['password'] ?? '';
 
 if ($username === '' || $password === '') {
-    $response['message'] = 'Please enter your username and password.';
+    $response['message'] = 'Please enter your email and password.';
     echo json_encode($response);
     exit;
 }
@@ -25,15 +25,18 @@ try {
         "SELECT u.user_id, u.password_hash, u.is_active, u.barangay_id, u.role, b.approval_status
          FROM tbl_users u
          LEFT JOIN tbl_barangay b ON u.barangay_id = b.barangay_id
-         WHERE u.username = ?"
+         WHERE u.username = ? OR LOWER(u.email) = LOWER(?)"
     );
-    $stmt->execute([$username]);
+    // Everyone signs in with their email. A username is still accepted so existing accounts
+    // (e.g. the demo staff or a super admin made from the command line) keep working.
+    // Usernames can never contain '@', so the two can't collide.
+    $stmt->execute([$username, $username]);
     $user = $stmt->fetch();
 
     // Same generic message whether the username doesn't exist or the password is
     // wrong — this avoids telling an attacker which usernames are valid.
     if (!$user || !password_verify($password, $user['password_hash'])) {
-        $response['message'] = 'Invalid username or password.';
+        $response['message'] = 'Invalid email or password.';
         echo json_encode($response);
         exit;
     }

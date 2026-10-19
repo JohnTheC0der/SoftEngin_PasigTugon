@@ -29,7 +29,8 @@ CREATE TABLE tbl_barangay (
 CREATE TABLE tbl_users (
     user_id        INT AUTO_INCREMENT PRIMARY KEY,
     barangay_id    INT NULL COMMENT 'Only staff accounts have a barangay; NULL for citizen and super_admin',
-    username       VARCHAR(50) NOT NULL UNIQUE,
+    username       VARCHAR(50) NOT NULL UNIQUE COMMENT 'Staff/super_admin sign-in name. For citizens this stores their email',
+    full_name      VARCHAR(100) NULL COMMENT 'Citizens only: shown to staff and super admins',
     email          VARCHAR(150) NOT NULL UNIQUE,
     password_hash  VARCHAR(255) NOT NULL,
     role           ENUM('citizen', 'staff', 'super_admin') NOT NULL DEFAULT 'citizen',

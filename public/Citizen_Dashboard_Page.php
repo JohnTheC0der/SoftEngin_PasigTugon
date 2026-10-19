@@ -627,7 +627,7 @@ require_page_role($pdo, 'citizen');
             <div class="card-top-row">
                 <div>
                     <h1 class="card-header-title">My Concerns</h1>
-                    <p class="card-subtitle">Concerns you have submitted · tracked by case number</p>
+                    <p class="card-subtitle" id="cardSubtitle">Concerns you have submitted · tracked by case number</p>
                 </div>
                 <a class="submit-link" href="Citizen_Concern_Station.php">+ Submit a Concern</a>
             </div>
@@ -785,6 +785,10 @@ require_page_role($pdo, 'citizen');
                 .then(data => {
                     if (data.error) throw new Error(data.error);
                     concerns = data.concerns || [];
+                    if (data.citizen_name) {
+                        document.getElementById('cardSubtitle').textContent =
+                            'Welcome, ' + data.citizen_name + ' · tracked by case number';
+                    }
                     fetchedAt = Date.now();
                     renderTable();
                 })

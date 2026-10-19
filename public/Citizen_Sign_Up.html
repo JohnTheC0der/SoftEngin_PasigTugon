@@ -542,17 +542,17 @@
 
         <form class="login-form" id="citizen-form" action="#" method="POST" novalidate>
             <div class="input-group">
-                <label for="username" class="input-label">Username</label>
+                <label for="full_name" class="input-label">Full Name</label>
                 <div class="input-wrapper">
-                    <input type="text" id="username" name="username" class="input-field"
-                        placeholder="Choose a username" required autocomplete="username" maxlength="50">
+                    <input type="text" id="full_name" name="full_name" class="input-field"
+                        placeholder="e.g. Juan Dela Cruz" required autocomplete="name" maxlength="100">
                     <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round"
                             d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
                 </div>
-                <span class="field-hint">3-50 characters: letters, numbers, dots, dashes or underscores.</span>
+                <span class="field-hint">Your real name, so your barangay knows who sent the concern.</span>
             </div>
 
             <div class="input-group">
@@ -670,7 +670,7 @@
             function showSuccess() {
                 $("#msg-icon").addClass("ok").html(ICON_OK);
                 $("#msg-title").text("Account Created!");
-                $("#msg-text").text("Your citizen account is ready. You can sign in right away.");
+                $("#msg-text").text("Your citizen account is ready. Sign in with your email address and password.");
                 $("#msg-dialog").dialog("option", "buttons", {
                     "Go to Sign In": function () { window.location.href = "Sign_In.html?registered=citizen"; }
                 });
@@ -694,18 +694,18 @@
             $("#citizen-form").on("submit", function (e) {
                 e.preventDefault();
 
-                var username = $.trim($("#username").val());
+                var fullName = $.trim($("#full_name").val().replace(/\s+/g, " "));
                 var email = $.trim($("#email").val());
                 var password = $("#password").val();
                 var confirmPassword = $("#confirm_password").val();
                 var captcha = $.trim($("#captcha-input").val());
 
-                if (!username || !email || !password || !confirmPassword || !captcha) {
+                if (!fullName || !email || !password || !confirmPassword || !captcha) {
                     showMessage("Unable to Submit", "Please fill in every field, including the verification code.");
                     return;
                 }
-                if (!/^[A-Za-z0-9._-]{3,50}$/.test(username)) {
-                    showMessage("Invalid Username", "Username must be 3-50 characters: letters, numbers, dots, dashes or underscores.");
+                if (fullName.length < 2 || !/^[^\d_!@#$%^&*()+=\[\]{}<>\/\\|~`?:;"]+$/.test(fullName)) {
+                    showMessage("Invalid Name", "Please enter your full name (letters, spaces, dots, apostrophes and dashes only).");
                     return;
                 }
                 if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
@@ -727,7 +727,7 @@
                     url: "../src/register-citizen.php",
                     method: "POST",
                     data: {
-                        username: username, email: email, password: password,
+                        full_name: fullName, email: email, password: password,
                         confirm_password: confirmPassword, captcha: captcha, website: $("#website").val()
                     },
                     dataType: "json"

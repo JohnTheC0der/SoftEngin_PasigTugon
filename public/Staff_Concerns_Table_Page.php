@@ -30,6 +30,7 @@ require_page_role($pdo, 'staff');
     <!-- JS Libraries -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+    <script src="response-timer.js"></script>
 
     <link rel="icon" type="image/x-icon" href="PasigTugon_Logo.png">
 
@@ -454,6 +455,7 @@ require_page_role($pdo, 'staff');
         .table-scroll {
             max-height: 560px;
             overflow-y: auto;
+            overflow-x: hidden;
         }
 
         .concerns-table thead th {
@@ -478,8 +480,8 @@ require_page_role($pdo, 'staff');
         }
 
         .concerns-table th {
-            padding: 16px 20px;
-            font-size: 1.1rem;
+            padding: 14px 12px;
+            font-size: 0.85rem;
             font-weight: 800;
             letter-spacing: 0.02em;
             text-transform: uppercase;
@@ -490,32 +492,58 @@ require_page_role($pdo, 'staff');
             text-align: center;
         }
 
-        .concerns-table th:nth-child(2) {
-            width: 8%;
+        .concerns-table th {
+            white-space: nowrap;
         }
 
-        .concerns-table th:nth-child(3) {
-            width: 9%;
+        /* EXPECTED RESPONSE TIME (live countdown) */
+        .eta {
+            min-width: 150px;
+            white-space: nowrap;
         }
 
-        .concerns-table th:nth-child(4) {
-            width: 10%;
+        .eta-time {
+            display: block;
+            font-size: 0.95rem;
+            font-weight: 900;
+            font-variant-numeric: tabular-nums;
         }
 
-        .concerns-table th:nth-child(5) {
-            width: 12%;
+        .eta-sub {
+            display: block;
+            margin-top: 1px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #1E3A8A;
+            opacity: 0.8;
         }
 
-        .concerns-table th:nth-child(6) {
-            width: 9%;
+        .eta.ok .eta-time { color: #065F46; }
+        .eta.warn .eta-time { color: #92400E; }
+        .eta.late .eta-time { color: #B91C1C; }
+        .eta.closed .eta-time { color: #334155; }
+
+        /* same colours on the dark concern card */
+        .detail-value.eta-ok { color: #6EE7B7; }
+        .detail-value.eta-warn { color: #FCD34D; }
+        .detail-value.eta-late { color: #FCA5A5; }
+        .detail-value.eta-closed { color: #CBD5E1; }
+
+        .detail-sub {
+            display: block;
+            margin-top: 2px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #93C5FD;
         }
 
-        .concerns-table th:nth-child(7) {
-            width: 7%;
+        .detail-value.small {
+            font-size: 0.9rem;
+            word-break: break-all;
         }
 
-        .concerns-table th:nth-child(8) {
-            width: 41%;
+        .concerns-table td:nth-child(3) {
+            white-space: nowrap;
         }
 
         .case-cell {
@@ -541,8 +569,8 @@ require_page_role($pdo, 'staff');
         }
 
         .concerns-table td {
-            padding: 14px 20px;
-            font-size: 1.05rem;
+            padding: 12px 12px;
+            font-size: 0.95rem;
             font-weight: 700;
             color: #052350;
             vertical-align: middle;
@@ -661,9 +689,9 @@ require_page_role($pdo, 'staff');
         /* Concern card detail rows */
         .modal-detail-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px 16px;
-            margin-bottom: 1rem;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px 16px;
+            margin-bottom: 0.8rem;
             padding: 0 4px;
         }
 
@@ -699,8 +727,8 @@ require_page_role($pdo, 'staff');
         }
 
         .override-box {
-            margin-top: 1rem;
-            padding: 14px;
+            margin-top: 0.8rem;
+            padding: 12px;
             border-radius: 16px;
             background: rgba(56, 189, 248, 0.10);
             border: 1px solid rgba(56, 189, 248, 0.35);
@@ -731,6 +759,67 @@ require_page_role($pdo, 'staff');
             display: none;
         }
 
+        /* The concern text takes the space that is left and is cut with "…"; the View button never moves */
+        .concerns-table td.concern-td {
+            width: 100%;
+            max-width: 0;
+        }
+
+        .concerns-table td.concern-td .concern-text-truncate {
+            display: block;
+            max-width: none;
+        }
+
+        .concerns-table td.view-td {
+            width: 1%;
+            white-space: nowrap;
+            text-align: right;
+        }
+
+        /* Narrower screens: drop the Conf. column and tighten spacing so the View button stays on screen */
+        @media (max-width: 1150px) {
+            .concerns-table th:nth-child(7),
+            .concerns-table td:nth-child(7) {
+                display: none;
+            }
+
+            .concerns-table th,
+            .concerns-table td {
+                padding-left: 8px !important;
+                padding-right: 8px !important;
+            }
+
+            .concerns-table td {
+                font-size: 0.85rem !important;
+            }
+
+            .concerns-table th {
+                font-size: 0.75rem !important;
+            }
+
+            .concerns-table .status-badge {
+                padding: 3px 8px;
+                font-size: 0.7rem;
+            }
+
+            .eta {
+                min-width: 110px !important;
+            }
+
+            .custom-checkbox {
+                width: 16px;
+                height: 16px;
+            }
+        }
+
+        /* Phones / very narrow windows: also drop the Date column (the concern card shows the exact time) */
+        @media (max-width: 860px) {
+            .concerns-table th:nth-child(3),
+            .concerns-table td:nth-child(3) {
+                display: none;
+            }
+        }
+
         .concern-cell-wrapper {
             display: flex;
             justify-content: space-between;
@@ -742,7 +831,7 @@ require_page_role($pdo, 'staff');
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 380px;
+            max-width: 240px;
         }
 
         .btn-view-spec {
@@ -795,9 +884,11 @@ require_page_role($pdo, 'staff');
         .modal-card {
             background-color: var(--modal-blue);
             width: 100%;
-            max-width: 560px;
+            max-width: 640px;
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
             border-radius: 28px;
-            padding: 2.2rem;
+            padding: 1.6rem 1.8rem;
             box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
             position: relative;
             border: 1px solid rgba(255, 255, 255, 0.15);
@@ -828,15 +919,15 @@ require_page_role($pdo, 'staff');
         }
 
         .modal-title {
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             font-weight: 900;
             color: #FFFFFF;
             letter-spacing: 0.02em;
             text-align: center;
-            margin-bottom: 1.2rem;
+            margin-bottom: 0.8rem;
             text-transform: uppercase;
             border-bottom: 2px solid rgba(56, 162, 239, 0.4);
-            padding-bottom: 12px;
+            padding-bottom: 8px;
         }
 
         .modal-date-row {
@@ -858,12 +949,12 @@ require_page_role($pdo, 'staff');
             background-color: #E0F2FE;
             color: #032B69;
             border-radius: 18px;
-            padding: 1.4rem;
-            font-size: 1.05rem;
+            padding: 1rem 1.2rem;
+            font-size: 1rem;
             font-weight: 700;
             line-height: 1.6;
-            min-height: 160px;
-            max-height: 300px;
+            min-height: 80px;
+            max-height: 150px;
             overflow-y: auto;
             box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
         }
@@ -1200,7 +1291,7 @@ require_page_role($pdo, 'staff');
                             <option>Low</option>
                         </select>
                         <input type="search" class="search-input" id="searchInput"
-                            placeholder="Search words, keywords or case number..." autocomplete="off">
+                            placeholder="Search concern, keyword, case no. or citizen..." autocomplete="off">
                     </div>
 
                     <!-- Action Buttons - Displayed ONLY when items are selected -->
@@ -1222,7 +1313,9 @@ require_page_role($pdo, 'staff');
                                     <th>Sector</th>
                                     <th>Priority</th>
                                     <th>Conf.</th>
+                                    <th>Response Time</th>
                                     <th>Concerns</th>
+                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody id="concernsTableBody">
@@ -1246,7 +1339,7 @@ require_page_role($pdo, 'staff');
             <h2 class="modal-title">Concern Card</h2>
 
             <div class="modal-date-row">
-                <span class="modal-date-label">Date:</span>
+                <span class="modal-date-label">Submitted:</span>
                 <span class="modal-date-value" id="modalDate">--/--/----</span>
             </div>
 
@@ -1256,6 +1349,9 @@ require_page_role($pdo, 'staff');
                 <div><span class="detail-label">Confidence</span><span class="detail-value" id="modalConfidence">-</span></div>
                 <div><span class="detail-label">Sector</span><span class="detail-value" id="modalSector">-</span></div>
                 <div><span class="detail-label">Priority</span><span class="detail-value" id="modalPriority">-</span></div>
+                <div><span class="detail-label">Citizen Name</span><span class="detail-value" id="modalCitizenName">-</span></div>
+                <div class="full"><span class="detail-label">Citizen Email</span><span class="detail-value small" id="modalCitizenEmail">-</span></div>
+                <div class="full"><span class="detail-label">Expected Response Time</span><span class="detail-value" id="modalEta">-</span><span class="detail-sub" id="modalEtaSub"></span></div>
                 <div class="full"><span class="detail-label">Keywords</span><span class="detail-value" id="modalKeywords">-</span></div>
             </div>
 
@@ -1354,7 +1450,9 @@ require_page_role($pdo, 'staff');
         // Fills and opens the concern card
         function openConcernCard(item) {
             openConcernId = item.id;
-            $('#modalDate').text(item.date);
+            $('#modalDate').text(ConcernTimer.dateTime(item.submitted_ts, true));
+            $('#modalCitizenName').text(item.citizen_name || 'Anonymous');
+            $('#modalCitizenEmail').text(item.citizen_email || '— (sent before citizen accounts)');
             $('#modalCase').text('#' + item.id);
             $('#modalContent').text(item.text);
             $('#modalStatus').text(STATUS_LABELS[item.status] || item.status);
@@ -1366,6 +1464,7 @@ require_page_role($pdo, 'staff');
             $('#overridePriority').val(item.priority || 'Medium');
             $('#overrideError').hide();
             $('#concernModal').addClass('active');
+            tickTimers();
         }
 
         // Staff can overturn the system's sector/priority on any concern, any time.
@@ -1406,7 +1505,7 @@ require_page_role($pdo, 'staff');
         // this assumes public/Staff_Concerns_Table_Page.php and src/get-concerns.php as siblings.
         function loadConcerns() {
             $('#concernsTableBody').html(
-                '<tr><td colspan="8" style="text-align:center;padding:40px;font-weight:800;color:#083D8F;">LOADING...</td></tr>'
+                '<tr><td colspan="10" style="text-align:center;padding:40px;font-weight:800;color:#083D8F;">LOADING...</td></tr>'
             );
 
             $.ajax({
@@ -1420,10 +1519,11 @@ require_page_role($pdo, 'staff');
                 concernsData = (response.concerns || []).map(c => Object.assign({
                     selected: false
                 }, c));
+                ConcernTimer.markFetched();
                 renderTable();
             }).fail(function() {
                 $('#concernsTableBody').html(
-                    '<tr><td colspan="8" style="text-align:center;padding:40px;font-weight:800;color:#083D8F;">COULD NOT LOAD CONCERNS</td></tr>'
+                    '<tr><td colspan="10" style="text-align:center;padding:40px;font-weight:800;color:#083D8F;">COULD NOT LOAD CONCERNS</td></tr>'
                 );
             });
         }
@@ -1484,7 +1584,7 @@ require_page_role($pdo, 'staff');
             const visible = concernsData.filter(c => {
                 if (sectorSel && c.sector !== sectorSel) return false;
                 if (prioritySel && c.priority !== prioritySel) return false;
-                const hay = (c.text + ' ' + (c.keywords || '') + ' ' + c.id).toLowerCase();
+                const hay = (c.text + ' ' + (c.keywords || '') + ' ' + c.id + ' ' + (c.citizen_name || '') + ' ' + (c.citizen_email || '')).toLowerCase();
                 return terms.every(t => hay.includes(t));
             });
             // A row hidden by a filter must not stay selected (it could be archived by accident)
@@ -1513,7 +1613,7 @@ require_page_role($pdo, 'staff');
             if (visible.length === 0) {
                 $tableBody.append(`
                     <tr>
-                        <td colspan="8" style="text-align: center; padding: 40px; font-weight: 800; color: #083D8F;">
+                        <td colspan="10" style="text-align: center; padding: 40px; font-weight: 800; color: #083D8F;">
                             NO CONCERNS FOUND
                         </td>
                     </tr>
@@ -1521,7 +1621,6 @@ require_page_role($pdo, 'staff');
                 $('#tableFooterInfo').text(`SHOWING 0 OF ${concernsData.length} ENTRIES`);
             } else {
                 const rows = visible.map(item => {
-                    const showViewButton = item.selected && selectedCount === 1;
                     const badgeClass = item.status === 'archived' ? 'archived' : '';
                     const statusLabel = STATUS_LABELS[item.status] || item.status;
                     const sectorCell = item.sector ? escapeHtml(item.sector) : '<span class="muted-cell">—</span>';
@@ -1541,12 +1640,9 @@ require_page_role($pdo, 'staff');
                             <td>${sectorCell}</td>
                             <td>${priorityCell}</td>
                             <td>${confCell}</td>
-                            <td>
-                                <div class="concern-cell-wrapper">
-                                    <span class="concern-text-truncate">${escapeHtml(item.text)}</span>
-                                    ${showViewButton ? `<button class="btn-view-spec" data-id="${item.id}">View</button>` : ''}
-                                </div>
-                            </td>
+                            ${ConcernTimer.cellHtml(item, escapeHtml)}
+                            <td class="concern-td"><span class="concern-text-truncate">${escapeHtml(item.text)}</span></td>
+                            <td class="view-td"><button class="btn-view-spec" data-id="${item.id}">View</button></td>
                         </tr>
                     `;
                 });
@@ -1555,6 +1651,15 @@ require_page_role($pdo, 'staff');
                 $('#tableFooterInfo').text(`SHOWING ${visible.length} OF ${concernsData.length} ENTRIES`);
             }
         }
+
+        // Live countdowns: refresh every visible cell and the open concern card once a second
+        function tickTimers() {
+            ConcernTimer.tick(concernsData, $('#concernModal').hasClass('active') ? openConcernId : null, {
+                time: document.getElementById('modalEta'),
+                sub: document.getElementById('modalEtaSub')
+            });
+        }
+        setInterval(tickTimers, 1000);
 
         // Modal Handlers
         function openModal(id) {

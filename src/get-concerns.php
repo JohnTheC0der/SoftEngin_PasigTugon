@@ -7,6 +7,7 @@ session_start();
 header('Content-Type: application/json');
 require_once 'db_connect.php';
 require_once 'auth.php';
+require_once 'timing.php';
 
 try {
     $user = require_api_role($pdo, 'staff');
@@ -17,27 +18,31 @@ try {
         $filter = 'ongoing';
     }
 
-    $cols = "concern_id, raw_text, extracted_keywords, sector, priority_level,
-             confidence_score, status, submitted_at";
+    $cols = "c.concern_id, c.raw_text, c.extracted_keywords, c.sector, c.priority_level,
+             c.confidence_score, c.status, c.submitted_at,
+             UNIX_TIMESTAMP(c.submitted_at) AS submitted_ts, UNIX_TIMESTAMP() AS now_ts,
+             u.full_name AS citizen_name, u.email AS citizen_email";
 
     if ($filter === 'all') {
         $stmt = $pdo->prepare(
-            "SELECT $cols FROM tbl_concerns
-             WHERE barangay_id = ?
-             ORDER BY submitted_at DESC, concern_id DESC"
+            "SELECT $cols FROM tbl_concerns c
+             LEFT JOIN tbl_users u ON u.user_id = c.user_id
+             WHERE c.barangay_id = ?
+             ORDER BY c.submitted_at DESC, c.concern_id DESC"
         );
         $stmt->execute([$barangayId]);
     } else {
         $stmt = $pdo->prepare(
-            "SELECT $cols FROM tbl_concerns
-             WHERE barangay_id = ? AND status = ?
-             ORDER BY submitted_at DESC, concern_id DESC"
+            "SELECT $cols FROM tbl_concerns c
+             LEFT JOIN tbl_users u ON u.user_id = c.user_id
+             WHERE c.barangay_id = ? AND c.status = ?
+             ORDER BY c.submitted_at DESC, c.concern_id DESC"
         );
         $stmt->execute([$barangayId, $filter]);
     }
 
     $concerns = array_map(function ($row) {
-        return [
+        return array_merge(concern_citizen($row), concern_timing($row), [
             'id'         => (int) $row['concern_id'],     // also the Case Number
             'date'       => date('n/j/Y', strtotime($row['submitted_at'])),
             'status'     => $row['status'],               // 'ongoing' | 'archived'
@@ -46,7 +51,7 @@ try {
             'sector'     => $row['sector'],
             'priority'   => $row['priority_level'],
             'confidence' => $row['confidence_score'] === null ? null : (float) $row['confidence_score']
-        ];
+        ]);
     }, $stmt->fetchAll());
 
     echo json_encode(['concerns' => $concerns]);

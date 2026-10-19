@@ -11,8 +11,7 @@ session_start();
 header('Content-Type: application/json');
 require_once 'db_connect.php';
 require_once 'auth.php';
-
-const RESPONSE_HOURS = ['High' => 36, 'Medium' => 72, 'Low' => 168];
+require_once 'timing.php';
 
 try {
     $user = require_api_role($pdo, 'citizen');
@@ -29,25 +28,24 @@ try {
     $stmt->execute([$user['user_id']]);
 
     $concerns = array_map(function ($row) {
-        $hours = RESPONSE_HOURS[$row['priority_level']] ?? 168;
-        $submitted = (int) $row['submitted_ts'];
-        return [
-            'case_number'       => (int) $row['concern_id'],   // the concern_id is the case number
-            'barangay'          => $row['barangay_name'],
-            'text'              => $row['raw_text'],
-            'sector'            => $row['sector'],
-            'priority'          => $row['priority_level'],
-            'status'            => $row['status'],             // 'ongoing' | 'archived'
-            'submitted_ts'      => $submitted,                 // unix seconds; the browser formats the date
-            'response_hours'    => $hours,
-            // seconds left (negative = overdue); null once staff have archived the concern
-            'remaining_seconds' => $row['status'] === 'archived'
-                ? null
-                : $submitted + $hours * 3600 - (int) $row['now_ts'],
-        ];
+        return array_merge([
+            'case_number' => (int) $row['concern_id'],   // the concern_id is the case number
+            'barangay'    => $row['barangay_name'],
+            'text'        => $row['raw_text'],
+            'sector'      => $row['sector'],
+            'priority'    => $row['priority_level'],
+            'status'      => $row['status'],             // 'ongoing' | 'archived'
+        ], concern_timing($row));
     }, $stmt->fetchAll());
 
-    echo json_encode(['concerns' => $concerns, 'response_hours' => RESPONSE_HOURS]);
+    $nameStmt = $pdo->prepare("SELECT full_name FROM tbl_users WHERE user_id = ?");
+    $nameStmt->execute([$user['user_id']]);
+
+    echo json_encode([
+        'citizen_name'   => $nameStmt->fetchColumn() ?: null,
+        'concerns'       => $concerns,
+        'response_hours' => RESPONSE_HOURS,
+    ]);
 } catch (PDOException $e) {
     http_response_code(500);
     echo json_encode(['error' => 'Something went wrong loading your concerns.']);

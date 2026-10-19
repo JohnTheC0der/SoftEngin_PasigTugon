@@ -20,6 +20,7 @@ require_page_role($pdo, 'super_admin');
         rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="PasigTugon_Logo.png">
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="response-timer.js"></script>
 
     <style>
         :root {
@@ -710,7 +711,7 @@ require_page_role($pdo, 'super_admin');
             backdrop-filter: blur(24px);
             border: 1px solid var(--card-border);
             border-radius: 22px;
-            overflow: hidden;
+            overflow-x: hidden;
             box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
             animation: zoomIn 0.2s ease;
         }
@@ -923,6 +924,29 @@ require_page_role($pdo, 'super_admin');
             display: block;
         }
 
+        /* ── EXPECTED RESPONSE TIME (live countdown) ── */
+        .eta { white-space: nowrap; min-width: 150px; }
+        .eta-time { display: block; font-size: 0.88rem; font-weight: 900; font-variant-numeric: tabular-nums; }
+        .eta-sub { display: block; margin-top: 1px; font-size: 0.68rem; font-weight: 700; color: #1E3A8A; opacity: 0.8; }
+        .eta.ok .eta-time { color: #065F46; }
+        .eta.warn .eta-time { color: #92400E; }
+        .eta.late .eta-time { color: #B91C1C; }
+        .eta.closed .eta-time { color: #334155; }
+        .cm-value.eta-ok { color: #6EE7B7; }
+        .cm-value.eta-warn { color: #FCD34D; }
+        .cm-value.eta-late { color: #FCA5A5; }
+        .cm-value.eta-closed { color: #CBD5E1; }
+        .cm-sub { display: block; margin-top: 2px; font-size: 0.75rem; font-weight: 700; color: #93C5FD; }
+        .cm-value.small { font-size: 0.9rem; word-break: break-all; }
+        .name-cell { font-weight: 800; }
+        .sub-line { display: block; font-size: 0.72rem; font-weight: 700; opacity: 0.7; }
+        .modal-panel.xl { width: 1120px; max-width: 96vw; overflow-y: auto; }
+        #ctHistoryTbody td { white-space: nowrap; padding: 11px 12px; }
+        #citizenModal .data-table th { padding: 12px; }
+        #citizenModal .concern-snippet { max-width: 170px; }
+        .history-box { margin-top: 18px; }
+        .history-title { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #93C5FD; margin-bottom: 10px; }
+
         /* ── TOAST NOTIFICATION ── */
         .toast-container {
             position: fixed;
@@ -1085,7 +1109,7 @@ require_page_role($pdo, 'super_admin');
 
         .data-table .concern-snippet {
             display: block;
-            max-width: 340px;
+            max-width: 230px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -1224,6 +1248,9 @@ require_page_role($pdo, 'super_admin');
         </button>
         <button class="tab-btn" data-tab="concerns">
             Concerns
+        </button>
+        <button class="tab-btn" data-tab="citizens">
+            Citizens
         </button>
         <button class="tab-btn" data-tab="pending">
             Pending Approvals
@@ -1457,7 +1484,7 @@ require_page_role($pdo, 'super_admin');
                             <path d="m21 21-4.35-4.35" />
                         </svg>
                         <input class="search-input" type="text" id="cSearch"
-                            placeholder="Search words, keywords or case number…">
+                            placeholder="Search concern, keyword, case no. or citizen…">
                     </div>
                     <select class="filter-select" id="cStatus" aria-label="Filter by status">
                         <option value="ongoing">Active (Ongoing)</option>
@@ -1493,13 +1520,14 @@ require_page_role($pdo, 'super_admin');
                                     <th>Status</th>
                                     <th>Sector</th>
                                     <th>Priority</th>
+                                    <th>Response Time</th>
                                     <th style="text-align:left;">Concern</th>
                                     <th></th>
                                 </tr>
                             </thead>
                             <tbody id="concernsTbody">
                                 <tr class="loading-row">
-                                    <td colspan="8">
+                                    <td colspan="9">
                                         <div class="spinner"></div>
                                     </td>
                                 </tr>
@@ -1515,6 +1543,62 @@ require_page_role($pdo, 'super_admin');
         </div>
 
         <!-- ═══ TAB: PENDING APPROVALS ═══ -->
+        <!-- ═══ TAB: CITIZENS (read-only) ═══ -->
+        <div class="tab-panel" id="tab-citizens">
+            <div class="outer-card">
+                <div class="card-top-row">
+                    <div>
+                        <div class="card-header-title">Citizens</div>
+                        <div class="card-subtitle">Every registered citizen · their details and concern history</div>
+                    </div>
+                </div>
+                <div class="readonly-note">View only. Citizen accounts and their concerns are not changed from here.</div>
+                <hr class="header-divider">
+
+                <div class="toolbar">
+                    <div class="search-wrap">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
+                            viewBox="0 0 24 24">
+                            <circle cx="11" cy="11" r="8" />
+                            <path d="m21 21-4.35-4.35" />
+                        </svg>
+                        <input class="search-input" type="text" id="citSearch" placeholder="Search citizen name or email…">
+                    </div>
+                    <select class="filter-select" id="citFilter" aria-label="Filter citizens">
+                        <option value="">All Citizens</option>
+                        <option value="with">With concerns</option>
+                        <option value="none">No concerns yet</option>
+                    </select>
+                </div>
+
+                <div class="inner-box">
+                    <div class="table-scroll-x">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th style="text-align:left;">Full Name</th>
+                                    <th style="text-align:left;">Email</th>
+                                    <th>Registered</th>
+                                    <th>Last Sign-in</th>
+                                    <th>Concerns</th>
+                                    <th>Ongoing</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="citizensTbody">
+                                <tr class="loading-row"><td colspan="8"><div class="spinner"></div></td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination-row" id="citPagRow" style="display:none;">
+                        <span id="citPagInfo"></span>
+                        <div class="page-btns" id="citPagBtns"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="tab-panel" id="tab-pending">
             <div class="outer-card">
                 <div class="card-top-row">
@@ -1655,15 +1739,60 @@ require_page_role($pdo, 'super_admin');
             <div class="modal-body">
                 <div class="cm-grid">
                     <div><span class="cm-label">Barangay</span><span class="cm-value" id="cmBarangay">-</span></div>
-                    <div><span class="cm-label">Date</span><span class="cm-value" id="cmDate">-</span></div>
+                    <div><span class="cm-label">Submitted</span><span class="cm-value" id="cmDate">-</span></div>
                     <div><span class="cm-label">Status</span><span class="cm-value" id="cmStatus">-</span></div>
                     <div><span class="cm-label">Model Confidence</span><span class="cm-value" id="cmConf">-</span></div>
                     <div><span class="cm-label">Sector</span><span class="cm-value" id="cmSector">-</span></div>
                     <div><span class="cm-label">Priority</span><span class="cm-value" id="cmPriority">-</span></div>
+                    <div><span class="cm-label">Citizen Name</span><span class="cm-value" id="cmCitizenName">-</span></div>
+                    <div><span class="cm-label">Citizen Email</span><span class="cm-value small" id="cmCitizenEmail">-</span></div>
+                    <div class="full"><span class="cm-label">Expected Response Time</span><span class="cm-value" id="cmEta">-</span><span class="cm-sub" id="cmEtaSub"></span></div>
                     <div class="full"><span class="cm-label">Keywords</span><span class="cm-value" id="cmKeywords">-</span></div>
                 </div>
                 <div class="cm-text" id="cmText"></div>
                 <div class="readonly-note">View only. This concern is managed by the barangay's staff.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Citizen details + concern history (read-only) -->
+    <div class="modal-overlay" id="citizenModal">
+        <div class="modal-panel xl">
+            <div class="modal-header">
+                <div class="modal-title" id="ctTitle">Citizen</div>
+                <button class="modal-close" id="closeCitizenModalBtn" aria-label="Close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="cm-grid">
+                    <div><span class="cm-label">Full Name</span><span class="cm-value" id="ctName">-</span></div>
+                    <div><span class="cm-label">Email</span><span class="cm-value small" id="ctEmail">-</span></div>
+                    <div><span class="cm-label">Registered</span><span class="cm-value" id="ctJoined">-</span></div>
+                    <div><span class="cm-label">Last Sign-in</span><span class="cm-value" id="ctLast">-</span></div>
+                    <div><span class="cm-label">Concerns Submitted</span><span class="cm-value" id="ctTotal">-</span></div>
+                    <div><span class="cm-label">Account</span><span class="cm-value" id="ctActive">-</span></div>
+                </div>
+                <div class="history-box">
+                    <div class="history-title">Concern History</div>
+                    <div class="inner-box">
+                        <div class="table-scroll-x">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Case No.</th>
+                                        <th>Barangay</th>
+                                        <th>Submitted</th>
+                                        <th>Status</th>
+                                        <th>Sector</th>
+                                        <th>Priority</th>
+                                        <th>Response Time</th>
+                                        <th style="text-align:left;">Concern</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ctHistoryTbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -1771,6 +1900,7 @@ require_page_role($pdo, 'super_admin');
                 .done(function (d) {
                     if (d.error) { showToast(d.error, 'error'); return; }
                     allConcerns = d.concerns || [];
+                    ConcernTimer.markFetched();
 
                     // barangay dropdown = every barangay that has at least one concern
                     const keep = $('#cBarangay').val();
@@ -1782,7 +1912,7 @@ require_page_role($pdo, 'super_admin');
                     renderConcerns();
                 })
                 .fail(function () {
-                    $('#concernsTbody').html('<tr class="empty-row"><td colspan="8">Could not load concerns</td></tr>');
+                    $('#concernsTbody').html('<tr class="empty-row"><td colspan="9">Could not load concerns</td></tr>');
                 });
         }
 
@@ -1797,7 +1927,7 @@ require_page_role($pdo, 'super_admin');
                 if (barangay && c.barangay !== barangay) return false;
                 if (sector && c.sector !== sector) return false;
                 if (priority && c.priority !== priority) return false;
-                const hay = (c.text + ' ' + (c.keywords || '') + ' ' + c.id + ' ' + c.barangay).toLowerCase();
+                const hay = (c.text + ' ' + (c.keywords || '') + ' ' + c.id + ' ' + c.barangay + ' ' + (c.citizen_name || '') + ' ' + (c.citizen_email || '')).toLowerCase();
                 return terms.every(t => hay.includes(t));
             });
         }
@@ -1810,7 +1940,7 @@ require_page_role($pdo, 'super_admin');
             const $tbody = $('#concernsTbody').empty();
 
             if (!rows.length) {
-                $tbody.append('<tr class="empty-row"><td colspan="8">No concerns match these filters</td></tr>');
+                $tbody.append('<tr class="empty-row"><td colspan="9">No concerns match these filters</td></tr>');
                 $('#concernsPagRow').hide();
                 return;
             }
@@ -1823,6 +1953,7 @@ require_page_role($pdo, 'super_admin');
                 $tbody.append(
                     '<tr><td class="case-no">#' + c.id + '</td><td>' + escapeHtml(c.barangay) + '</td><td>' + escapeHtml(c.date) + '</td>' +
                     '<td>' + statusPill + '</td><td>' + escapeHtml(c.sector || '—') + '</td><td>' + prio + '</td>' +
+                    ConcernTimer.cellHtml(c, escapeHtml) +
                     '<td style="text-align:left;"><span class="concern-snippet">' + escapeHtml(c.text) + '</span></td>' +
                     '<td><button class="row-btn view" data-id="' + c.id + '">View</button></td></tr>'
                 );
@@ -1845,7 +1976,10 @@ require_page_role($pdo, 'super_admin');
             if (!c) return;
             $('#cmTitle').text('Case #' + c.id);
             $('#cmBarangay').text(c.barangay);
-            $('#cmDate').text(c.date);
+            openCmId = c.id;
+            $('#cmDate').text(ConcernTimer.dateTime(c.submitted_ts, true));
+            $('#cmCitizenName').text(c.citizen_name || 'Anonymous');
+            $('#cmCitizenEmail').text(c.citizen_email || '— (sent before citizen accounts)');
             $('#cmStatus').text(c.status === 'archived' ? 'Archived' : 'Ongoing');
             $('#cmConf').text(c.confidence === null ? '—' : c.confidence.toFixed(2));
             $('#cmSector').text(c.sector || '—');
@@ -1853,6 +1987,116 @@ require_page_role($pdo, 'super_admin');
             $('#cmKeywords').text(c.keywords || '—');
             $('#cmText').text(c.text);
             $('#concernModal').addClass('active');
+            tickTimers();
+        }
+
+        let openCmId = null;
+
+        // ── Live countdowns (concerns table, concern card, citizen history) ──
+        function tickTimers() {
+            ConcernTimer.tick(allConcerns, $('#concernModal').hasClass('active') ? openCmId : null, {
+                time: document.getElementById('cmEta'),
+                sub: document.getElementById('cmEtaSub')
+            });
+            if ($('#citizenModal').hasClass('active') && openCitizen) {
+                ConcernTimer.tick(openCitizen.concerns, null, null, 'h');
+            }
+        }
+        setInterval(tickTimers, 1000);
+
+        // ── CITIZENS TAB (read-only) ──
+        let allCitizens = [];
+        let openCitizen = null;
+        let citPage = 1;
+
+        function loadCitizens() {
+            $.ajax({ url: '../src/get-super-admin-citizens.php', method: 'GET', dataType: 'json' })
+                .done(function (d) {
+                    if (d.error) { showToast(d.error, 'error'); return; }
+                    allCitizens = d.citizens || [];
+                    ConcernTimer.markFetched();
+                    renderCitizens();
+                })
+                .fail(function () {
+                    $('#citizensTbody').html('<tr class="empty-row"><td colspan="8">Could not load citizens</td></tr>');
+                });
+        }
+
+        function filteredCitizens() {
+            const f = $('#citFilter').val();
+            const terms = $('#citSearch').val().toLowerCase().split(/\s+/).filter(Boolean);
+            return allCitizens.filter(c => {
+                if (f === 'with' && c.total_concerns === 0) return false;
+                if (f === 'none' && c.total_concerns > 0) return false;
+                const hay = (c.name + ' ' + c.email).toLowerCase();
+                return terms.every(t => hay.includes(t));
+            });
+        }
+
+        function renderCitizens() {
+            const rows = filteredCitizens();
+            const pages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+            if (citPage > pages) citPage = pages;
+            const start = (citPage - 1) * PAGE_SIZE;
+            const $tbody = $('#citizensTbody').empty();
+
+            if (!rows.length) {
+                $tbody.append('<tr class="empty-row"><td colspan="8">No citizens found</td></tr>');
+                $('#citPagRow').hide();
+                return;
+            }
+
+            rows.slice(start, start + PAGE_SIZE).forEach((c, i) => {
+                $tbody.append(
+                    '<tr><td>' + (start + i + 1) + '</td>' +
+                    '<td class="name-cell" style="text-align:left;">' + escapeHtml(c.name) + (c.is_active ? '' : ' <span class="pill archived">Deactivated</span>') + '</td>' +
+                    '<td style="text-align:left;">' + escapeHtml(c.email) + '</td>' +
+                    '<td>' + formatDate(c.created_at) + '</td>' +
+                    '<td>' + (c.last_login_at ? formatDate(c.last_login_at) : '—') + '</td>' +
+                    '<td>' + c.total_concerns + '</td><td>' + c.ongoing + '</td>' +
+                    '<td><button class="row-btn view" data-id="' + c.user_id + '">View</button></td></tr>'
+                );
+            });
+
+            $('#citPagRow').show();
+            $('#citPagInfo').text('Showing ' + (start + 1) + '–' + Math.min(start + PAGE_SIZE, rows.length) + ' of ' + rows.length);
+            const $btns = $('#citPagBtns').empty();
+            for (let p = 1; p <= pages; p++) {
+                if (pages > 7 && p !== 1 && p !== pages && Math.abs(p - citPage) > 1) {
+                    if (Math.abs(p - citPage) === 2) $btns.append('<span style="align-self:center;">…</span>');
+                    continue;
+                }
+                $btns.append($('<button class="page-btn">').toggleClass('active', p === citPage).text(p).attr('data-page', p));
+            }
+        }
+
+        function openCitizenCard(userId) {
+            const c = allCitizens.find(x => x.user_id === userId);
+            if (!c) return;
+            openCitizen = c;
+            $('#ctTitle').text(c.name);
+            $('#ctName').text(c.name);
+            $('#ctEmail').text(c.email);
+            $('#ctJoined').text(formatDate(c.created_at));
+            $('#ctLast').text(c.last_login_at ? formatDate(c.last_login_at) : 'Never');
+            $('#ctTotal').text(c.total_concerns + ' (' + c.ongoing + ' ongoing, ' + c.archived + ' archived)');
+            $('#ctActive').text(c.is_active ? 'Active' : 'Deactivated');
+            const $h = $('#ctHistoryTbody').empty();
+            if (!c.concerns.length) {
+                $h.append('<tr class="empty-row"><td colspan="8">This citizen has not submitted any concerns yet</td></tr>');
+            }
+            c.concerns.forEach(h => {
+                const statusPill = h.status === 'archived' ? '<span class="pill archived">Archived</span>' : '<span class="pill active">Ongoing</span>';
+                const prio = h.priority ? '<span class="pill p-' + escapeHtml(h.priority.toLowerCase()) + '">' + escapeHtml(h.priority) + '</span>' : '—';
+                $h.append(
+                    '<tr><td class="case-no">#' + h.id + '</td><td>' + escapeHtml(h.barangay) + '</td>' +
+                    '<td>' + escapeHtml(ConcernTimer.dateTime(h.submitted_ts)) + '</td><td>' + statusPill + '</td>' +
+                    '<td>' + escapeHtml(h.sector || '—') + '</td><td>' + prio + '</td>' +
+                    ConcernTimer.cellHtml(h, escapeHtml, 'h') +
+                    '<td style="text-align:left;"><span class="concern-snippet">' + escapeHtml(h.text) + '</span></td></tr>'
+                );
+            });
+            $('#citizenModal').addClass('active');
         }
 
         function loadData() {
@@ -2047,6 +2291,7 @@ require_page_role($pdo, 'super_admin');
                 // Concern tabs always show fresh data
                 if (targetTab === 'overview') loadOverview();
                 if (targetTab === 'concerns') loadConcerns();
+                if (targetTab === 'citizens') loadCitizens();
             });
 
             // Concerns tab: filters, paging, view button (read-only)
@@ -2059,9 +2304,22 @@ require_page_role($pdo, 'super_admin');
             $('#concernsTbody').on('click', '.row-btn.view', function () {
                 openConcernCard(parseInt($(this).attr('data-id'), 10));
             });
+            // Citizens tab: search, filter, paging, view history (read-only)
+            $('#citSearch').on('input', function () { citPage = 1; renderCitizens(); });
+            $('#citFilter').on('change', function () { citPage = 1; renderCitizens(); });
+            $('#citPagBtns').on('click', '.page-btn', function () {
+                citPage = parseInt($(this).attr('data-page'), 10);
+                renderCitizens();
+            });
+            $('#citizensTbody').on('click', '.row-btn.view', function () {
+                openCitizenCard(parseInt($(this).attr('data-id'), 10));
+            });
+            $('#closeCitizenModalBtn').on('click', function () { $('#citizenModal').removeClass('active'); });
+            $('#citizenModal').on('click', function (e) { if (e.target === this) $(this).removeClass('active'); });
+
             $('#closeConcernModalBtn').on('click', function () { $('#concernModal').removeClass('active'); });
             $('#concernModal').on('click', function (e) { if (e.target === this) $(this).removeClass('active'); });
-            $(document).on('keydown', function (e) { if (e.key === 'Escape') $('#concernModal').removeClass('active'); });
+            $(document).on('keydown', function (e) { if (e.key === 'Escape') $('#concernModal, #citizenModal').removeClass('active'); });
 
             // Overview → click a barangay to open its (active) concerns
             $('#ovBarangayTbody').on('click', '.barangay-link', function () {

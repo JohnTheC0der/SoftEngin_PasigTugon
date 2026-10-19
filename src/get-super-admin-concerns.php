@@ -8,20 +8,24 @@ session_start();
 header('Content-Type: application/json');
 require_once 'db_connect.php';
 require_once 'auth.php';
+require_once 'timing.php';
 
 try {
     require_api_role($pdo, 'super_admin');
 
     $rows = $pdo->query(
         "SELECT c.concern_id, c.barangay_id, b.barangay_name, c.raw_text, c.extracted_keywords,
-                c.sector, c.priority_level, c.confidence_score, c.status, c.submitted_at
+                c.sector, c.priority_level, c.confidence_score, c.status, c.submitted_at,
+                UNIX_TIMESTAMP(c.submitted_at) AS submitted_ts, UNIX_TIMESTAMP() AS now_ts,
+                u.full_name AS citizen_name, u.email AS citizen_email
          FROM tbl_concerns c
          JOIN tbl_barangay b ON b.barangay_id = c.barangay_id
+         LEFT JOIN tbl_users u ON u.user_id = c.user_id
          ORDER BY c.submitted_at DESC, c.concern_id DESC"
     )->fetchAll();
 
     $concerns = array_map(function ($row) {
-        return [
+        return array_merge(concern_citizen($row), concern_timing($row), [
             'id'          => (int) $row['concern_id'],      // Case Number
             'barangay_id' => (int) $row['barangay_id'],
             'barangay'    => $row['barangay_name'],
@@ -32,7 +36,7 @@ try {
             'sector'      => $row['sector'],
             'priority'    => $row['priority_level'],
             'confidence'  => $row['confidence_score'] === null ? null : (float) $row['confidence_score'],
-        ];
+        ]);
     }, $rows);
 
     echo json_encode(['concerns' => $concerns]);
