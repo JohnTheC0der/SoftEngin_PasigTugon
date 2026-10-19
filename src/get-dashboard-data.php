@@ -1,23 +1,17 @@
 <?php
-// Returns everything the Admin Dashboard needs in one response:
-// barangay name, quick stats (including how many concerns await manual review),
-// sector/priority pie chart data, the 7-day line graph, top 8 common keywords,
-// and the 8 most recent concerns.
+// Returns everything the Staff Dashboard needs in one response:
+// barangay name, quick stats, sector/priority pie chart data, the 7-day
+// line graph, top 8 common keywords, and the 8 most recent concerns.
 
 session_start();
 header('Content-Type: application/json');
 require_once 'db_connect.php';
-
-if (!isset($_SESSION['user_id']) || empty($_SESSION['barangay_id'])) {
-    // super_admins have no barangay_id — this endpoint is for barangay admins only
-    http_response_code(403);
-    echo json_encode(['error' => 'No barangay associated with this account.']);
-    exit;
-}
-
-$barangayId = $_SESSION['barangay_id'];
+require_once 'auth.php';
 
 try {
+    $user = require_api_role($pdo, 'staff');   // staff only, and only once their barangay is approved
+    $barangayId = $user['barangay_id'];
+
     $response = [];
 
     // --- Barangay name ---
@@ -34,18 +28,12 @@ try {
     $stmt->execute([$barangayId]);
     $response['total_archived'] = (int) $stmt->fetchColumn();
 
-    // --- Concerns waiting for manual review (sector confidence too low) ---
-    $stmt = $pdo->prepare("SELECT COUNT(*) FROM tbl_concerns WHERE barangay_id = ? AND status = 'for_review'");
-    $stmt->execute([$barangayId]);
-    $response['review_count'] = (int) $stmt->fetchColumn();
-
-    // ...of which the safety net already flagged High, so they are urgent
+    // High-priority concerns still ongoing (shown in the third stat box)
     $stmt = $pdo->prepare(
-        "SELECT COUNT(*) FROM tbl_concerns
-         WHERE barangay_id = ? AND status = 'for_review' AND priority_level = 'High'"
+        "SELECT COUNT(*) FROM tbl_concerns WHERE barangay_id = ? AND status = 'ongoing' AND priority_level = 'High'"
     );
     $stmt->execute([$barangayId]);
-    $response['urgent_review_count'] = (int) $stmt->fetchColumn();
+    $response['high_priority_count'] = (int) $stmt->fetchColumn();
 
     // --- Sector pie chart (ongoing only, per spec) ---
     $stmt = $pdo->prepare(
@@ -73,41 +61,29 @@ try {
         'data'   => array_map('intval', array_column($priorityRows, 'total'))
     ];
 
-    // --- 7-day concerns line graph ---
-    // 'total' counts every concern received that day (ongoing, for_review and archived),
-    // and 'for_review' is how many of those are currently waiting for manual review.
+    // --- 7-day concerns line graph (all statuses — counts concerns received, not just active ones) ---
     $stmt = $pdo->prepare(
-        "SELECT DATE(submitted_at) AS day,
-                COUNT(*) AS total,
-                SUM(status = 'for_review') AS for_review
+        "SELECT DATE(submitted_at) AS day, COUNT(*) AS total
          FROM tbl_concerns
          WHERE barangay_id = ? AND submitted_at >= (CURDATE() - INTERVAL 6 DAY)
          GROUP BY DATE(submitted_at)"
     );
     $stmt->execute([$barangayId]);
     $countsByDay = [];
-    $reviewByDay = [];
     foreach ($stmt->fetchAll() as $row) {
         $countsByDay[$row['day']] = (int) $row['total'];
-        $reviewByDay[$row['day']] = (int) $row['for_review'];
     }
 
     // Fill in every one of the last 7 days, even the ones with zero concerns,
     // so the graph always has exactly 7 points.
     $graphLabels = [];
     $graphData = [];
-    $graphReviewData = [];
     for ($i = 6; $i >= 0; $i--) {
         $date = date('Y-m-d', strtotime("-$i days"));
         $graphLabels[] = date('M j', strtotime($date));
         $graphData[] = $countsByDay[$date] ?? 0;
-        $graphReviewData[] = $reviewByDay[$date] ?? 0;
     }
-    $response['concerns_graph'] = [
-        'labels'      => $graphLabels,
-        'data'        => $graphData,         // all concerns received per day
-        'review_data' => $graphReviewData    // of those, how many are awaiting manual review
-    ];
+    $response['concerns_graph'] = ['labels' => $graphLabels, 'data' => $graphData];
 
     // --- Common keywords (top 8) ---
     // extracted_keywords is stored as a comma-separated string per concern.

@@ -1,11 +1,11 @@
 <?php
-// Session guard — redirects to login if nobody is signed in.
+// Staff-only page. require_page_role() re-checks the database on every load: the person must be
+// signed in, be a staff member, and belong to a barangay a super admin has approved. Citizens and
+// super admins are sent to their own home page; everyone else goes to Sign_In.html.
 // Must run before any HTML is output, so this block stays at the very top of the file.
-session_start();
-if (!isset($_SESSION['user_id'])) {
-    header('Location: Admin_Log_In.html');
-    exit;
-}
+require_once __DIR__ . '/../src/db_connect.php';
+require_once __DIR__ . '/../src/auth.php';
+require_page_role($pdo, 'staff');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -30,6 +30,7 @@ if (!isset($_SESSION['user_id'])) {
     <!-- JS Libraries -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+    <script src="response-timer.js"></script>
 
     <link rel="icon" type="image/x-icon" href="PasigTugon_Logo.png">
 
@@ -454,6 +455,7 @@ if (!isset($_SESSION['user_id'])) {
         .table-scroll {
             max-height: 560px;
             overflow-y: auto;
+            overflow-x: hidden;
         }
 
         .concerns-table thead th {
@@ -478,8 +480,8 @@ if (!isset($_SESSION['user_id'])) {
         }
 
         .concerns-table th {
-            padding: 16px 20px;
-            font-size: 1.1rem;
+            padding: 14px 12px;
+            font-size: 0.85rem;
             font-weight: 800;
             letter-spacing: 0.02em;
             text-transform: uppercase;
@@ -490,28 +492,62 @@ if (!isset($_SESSION['user_id'])) {
             text-align: center;
         }
 
-        .concerns-table th:nth-child(2) {
-            width: 9%;
+        .concerns-table th {
+            white-space: nowrap;
         }
 
-        .concerns-table th:nth-child(3) {
-            width: 11%;
+        /* EXPECTED RESPONSE TIME (live countdown) */
+        .eta {
+            min-width: 150px;
+            white-space: nowrap;
         }
 
-        .concerns-table th:nth-child(4) {
-            width: 12%;
+        .eta-time {
+            display: block;
+            font-size: 0.95rem;
+            font-weight: 900;
+            font-variant-numeric: tabular-nums;
         }
 
-        .concerns-table th:nth-child(5) {
-            width: 9%;
+        .eta-sub {
+            display: block;
+            margin-top: 1px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #1E3A8A;
+            opacity: 0.8;
         }
 
-        .concerns-table th:nth-child(6) {
-            width: 8%;
+        .eta.ok .eta-time { color: #065F46; }
+        .eta.warn .eta-time { color: #92400E; }
+        .eta.late .eta-time { color: #B91C1C; }
+        .eta.closed .eta-time { color: #334155; }
+
+        /* same colours on the dark concern card */
+        .detail-value.eta-ok { color: #6EE7B7; }
+        .detail-value.eta-warn { color: #FCD34D; }
+        .detail-value.eta-late { color: #FCA5A5; }
+        .detail-value.eta-closed { color: #CBD5E1; }
+
+        .detail-sub {
+            display: block;
+            margin-top: 2px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #93C5FD;
         }
 
-        .concerns-table th:nth-child(7) {
-            width: 47%;
+        .detail-value.small {
+            font-size: 0.9rem;
+            word-break: break-all;
+        }
+
+        .concerns-table td:nth-child(3) {
+            white-space: nowrap;
+        }
+
+        .case-cell {
+            white-space: nowrap;
         }
 
         .concerns-table tbody tr {
@@ -533,8 +569,8 @@ if (!isset($_SESSION['user_id'])) {
         }
 
         .concerns-table td {
-            padding: 14px 20px;
-            font-size: 1.05rem;
+            padding: 12px 12px;
+            font-size: 0.95rem;
             font-weight: 700;
             color: #052350;
             vertical-align: middle;
@@ -585,11 +621,6 @@ if (!isset($_SESSION['user_id'])) {
         .status-badge.archived {
             background-color: #CBD5E1;
             color: #334155;
-        }
-
-        .status-badge.review {
-            background-color: #FDE68A;
-            color: #78350F;
         }
 
         .status-badge.p-high {
@@ -655,28 +686,12 @@ if (!isset($_SESSION['user_id'])) {
             color: #6B8FC7;
         }
 
-        .review-banner {
-            display: none;
-            margin-bottom: 1rem;
-            background: #FDE68A;
-            color: #78350F;
-            font-weight: 800;
-            font-size: 0.9rem;
-            padding: 10px 18px;
-            border-radius: 14px;
-            cursor: pointer;
-        }
-
-        .review-banner u {
-            text-decoration: underline;
-        }
-
         /* Concern card detail rows */
         .modal-detail-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px 16px;
-            margin-bottom: 1rem;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px 16px;
+            margin-bottom: 0.8rem;
             padding: 0 4px;
         }
 
@@ -711,38 +726,98 @@ if (!isset($_SESSION['user_id'])) {
             background: #E0F2FE;
         }
 
-        .review-box {
-            display: none;
-            margin-top: 1rem;
-            padding: 14px;
+        .override-box {
+            margin-top: 0.8rem;
+            padding: 12px;
             border-radius: 16px;
-            background: rgba(253, 230, 138, 0.12);
-            border: 1px solid rgba(253, 230, 138, 0.4);
+            background: rgba(56, 189, 248, 0.10);
+            border: 1px solid rgba(56, 189, 248, 0.35);
         }
 
-        .review-box p {
-            color: #FDE68A;
+        .override-box p {
+            color: #BAE6FD;
             font-weight: 700;
             font-size: 0.85rem;
             margin-bottom: 10px;
         }
 
-        .review-box .row {
+        .override-box .row {
             display: flex;
             gap: 12px;
             margin-bottom: 12px;
         }
 
-        .review-box .row>div {
+        .override-box .row>div {
             flex: 1;
         }
 
-        .review-error {
+        .override-error {
             color: #FCA5A5;
             font-weight: 700;
             font-size: 0.85rem;
             margin-bottom: 8px;
             display: none;
+        }
+
+        /* The concern text takes the space that is left and is cut with "…"; the View button never moves */
+        .concerns-table td.concern-td {
+            width: 100%;
+            max-width: 0;
+        }
+
+        .concerns-table td.concern-td .concern-text-truncate {
+            display: block;
+            max-width: none;
+        }
+
+        .concerns-table td.view-td {
+            width: 1%;
+            white-space: nowrap;
+            text-align: right;
+        }
+
+        /* Narrower screens: drop the Conf. column and tighten spacing so the View button stays on screen */
+        @media (max-width: 1150px) {
+            .concerns-table th:nth-child(7),
+            .concerns-table td:nth-child(7) {
+                display: none;
+            }
+
+            .concerns-table th,
+            .concerns-table td {
+                padding-left: 8px !important;
+                padding-right: 8px !important;
+            }
+
+            .concerns-table td {
+                font-size: 0.85rem !important;
+            }
+
+            .concerns-table th {
+                font-size: 0.75rem !important;
+            }
+
+            .concerns-table .status-badge {
+                padding: 3px 8px;
+                font-size: 0.7rem;
+            }
+
+            .eta {
+                min-width: 110px !important;
+            }
+
+            .custom-checkbox {
+                width: 16px;
+                height: 16px;
+            }
+        }
+
+        /* Phones / very narrow windows: also drop the Date column (the concern card shows the exact time) */
+        @media (max-width: 860px) {
+            .concerns-table th:nth-child(3),
+            .concerns-table td:nth-child(3) {
+                display: none;
+            }
         }
 
         .concern-cell-wrapper {
@@ -756,7 +831,7 @@ if (!isset($_SESSION['user_id'])) {
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            max-width: 380px;
+            max-width: 240px;
         }
 
         .btn-view-spec {
@@ -809,9 +884,11 @@ if (!isset($_SESSION['user_id'])) {
         .modal-card {
             background-color: var(--modal-blue);
             width: 100%;
-            max-width: 560px;
+            max-width: 640px;
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
             border-radius: 28px;
-            padding: 2.2rem;
+            padding: 1.6rem 1.8rem;
             box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
             position: relative;
             border: 1px solid rgba(255, 255, 255, 0.15);
@@ -842,15 +919,15 @@ if (!isset($_SESSION['user_id'])) {
         }
 
         .modal-title {
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             font-weight: 900;
             color: #FFFFFF;
             letter-spacing: 0.02em;
             text-align: center;
-            margin-bottom: 1.2rem;
+            margin-bottom: 0.8rem;
             text-transform: uppercase;
             border-bottom: 2px solid rgba(56, 162, 239, 0.4);
-            padding-bottom: 12px;
+            padding-bottom: 8px;
         }
 
         .modal-date-row {
@@ -872,12 +949,12 @@ if (!isset($_SESSION['user_id'])) {
             background-color: #E0F2FE;
             color: #032B69;
             border-radius: 18px;
-            padding: 1.4rem;
-            font-size: 1.05rem;
+            padding: 1rem 1.2rem;
+            font-size: 1rem;
             font-weight: 700;
             line-height: 1.6;
-            min-height: 160px;
-            max-height: 300px;
+            min-height: 80px;
+            max-height: 150px;
             overflow-y: auto;
             box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
         }
@@ -1141,7 +1218,7 @@ if (!isset($_SESSION['user_id'])) {
                     aria-label="Close Modal">&times;</button>
             </div>
             <div class="modal_body">
-                Are you sure you want to securely log out of the admin portal?
+                Are you sure you want to securely log out of the staff portal?
             </div>
             <div class="modal_footer">
                 <button class="swiss_btn_modal cancel" onclick="closeModal('logoutModal')">Cancel</button>
@@ -1164,7 +1241,7 @@ if (!isset($_SESSION['user_id'])) {
                 </svg>
             </button>
             <div class="dropdown-menu" id="navDropdown">
-                <a href="Admin_Setting_Page.php" class="dropdown-item">Settings</a>
+                <a href="Staff_Setting_Page.php" class="dropdown-item">Settings</a>
                 <a href="#" class="dropdown-item logout" id="logoutBtn">Log Out</a>
             </div>
         </div>
@@ -1172,14 +1249,14 @@ if (!isset($_SESSION['user_id'])) {
 
     <!-- TAB BAR -->
     <div class="tab-bar">
-        <a href="Admin_Dashboard_Page.php" class="tab-link">Dashboard</a>
-        <a href="Admin_Concerns_Table_Page.php" class="tab-link active">Concerns</a>
+        <a href="Staff_Dashboard_Page.php" class="tab-link">Dashboard</a>
+        <a href="Staff_Concerns_Table_Page.php" class="tab-link active">Concerns</a>
     </div>
 
     <main class="main-wrapper">
         <div class="outer-card">
             <h1 class="card-header-title">Concerns Collection</h1>
-            <p class="card-subtitle">This table shows every concern in the database</p>
+            <p class="card-subtitle">Every concern sent to your barangay. Open one to overturn its sector or priority.</p>
             <hr class="header-divider">
             <div class="inner-box">
                 <div class="controls-bar">
@@ -1195,7 +1272,6 @@ if (!isset($_SESSION['user_id'])) {
                             </button>
                             <div class="filter-menu" id="filterMenu">
                                 <div class="filter-option" onclick="setFilter('ongoing')">Ongoing</div>
-                                <div class="filter-option" onclick="setFilter('for_review')">For Review</div>
                                 <div class="filter-option" onclick="setFilter('archived')">Archived</div>
                                 <div class="filter-option" onclick="setFilter('all')">All Concerns</div>
                             </div>
@@ -1215,7 +1291,7 @@ if (!isset($_SESSION['user_id'])) {
                             <option>Low</option>
                         </select>
                         <input type="search" class="search-input" id="searchInput"
-                            placeholder="Search words in concerns or keywords..." autocomplete="off">
+                            placeholder="Search concern, keyword, case no. or citizen..." autocomplete="off">
                     </div>
 
                     <!-- Action Buttons - Displayed ONLY when items are selected -->
@@ -1225,20 +1301,21 @@ if (!isset($_SESSION['user_id'])) {
                     </div>
                 </div>
 
-                <div class="review-banner" id="reviewBanner" onclick="setFilter('for_review')"></div>
-
                 <div class="table-container">
                     <div class="table-scroll">
                         <table class="concerns-table">
                             <thead>
                                 <tr>
                                     <th></th>
+                                    <th>Case No.</th>
                                     <th>Date</th>
                                     <th>Status</th>
                                     <th>Sector</th>
                                     <th>Priority</th>
                                     <th>Conf.</th>
+                                    <th>Response Time</th>
                                     <th>Concerns</th>
+                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody id="concernsTableBody">
@@ -1262,15 +1339,19 @@ if (!isset($_SESSION['user_id'])) {
             <h2 class="modal-title">Concern Card</h2>
 
             <div class="modal-date-row">
-                <span class="modal-date-label">Date:</span>
+                <span class="modal-date-label">Submitted:</span>
                 <span class="modal-date-value" id="modalDate">--/--/----</span>
             </div>
 
             <div class="modal-detail-grid">
+                <div><span class="detail-label">Case Number</span><span class="detail-value" id="modalCase">-</span></div>
                 <div><span class="detail-label">Status</span><span class="detail-value" id="modalStatus">-</span></div>
                 <div><span class="detail-label">Confidence</span><span class="detail-value" id="modalConfidence">-</span></div>
                 <div><span class="detail-label">Sector</span><span class="detail-value" id="modalSector">-</span></div>
                 <div><span class="detail-label">Priority</span><span class="detail-value" id="modalPriority">-</span></div>
+                <div><span class="detail-label">Citizen Name</span><span class="detail-value" id="modalCitizenName">-</span></div>
+                <div class="full"><span class="detail-label">Citizen Email</span><span class="detail-value small" id="modalCitizenEmail">-</span></div>
+                <div class="full"><span class="detail-label">Expected Response Time</span><span class="detail-value" id="modalEta">-</span><span class="detail-sub" id="modalEtaSub"></span></div>
                 <div class="full"><span class="detail-label">Keywords</span><span class="detail-value" id="modalKeywords">-</span></div>
             </div>
 
@@ -1278,14 +1359,13 @@ if (!isset($_SESSION['user_id'])) {
                 Select a concern to view details.
             </div>
 
-            <!-- Shown for concerns with status = for_review or ongoing (not archived) -->
-            <div class="review-box" id="reviewBox">
-                <p id="reviewNote">The system wasn't confident enough to classify this concern. Set the sector and priority yourself.</p>
+            <!-- The system already assessed this concern; staff can overturn it at any time -->
+            <div class="override-box" id="overrideBox">
+                <p>The system assessed this concern automatically. If you judge it differently, choose the sector and priority you think are best.</p>
                 <div class="row">
                     <div>
                         <span class="detail-label">Sector</span>
-                        <select class="modal-select" id="reviewSector">
-                            <option value="">Choose...</option>
+                        <select class="modal-select" id="overrideSector">
                             <option>Health</option>
                             <option>Infrastructure</option>
                             <option>Crime</option>
@@ -1294,16 +1374,15 @@ if (!isset($_SESSION['user_id'])) {
                     </div>
                     <div>
                         <span class="detail-label">Priority</span>
-                        <select class="modal-select" id="reviewPriority">
-                            <option value="">Choose...</option>
+                        <select class="modal-select" id="overridePriority">
                             <option>High</option>
                             <option>Medium</option>
                             <option>Low</option>
                         </select>
                     </div>
                 </div>
-                <div class="review-error" id="reviewError"></div>
-                <button class="btn-pill btn-done" id="reviewSaveBtn" style="width:100%" onclick="saveReview()">Save</button>
+                <div class="override-error" id="overrideError"></div>
+                <button class="btn-pill btn-done" id="overrideSaveBtn" style="width:100%" onclick="saveOverride()">Save Changes</button>
             </div>
         </div>
     </div>
@@ -1315,7 +1394,6 @@ if (!isset($_SESSION['user_id'])) {
         let openConcernId = null;
         const STATUS_LABELS = {
             ongoing: 'Ongoing',
-            for_review: 'For Review',
             archived: 'Archived'
         };
 
@@ -1372,41 +1450,35 @@ if (!isset($_SESSION['user_id'])) {
         // Fills and opens the concern card
         function openConcernCard(item) {
             openConcernId = item.id;
-            $('#modalDate').text(item.date);
+            $('#modalDate').text(ConcernTimer.dateTime(item.submitted_ts, true));
+            $('#modalCitizenName').text(item.citizen_name || 'Anonymous');
+            $('#modalCitizenEmail').text(item.citizen_email || '— (sent before citizen accounts)');
+            $('#modalCase').text('#' + item.id);
             $('#modalContent').text(item.text);
             $('#modalStatus').text(STATUS_LABELS[item.status] || item.status);
             $('#modalConfidence').text(item.confidence === null ? '—' : item.confidence.toFixed(2));
             $('#modalSector').text(item.sector || '—');
             $('#modalPriority').text(item.priority || '—');
             $('#modalKeywords').text(item.keywords || '—');
-            $('#reviewError').hide();
-
-            if (item.status === 'for_review' || item.status === 'ongoing') {
-                // Pre-fill whatever is already saved: for_review concerns have no sector yet
-                // (and a priority only if the safety net fired), ongoing ones show the model's choice.
-                $('#reviewSector').val(item.sector || '');
-                $('#reviewPriority').val(item.priority || '');
-                $('#reviewNote').text(item.status === 'for_review'
-                    ? "The system wasn't confident enough to classify this concern. Set the sector and priority yourself."
-                    : 'The system classified this concern automatically. You can change the sector or priority if it is wrong.');
-                $('#reviewBox').show();
-            } else {
-                $('#reviewBox').hide();
-            }
+            $('#overrideSector').val(item.sector || 'Infrastructure');
+            $('#overridePriority').val(item.priority || 'Medium');
+            $('#overrideError').hide();
             $('#concernModal').addClass('active');
+            tickTimers();
         }
 
-        // Saves the manually chosen sector + priority; the server flips status to 'ongoing'
-        function saveReview() {
-            const sector = $('#reviewSector').val();
-            const priority = $('#reviewPriority').val();
-            if (!sector || !priority) {
-                $('#reviewError').text('Please choose both a sector and a priority level.').show();
+        // Staff can overturn the system's sector/priority on any concern, any time.
+        function saveOverride() {
+            const sector = $('#overrideSector').val();
+            const priority = $('#overridePriority').val();
+            const current = concernsData.find(c => c.id === openConcernId);
+            if (current && current.sector === sector && current.priority === priority) {
+                $('#overrideError').text('Nothing changed: pick a different sector or priority first.').show();
                 return;
             }
-            $('#reviewSaveBtn').prop('disabled', true);
+            $('#overrideSaveBtn').prop('disabled', true);
             $.ajax({
-                url: '../src/review-concern.php',
+                url: '../src/override-concern.php',
                 method: 'POST',
                 data: {
                     id: openConcernId,
@@ -1419,21 +1491,21 @@ if (!isset($_SESSION['user_id'])) {
                     closeModal('concernModal');
                     loadConcerns();
                 } else {
-                    $('#reviewError').text(response.message || 'Could not save.').show();
+                    $('#overrideError').text(response.message || 'Could not save.').show();
                 }
             }).fail(function() {
-                $('#reviewError').text('Could not reach the server. Please try again.').show();
+                $('#overrideError').text('Could not reach the server. Please try again.').show();
             }).always(function() {
-                $('#reviewSaveBtn').prop('disabled', false);
+                $('#overrideSaveBtn').prop('disabled', false);
             });
         }
 
         // Fetch concerns from the backend for the current filter.
         // Adjust this path if your folder structure differs —
-        // this assumes public/Admin_Concerns_Table_Page.php and src/get-concerns.php as siblings.
+        // this assumes public/Staff_Concerns_Table_Page.php and src/get-concerns.php as siblings.
         function loadConcerns() {
             $('#concernsTableBody').html(
-                '<tr><td colspan="7" style="text-align:center;padding:40px;font-weight:800;color:#083D8F;">LOADING...</td></tr>'
+                '<tr><td colspan="10" style="text-align:center;padding:40px;font-weight:800;color:#083D8F;">LOADING...</td></tr>'
             );
 
             $.ajax({
@@ -1447,14 +1519,11 @@ if (!isset($_SESSION['user_id'])) {
                 concernsData = (response.concerns || []).map(c => Object.assign({
                     selected: false
                 }, c));
-                const n = response.review_count || 0;
-                $('#reviewBanner').html(n > 0 ?
-                    `${n} concern${n > 1 ? 's' : ''} need${n > 1 ? '' : 's'} manual review — <u>view</u>` :
-                    '').css('display', n > 0 && activeFilter !== 'for_review' ? 'block' : 'none');
+                ConcernTimer.markFetched();
                 renderTable();
             }).fail(function() {
                 $('#concernsTableBody').html(
-                    '<tr><td colspan="7" style="text-align:center;padding:40px;font-weight:800;color:#083D8F;">COULD NOT LOAD CONCERNS</td></tr>'
+                    '<tr><td colspan="10" style="text-align:center;padding:40px;font-weight:800;color:#083D8F;">COULD NOT LOAD CONCERNS</td></tr>'
                 );
             });
         }
@@ -1464,7 +1533,6 @@ if (!isset($_SESSION['user_id'])) {
             activeFilter = filter;
             const labels = {
                 ongoing: 'Ongoing',
-                for_review: 'For Review',
                 archived: 'Archived',
                 all: 'All Concerns'
             };
@@ -1512,11 +1580,11 @@ if (!isset($_SESSION['user_id'])) {
             // Sector / priority dropdowns + keyword search, combined (all must match)
             const sectorSel = $('#sectorFilter').val();
             const prioritySel = $('#priorityFilter').val();
-            const terms = $('#searchInput').val().toLowerCase().split(/\s+/).filter(Boolean);
+            const terms = $('#searchInput').val().toLowerCase().split(/\s+/).map(s => s.replace(/^#/, '')).filter(Boolean);
             const visible = concernsData.filter(c => {
                 if (sectorSel && c.sector !== sectorSel) return false;
                 if (prioritySel && c.priority !== prioritySel) return false;
-                const hay = (c.text + ' ' + (c.keywords || '')).toLowerCase();
+                const hay = (c.text + ' ' + (c.keywords || '') + ' ' + c.id + ' ' + (c.citizen_name || '') + ' ' + (c.citizen_email || '')).toLowerCase();
                 return terms.every(t => hay.includes(t));
             });
             // A row hidden by a filter must not stay selected (it could be archived by accident)
@@ -1545,7 +1613,7 @@ if (!isset($_SESSION['user_id'])) {
             if (visible.length === 0) {
                 $tableBody.append(`
                     <tr>
-                        <td colspan="7" style="text-align: center; padding: 40px; font-weight: 800; color: #083D8F;">
+                        <td colspan="10" style="text-align: center; padding: 40px; font-weight: 800; color: #083D8F;">
                             NO CONCERNS FOUND
                         </td>
                     </tr>
@@ -1553,11 +1621,7 @@ if (!isset($_SESSION['user_id'])) {
                 $('#tableFooterInfo').text(`SHOWING 0 OF ${concernsData.length} ENTRIES`);
             } else {
                 const rows = visible.map(item => {
-                    const showViewButton = item.selected && selectedCount === 1;
-                    const badgeClass = {
-                        archived: 'archived',
-                        for_review: 'review'
-                    } [item.status] || '';
+                    const badgeClass = item.status === 'archived' ? 'archived' : '';
                     const statusLabel = STATUS_LABELS[item.status] || item.status;
                     const sectorCell = item.sector ? escapeHtml(item.sector) : '<span class="muted-cell">—</span>';
                     const priorityCell = item.priority ?
@@ -1570,17 +1634,15 @@ if (!isset($_SESSION['user_id'])) {
                             <td class="checkbox-cell">
                                 <div class="custom-checkbox"></div>
                             </td>
+                            <td class="case-cell">#${item.id}</td>
                             <td>${escapeHtml(item.date)}</td>
                             <td><span class="status-badge ${badgeClass}">${statusLabel}</span></td>
                             <td>${sectorCell}</td>
                             <td>${priorityCell}</td>
                             <td>${confCell}</td>
-                            <td>
-                                <div class="concern-cell-wrapper">
-                                    <span class="concern-text-truncate">${escapeHtml(item.text)}</span>
-                                    ${showViewButton ? `<button class="btn-view-spec" data-id="${item.id}">View</button>` : ''}
-                                </div>
-                            </td>
+                            ${ConcernTimer.cellHtml(item, escapeHtml)}
+                            <td class="concern-td"><span class="concern-text-truncate">${escapeHtml(item.text)}</span></td>
+                            <td class="view-td"><button class="btn-view-spec" data-id="${item.id}">View</button></td>
                         </tr>
                     `;
                 });
@@ -1589,6 +1651,15 @@ if (!isset($_SESSION['user_id'])) {
                 $('#tableFooterInfo').text(`SHOWING ${visible.length} OF ${concernsData.length} ENTRIES`);
             }
         }
+
+        // Live countdowns: refresh every visible cell and the open concern card once a second
+        function tickTimers() {
+            ConcernTimer.tick(concernsData, $('#concernModal').hasClass('active') ? openConcernId : null, {
+                time: document.getElementById('modalEta'),
+                sub: document.getElementById('modalEtaSub')
+            });
+        }
+        setInterval(tickTimers, 1000);
 
         // Modal Handlers
         function openModal(id) {

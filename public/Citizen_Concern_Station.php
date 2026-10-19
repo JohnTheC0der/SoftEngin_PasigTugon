@@ -1,3 +1,11 @@
+<?php
+// Citizen-only page: only a signed-in citizen can submit a concern (it is linked to their account).
+// Staff and super admins are sent to their own home page; everyone else goes to Sign_In.html.
+// Must run before any HTML is output, so this block stays at the very top of the file.
+require_once __DIR__ . '/../src/db_connect.php';
+require_once __DIR__ . '/../src/auth.php';
+require_page_role($pdo, 'citizen');
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -58,6 +66,133 @@
             flex-direction: column;
             align-items: center;
             z-index: 2;
+        }
+
+        /* TOP NAVIGATION: tabs shared with the Citizen Dashboard */
+        .top-nav {
+            width: 100%;
+            align-self: stretch;
+            position: relative;
+            z-index: 50;
+        }
+
+        .top-nav .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 40px;
+            background: #0b3a85;
+            color: #fff;
+        }
+
+        .top-nav .nav-brand {
+            font-weight: 900;
+            font-size: 1.5rem;
+            letter-spacing: -0.02em;
+            text-transform: uppercase;
+        }
+
+        .top-nav .nav-brand span {
+            color: var(--accent-cyan);
+        }
+
+        .top-nav .menu-container {
+            position: relative;
+        }
+
+        .top-nav .menu-toggle-btn {
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: #fff;
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .top-nav .menu-toggle-btn:hover {
+            background: #2563eb;
+        }
+
+        .top-nav .dropdown-menu {
+            position: absolute;
+            right: 0;
+            top: 52px;
+            width: 190px;
+            background: #0f172a;
+            border-radius: 14px;
+            padding: 10px;
+            display: none;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .top-nav .dropdown-menu.show {
+            display: block;
+        }
+
+        .top-nav .dropdown-item {
+            display: block;
+            color: #f87171;
+            text-decoration: none;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .top-nav .dropdown-item:hover {
+            background: rgba(239, 68, 68, 0.15);
+            color: #fca5a5;
+        }
+
+        .top-nav .tab-bar {
+            display: flex;
+            gap: 8px;
+            padding: 0 40px;
+            background: #082c68;
+            overflow-x: auto;
+        }
+
+        .top-nav .tab-link {
+            padding: 16px 26px;
+            font-size: 0.85rem;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            white-space: nowrap;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            border-bottom: 3px solid transparent;
+            transition: var(--transition);
+        }
+
+        .top-nav .tab-link:hover {
+            color: #fff;
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .top-nav .tab-link.active {
+            color: var(--accent-cyan);
+            background: rgba(56, 189, 248, 0.1);
+            border-bottom-color: var(--accent-cyan);
+        }
+
+        @media (max-width: 600px) {
+            .top-nav .navbar {
+                padding: 14px 20px;
+            }
+
+            .top-nav .tab-bar {
+                padding: 0 12px;
+            }
+
+            .top-nav .tab-link {
+                padding: 14px 16px;
+            }
         }
 
         /* HEADER & LOGO */
@@ -452,6 +587,29 @@
 
 <body>
 
+    <div class="top-nav">
+        <nav class="navbar">
+            <div class="nav-brand"><span>PASIG</span> TUGON!</div>
+            <div class="menu-container">
+                <button class="menu-toggle-btn" id="menuToggleBtn" aria-label="Toggle Menu">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
+                </button>
+                <div class="dropdown-menu" id="navDropdown">
+                    <a href="../src/logout.php" class="dropdown-item">Log Out</a>
+                </div>
+            </div>
+        </nav>
+        <div class="tab-bar">
+            <a href="Citizen_Dashboard_Page.php" class="tab-link">My Dashboard</a>
+            <a href="Citizen_Concern_Station.php" class="tab-link active">Concern Station</a>
+        </div>
+    </div>
+
     <!-- SINGLE MODAL DIALOG ELEMENT -->
     <div id="submission-dialog" title="Pasig Tugon!" style="display:none;">
         <div class="custom-dialog-content">
@@ -462,8 +620,8 @@
                 </svg>
             </div>
             <h2 class="dialog-title">Concern Submitted!</h2>
-            <p class="dialog-description">Thank you for reporting your issue. Your submission has been routed to your
-                designated barangay office for review.</p>
+            <p class="dialog-description" id="submission-text">Thank you for reporting your issue. Your submission has been routed to your
+                designated barangay office.</p>
         </div>
     </div>
 
@@ -547,7 +705,7 @@
 
                 <!-- Submit Action Button -->
                 <button type="submit" class="btn-submit">Submit</button>
-                <a href="main_menu.html" class="btn-back">Back</a>
+                <a href="Citizen_Dashboard_Page.php" class="btn-back">Back to Dashboard</a>
             </form>
         </div>
     </main>
@@ -613,6 +771,13 @@
             }
             $("#captcha-refresh").on("click", reloadCaptcha);
 
+            // Top menu (Log Out)
+            $("#menuToggleBtn").on("click", function (e) {
+                e.stopPropagation();
+                $("#navDropdown").toggleClass("show");
+            });
+            $(document).on("click", function () { $("#navDropdown").removeClass("show"); });
+
             $("#concern-form").on("submit", function (e) {
                 e.preventDefault();
 
@@ -641,7 +806,7 @@
                 $submitBtn.prop("disabled", true).text("Submitting...");
 
                 // Adjust this path if your folder structure differs —
-                // this assumes public/citizen_concern_station.html and src/submit-concern.php as siblings.
+                // this assumes public/Citizen_Concern_Station.php and src/submit-concern.php as siblings.
                 $.ajax({
                     url: "../src/submit-concern.php",
                     method: "POST",
@@ -649,16 +814,30 @@
                     dataType: "json"
                 }).done(function (response) {
                     if (response.success) {
+                        var text = "Thank you for reporting your issue. Your concern has been routed to your barangay office.";
+                        if (response.case_number) {
+                            text += " Your case number is #" + response.case_number + ". You can follow its progress in your dashboard.";
+                        }
+                        $("#submission-text").text(text);
+                        $("#submission-dialog").dialog("option", "buttons", {
+                            "View My Dashboard": function () { window.location.href = "Citizen_Dashboard_Page.php"; },
+                            "Submit Another": function () { $(this).dialog("close"); }
+                        });
                         $("#submission-dialog").dialog("open");
                         $form[0].reset();
                     } else {
                         $("#submission-dialog-fail .dialog-description").text(response.message);
                         $("#submission-dialog-fail").dialog("open");
                     }
-                }).fail(function () {
-                    $("#submission-dialog-fail .dialog-description").text(
-                        "Could not reach the server. Please check your connection and try again."
-                    );
+                }).fail(function (xhr) {
+                    // Signed out (or the session expired) while writing the concern
+                    if (xhr.status === 401 || xhr.status === 403) {
+                        window.location.href = "Sign_In.html";
+                        return;
+                    }
+                    var msg = (xhr.responseJSON && xhr.responseJSON.message) ||
+                        "Could not reach the server. Please check your connection and try again.";
+                    $("#submission-dialog-fail .dialog-description").text(msg);
                     $("#submission-dialog-fail").dialog("open");
                 }).always(function () {
                     $submitBtn.prop("disabled", false).text("Submit");

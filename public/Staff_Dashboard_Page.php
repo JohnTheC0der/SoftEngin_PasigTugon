@@ -1,11 +1,11 @@
 <?php
-// Session guard — redirects to login if nobody is signed in.
+// Staff-only page. require_page_role() re-checks the database on every load: the person must be
+// signed in, be a staff member, and belong to a barangay a super admin has approved. Citizens and
+// super admins are sent to their own home page; everyone else goes to Sign_In.html.
 // Must run before any HTML is output, so this block stays at the very top of the file.
-session_start();
-if (!isset($_SESSION['user_id'])) {
-    header('Location: Admin_Log_In.html');
-    exit;
-}
+require_once __DIR__ . '/../src/db_connect.php';
+require_once __DIR__ . '/../src/auth.php';
+require_page_role($pdo, 'staff');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -13,7 +13,7 @@ if (!isset($_SESSION['user_id'])) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pasig Tugon! - Admin Dashboard</title>
+    <title>Pasig Tugon! - Staff Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
@@ -297,7 +297,7 @@ if (!isset($_SESSION['user_id'])) {
             color: rgba(255, 255, 255, 0.9);
         }
 
-        /* "Awaiting Manual Review" row: clickable, amber badge, optional red urgent line */
+        /* Clickable stat row with a red badge (ongoing High-priority concerns) */
         .stat-link {
             text-decoration: none;
             transition: background 0.2s ease;
@@ -307,20 +307,9 @@ if (!isset($_SESSION['user_id'])) {
             background: rgba(255, 255, 255, 0.12);
         }
 
-        .stat-badge.review {
-            background: #f59e0b;
-            box-shadow: 0 4px 10px rgba(245, 158, 11, 0.4);
-        }
-
-        .stat-urgent {
-            display: block;
-            font-size: 0.75rem;
-            font-weight: 800;
-            color: #fca5a5;
-        }
-
-        .stat-urgent:empty {
-            display: none;
+        .stat-badge.urgent {
+            background: #ef4444;
+            box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4);
         }
 
         .graph-box {
@@ -485,7 +474,7 @@ if (!isset($_SESSION['user_id'])) {
 
         .concern-row {
             display: grid;
-            grid-template-columns: 100px 1fr;
+            grid-template-columns: 150px 1fr;
             align-items: center;
             background: var(--white);
             padding: 12px 16px;
@@ -746,7 +735,7 @@ if (!isset($_SESSION['user_id'])) {
                     aria-label="Close Modal">&times;</button>
             </div>
             <div class="modal_body">
-                Are you sure you want to securely log out of the admin portal?
+                Are you sure you want to securely log out of the staff portal?
             </div>
             <div class="modal_footer">
                 <button class="swiss_btn_modal cancel" onclick="closeModal('logoutModal')">Cancel</button>
@@ -770,7 +759,7 @@ if (!isset($_SESSION['user_id'])) {
                 </svg>
             </button>
             <div class="dropdown-menu" id="dropdownMenu">
-                <a href="Admin_Setting_Page.php" class="dropdown-item">Settings</a>
+                <a href="Staff_Setting_Page.php" class="dropdown-item">Settings</a>
                 <a href="#" class="dropdown-item logout" id="logoutBtn">Log Out</a>
             </div>
         </div>
@@ -778,8 +767,8 @@ if (!isset($_SESSION['user_id'])) {
 
     <!-- TAB BAR -->
     <div class="tab-bar">
-        <a href="Admin_Dashboard_Page.php" class="tab-link active">Dashboard</a>
-        <a href="Admin_Concerns_Table_Page.php" class="tab-link">Concerns</a>
+        <a href="Staff_Dashboard_Page.php" class="tab-link active">Dashboard</a>
+        <a href="Staff_Concerns_Table_Page.php" class="tab-link">Concerns</a>
     </div>
 
     <!-- DASHBOARD CONTAINER -->
@@ -801,11 +790,9 @@ if (!isset($_SESSION['user_id'])) {
                     <div class="stat-badge" id="statTotalArchived">—</div>
                     <span class="stat-label">No. of Concerns Archived</span>
                 </div>
-                <a class="stat-item stat-link" href="Admin_Concerns_Table_Page.php">
-                    <div class="stat-badge review" id="statReview">—</div>
-                    <span class="stat-label">Awaiting Manual Review
-                        <span class="stat-urgent" id="statUrgent"></span>
-                    </span>
+                <a class="stat-item stat-link" href="Staff_Concerns_Table_Page.php">
+                    <div class="stat-badge urgent" id="statHigh">—</div>
+                    <span class="stat-label">High-Priority Concerns (Ongoing)</span>
                 </a>
             </div>
 
@@ -846,7 +833,7 @@ if (!isset($_SESSION['user_id'])) {
             <div class="concerns-section">
                 <div class="concerns-header-row">
                     <h2 class="concerns-title">Recent Concerns</h2>
-                    <a class="view-all-btn" href="Admin_Concerns_Table_Page.php">View</a>
+                    <a class="view-all-btn" href="Staff_Concerns_Table_Page.php">View</a>
                 </div>
 
                 <div class="concerns-list" id="recentConcernsList">
@@ -923,7 +910,7 @@ if (!isset($_SESSION['user_id'])) {
 
         // Fetch everything the dashboard needs in one call.
         // Adjust this path if your folder structure differs —
-        // this assumes public/Admin_Dashboard_Page.php and src/get-dashboard-data.php as siblings.
+        // this assumes public/Staff_Dashboard_Page.php and src/get-dashboard-data.php as siblings.
         fetch('../src/get-dashboard-data.php')
             .then(res => res.json())
             .then(data => {
@@ -936,11 +923,7 @@ if (!isset($_SESSION['user_id'])) {
                 document.getElementById('barangaySubtitle').textContent = data.barangay_name;
                 document.getElementById('statTotalConcerns').textContent = data.total_concerns;
                 document.getElementById('statTotalArchived').textContent = data.total_archived;
-                document.getElementById('statReview').textContent = data.review_count || 0;
-                if (data.urgent_review_count > 0) {
-                    document.getElementById('statUrgent').textContent =
-                        data.urgent_review_count + ' urgent (High priority)';
-                }
+                document.getElementById('statHigh').textContent = data.high_priority_count || 0;
 
                 // Common keywords
                 const keywordsCloud = document.getElementById('keywordsCloud');
@@ -966,7 +949,7 @@ if (!isset($_SESSION['user_id'])) {
                         const row = document.createElement('div');
                         row.className = 'concern-row';
                         row.innerHTML =
-                            '<span class="concern-date">' + escapeHtml(concern.date) + '</span>' +
+                            '<span class="concern-date">#' + concern.id + ' · ' + escapeHtml(concern.date) + '</span>' +
                             '<span class="concern-text">' + escapeHtml(concern.text) + '</span>';
                         recentList.appendChild(row);
                     });
@@ -978,21 +961,11 @@ if (!isset($_SESSION['user_id'])) {
                     data: {
                         labels: data.concerns_graph.labels,
                         datasets: [{
-                            label: 'All concerns',
+                            label: 'Concerns received',
                             data: data.concerns_graph.data,
                             borderColor: '#2563eb',
                             backgroundColor: 'rgba(37, 99, 235, 0.1)',
                             fill: true,
-                            tension: 0.4,
-                            borderWidth: 2,
-                            pointRadius: 3
-                        }, {
-                            label: 'For review',
-                            data: data.concerns_graph.review_data || [],
-                            borderColor: '#f59e0b',
-                            backgroundColor: 'transparent',
-                            borderDash: [5, 4],
-                            fill: false,
                             tension: 0.4,
                             borderWidth: 2,
                             pointRadius: 3
@@ -1002,7 +975,7 @@ if (!isset($_SESSION['user_id'])) {
                         responsive: true,
                         plugins: {
                             legend: {
-                                display: true,
+                                display: false,
                                 position: 'bottom',
                                 labels: {
                                     font: {

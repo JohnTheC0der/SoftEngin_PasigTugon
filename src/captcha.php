@@ -1,6 +1,6 @@
 <?php
 // Generates a CAPTCHA image and remembers the answer in the visitor's session.
-// Used by citizen_concern_station.html: <img src="../src/captcha.php">
+// Used by Citizen_Sign_Up.html and Citizen_Concern_Station.php: <img src="../src/captcha.php">
 // Self-hosted (no Google/Cloudflare account or keys needed). Requires PHP's GD
 // extension, which is enabled by default in XAMPP.
 

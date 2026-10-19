@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pasig Tugon! - Citizen Sign Up</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+
+    <!-- jQuery & jQuery UI CDN -->
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+
+    <link rel="icon" type="image/x-icon" href="PasigTugon_Logo.png">
+
+    <style>
+        :root {
+            --primary-blue: #0e48a1;
+            --light-blue: #2563eb;
+            --accent-cyan: #38bdf8;
+            --btn-hover-blue: #1d4ed8;
+            --white: #ffffff;
+            --glass-bg: rgba(15, 23, 42, 0.55);
+            --glass-border: rgba(255, 255, 255, 0.18);
+            --input-bg: rgba(255, 255, 255, 0.95);
+            --transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            --success-green: #10b981;
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, rgba(14, 72, 161, 0.4), rgba(15, 23, 42, 0.8)),
+                url('background.png') center/cover no-repeat fixed;
+            color: var(--white);
+            padding: 24px 20px;
+        }
+
+        /* CARD CONTAINER WITH GLASSMORPHISM */
+        .login-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 28px;
+            padding: 48px 40px;
+            width: 100%;
+            max-width: 480px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(255, 255, 255, 0.05);
+            text-align: center;
+        }
+
+        /* CITY SEAL LOGO */
+        .city-seal {
+            width: 88px;
+            height: 88px;
+            object-fit: contain;
+            margin-bottom: 16px;
+            filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.35));
+            transition: var(--transition);
+        }
+
+        .city-seal:hover {
+            transform: scale(1.05) rotate(2deg);
+        }
+
+        /* BRANDING TITLES */
+        .brand-title {
+            font-weight: 900;
+            font-size: clamp(2.2rem, 4.5vw, 2.8rem);
+            letter-spacing: -0.02em;
+            text-transform: uppercase;
+            line-height: 1.05;
+            margin-bottom: 8px;
+        }
+
+        .brand-title .blue-text {
+            color: var(--accent-cyan);
+            text-shadow: 0 0 24px rgba(56, 189, 248, 0.45);
+        }
+
+        .brand-title .white-text {
+            color: var(--white);
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .sub-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: rgba(255, 255, 255, 0.85);
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            margin-bottom: 24px;
+            padding: 6px 16px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* RESTRICTED ACCESS NOTICE */
+        .notice-box {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.35);
+            padding: 14px 16px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            font-size: 0.82rem;
+            line-height: 1.45;
+            color: #fca5a5;
+            text-align: left;
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .notice-box svg {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        /* FORM STYLING */
+        .login-form {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            text-align: left;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .input-label {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.9);
+            letter-spacing: 0.03em;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 16px;
+            width: 18px;
+            height: 18px;
+            color: #64748b;
+            pointer-events: none;
+            transition: var(--transition);
+        }
+
+        .input-field,
+        .select-field {
+            width: 100%;
+            padding: 14px 20px 14px 44px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            color: #0f172a;
+            background: var(--input-bg);
+            border: 2px solid transparent;
+            border-radius: 14px;
+            outline: none;
+            transition: var(--transition);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .input-field::placeholder {
+            color: #94a3b8;
+        }
+
+        .input-field:focus,
+        .select-field:focus {
+            border-color: var(--accent-cyan);
+            background: var(--white);
+            box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.25);
+        }
+
+        .input-field:focus+.input-icon,
+        .select-field:focus+.input-icon {
+            color: var(--primary-blue);
+        }
+
+        .select-field {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%230f172a' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 18px center;
+            padding-right: 48px;
+            cursor: pointer;
+        }
+
+        .select-field option {
+            color: #0f172a;
+            background: #ffffff;
+        }
+
+        /* PASSWORD TOGGLE BUTTON */
+        .toggle-password {
+            position: absolute;
+            right: 14px;
+            background: none;
+            border: none;
+            color: #64748b;
+            cursor: pointer;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            transition: var(--transition);
+        }
+
+        .toggle-password:hover {
+            color: #0f172a;
+        }
+
+        .toggle-password svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .field-hint {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.65);
+            line-height: 1.4;
+        }
+
+        /* SUBMIT BUTTON */
+        .login-btn {
+            width: 100%;
+            padding: 16px 24px;
+            margin-top: 8px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--white);
+            background: var(--light-blue);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            border-radius: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .login-btn svg {
+            width: 18px;
+            height: 18px;
+            transition: var(--transition);
+        }
+
+        .login-btn:hover {
+            background: var(--btn-hover-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px -5px rgba(37, 99, 235, 0.6);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .login-btn:hover svg {
+            transform: translateX(3px);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        /* FOOTER / SIGN-UP LINK */
+        .form-footer {
+            margin-top: 25px;
+            width: 100%;
+            text-align: center;
+            font-size: 0.82rem;
+            color: rgba(255, 255, 255, 0.75);
+            letter-spacing: 0.03em;
+        }
+
+        .form-footer a {
+            color: var(--accent-cyan);
+            font-weight: 700;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .form-footer a:hover {
+            text-decoration: underline;
+            color: var(--white);
+        }
+
+        /* FOOTER / BACK TO HOME */
+        .back-to-home-footer {
+            margin-top: 24px;
+            padding-top: 18px;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            width: 100%;
+            text-align: center;
+            font-size: 0.82rem;
+            color: rgba(255, 255, 255, 0.75);
+            letter-spacing: 0.03em;
+        }
+
+        .back-to-home-footer a {
+            color: var(--accent-cyan);
+            font-weight: 700;
+            text-decoration: none;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            /* Space between icon and text */
+        }
+
+        .back-to-home-footer a svg {
+            width: 16px;
+            height: 16px;
+            transition: var(--transition);
+        }
+
+        .back-to-home-footer a:hover {
+            text-decoration: underline;
+            color: var(--white);
+        }
+
+        .back-to-home-footer a:hover svg {
+            transform: translateX(-3px);
+            /* Subtle slide effect on hover */
+        }
+
+        /* JQUERY UI DIALOG GLASSMORPHISM STYLES */
+        .ui-widget-overlay {
+            background: rgba(15, 23, 42, 0.75) !important;
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            opacity: 1 !important;
+        }
+
+        .ui-dialog {
+            background: #ffffff !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            border-radius: 20px !important;
+            padding: 0 !important;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
+            overflow: hidden;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+        }
+
+        .ui-dialog .ui-dialog-titlebar {
+            display: none !important;
+        }
+
+        .custom-dialog-content {
+            padding: 32px 28px 16px 28px !important;
+            text-align: center;
+        }
+
+        .dialog-icon-wrapper {
+            width: 64px;
+            height: 64px;
+            background-color: #fef2f2;
+            color: #ef4444;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 18px auto;
+            box-shadow: 0 0 0 8px rgba(239, 68, 68, 0.1);
+        }
+
+        .dialog-icon-wrapper svg {
+            width: 32px;
+            height: 32px;
+        }
+
+        .dialog-title {
+            font-weight: 800;
+            font-size: 1.3rem;
+            color: #0f172a;
+            margin-bottom: 8px;
+            letter-spacing: -0.01em;
+        }
+
+        .dialog-description {
+            font-size: 0.9rem;
+            color: #64748b;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        .ui-dialog .ui-dialog-buttonpane {
+            background: #ffffff !important;
+            border: none !important;
+            padding: 0 28px 28px 28px !important;
+            margin: 0 !important;
+        }
+
+        .ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset {
+            float: none !important;
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .ui-dialog .ui-dialog-buttonpane button {
+            width: 100% !important;
+            padding: 13px 24px !important;
+            font-family: inherit !important;
+            font-size: 0.9rem !important;
+            font-weight: 700 !important;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            color: #ffffff !important;
+            background-color: var(--primary-blue) !important;
+            border: none !important;
+            border-radius: 12px !important;
+            cursor: pointer;
+            transition: var(--transition) !important;
+            margin: 0 !important;
+            box-shadow: 0 8px 16px -4px rgba(14, 72, 161, 0.3) !important;
+        }
+
+        .ui-dialog .ui-dialog-buttonpane button:hover {
+            background-color: var(--btn-hover-blue) !important;
+        }
+
+        @media (max-width: 480px) {
+            .login-card {
+                padding: 36px 20px;
+            }
+
+            .sub-title {
+                font-size: 0.75rem;
+            }
+        }
+    </style>
+
+    <style>
+        .captcha-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .captcha-row img {
+            border-radius: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.35);
+            background: #fff;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .captcha-refresh {
+            background: var(--light-blue);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            width: 42px;
+            height: 42px;
+            font-size: 1.3rem;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: var(--transition);
+        }
+
+        .captcha-refresh:hover {
+            background: var(--btn-hover-blue);
+        }
+
+        .captcha-field {
+            padding-left: 20px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+
+        .dialog-icon-wrapper.ok {
+            background-color: #ecfdf5;
+            color: #10b981;
+            box-shadow: 0 0 0 8px rgba(16, 185, 129, 0.12);
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Message dialog (errors and the success message) -->
+    <div id="msg-dialog" title="Pasig Tugon!" style="display:none;">
+        <div class="custom-dialog-content">
+            <div class="dialog-icon-wrapper" id="msg-icon">
+                <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+            </div>
+            <h2 class="dialog-title" id="msg-title">Unable to Submit</h2>
+            <p class="dialog-description" id="msg-text"></p>
+        </div>
+    </div>
+
+    <main class="login-card">
+        <img src="pasig_logo.webp" alt="Pasig City Seal" class="city-seal">
+
+        <h1 class="brand-title">
+            <span class="blue-text">PASIG</span> <span class="white-text">TUGON!</span>
+        </h1>
+        <p class="sub-title">Citizen Sign Up</p>
+
+        <form class="login-form" id="citizen-form" action="#" method="POST" novalidate>
+            <div class="input-group">
+                <label for="full_name" class="input-label">Full Name</label>
+                <div class="input-wrapper">
+                    <input type="text" id="full_name" name="full_name" class="input-field"
+                        placeholder="e.g. Juan Dela Cruz" required autocomplete="name" maxlength="100">
+                    <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                </div>
+                <span class="field-hint">Your real name, so your barangay knows who sent the concern.</span>
+            </div>
+
+            <div class="input-group">
+                <label for="email" class="input-label">Email Address</label>
+                <div class="input-wrapper">
+                    <input type="email" id="email" name="email" class="input-field"
+                        placeholder="you@example.com" required autocomplete="email" maxlength="150">
+                    <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="password" class="input-label">Password</label>
+                <div class="input-wrapper">
+                    <input type="password" id="password" name="password" class="input-field"
+                        placeholder="Create a password" required autocomplete="new-password">
+                    <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                    <button type="button" class="toggle-password" id="togglePasswordBtn"
+                        title="Toggle Password Visibility" aria-label="Show or hide password">
+                        <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                    </button>
+                </div>
+                <span class="field-hint">At least 8 characters.</span>
+            </div>
+
+            <div class="input-group">
+                <label for="confirm_password" class="input-label">Confirm Password</label>
+                <div class="input-wrapper">
+                    <input type="password" id="confirm_password" name="confirm_password" class="input-field"
+                        placeholder="Re-enter your password" required autocomplete="new-password">
+                    <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Honeypot: hidden from people, bots tend to fill it in -->
+            <div style="position:absolute;left:-9999px;" aria-hidden="true">
+                <label>Website <input type="text" id="website" name="website" tabindex="-1" autocomplete="off"></label>
+            </div>
+
+            <!-- CAPTCHA -->
+            <div class="input-group">
+                <label for="captcha-input" class="input-label">Verification Code</label>
+                <div class="captcha-row">
+                    <img id="captcha-img" src="../src/captcha.php" alt="Verification code" width="240" height="72">
+                    <button type="button" id="captcha-refresh" class="captcha-refresh" aria-label="Get a new code">&#8635;</button>
+                </div>
+                <div class="input-wrapper">
+                    <input type="text" id="captcha-input" class="input-field captcha-field" maxlength="5"
+                        placeholder="Type the code shown above" autocomplete="off" required>
+                </div>
+            </div>
+
+            <button type="submit" class="login-btn" id="submitBtn">
+                Create Account
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                    stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+            </button>
+        </form>
+
+        <p class="form-footer">
+            Already have an account? <a href="Sign_In.html">Sign in here</a><br>
+            <span style="display:inline-block;margin-top:8px;">Barangay staff? <a href="Staff_Sign_Up.html">Register here</a></span>
+        </p>
+
+        <p class="back-to-home-footer">
+            <a href="main_menu.html">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                    stroke-width="2" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                </svg>
+                Back to Home
+            </a>
+        </p>
+    </main>
+
+    <script>
+        $(document).ready(function () {
+            var ICON_ERROR = '<svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"></path></svg>';
+            var ICON_OK = '<svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5"></path></svg>';
+
+            $("#msg-dialog").dialog({
+                autoOpen: false, modal: true, resizable: false, draggable: false, width: 380,
+                show: { effect: "fade", duration: 200 }, hide: { effect: "fadeOut", duration: 150 },
+                buttons: { "OK": function () { $(this).dialog("close"); } }
+            });
+
+            function showMessage(title, text) {
+                $("#msg-icon").removeClass("ok").html(ICON_ERROR);
+                $("#msg-title").text(title);
+                $("#msg-text").text(text);
+                $("#msg-dialog").dialog("option", "buttons", { "OK": function () { $(this).dialog("close"); } });
+                $("#msg-dialog").dialog("open");
+            }
+
+            function showSuccess() {
+                $("#msg-icon").addClass("ok").html(ICON_OK);
+                $("#msg-title").text("Account Created!");
+                $("#msg-text").text("Your citizen account is ready. Sign in with your email address and password.");
+                $("#msg-dialog").dialog("option", "buttons", {
+                    "Go to Sign In": function () { window.location.href = "Sign_In.html?registered=citizen"; }
+                });
+                $("#msg-dialog").dialog("option", "close", function () { window.location.href = "Sign_In.html?registered=citizen"; });
+                $("#msg-dialog").dialog("open");
+            }
+
+            // The code is single-use, so fetch a fresh image after every attempt
+            function reloadCaptcha() {
+                $("#captcha-img").attr("src", "../src/captcha.php?t=" + Date.now());
+                $("#captcha-input").val("");
+            }
+            $("#captcha-refresh").on("click", reloadCaptcha);
+
+            // Show / hide both password fields
+            $("#togglePasswordBtn").on("click", function () {
+                var fields = $("#password, #confirm_password");
+                fields.attr("type", fields.first().attr("type") === "password" ? "text" : "password");
+            });
+
+            $("#citizen-form").on("submit", function (e) {
+                e.preventDefault();
+
+                var fullName = $.trim($("#full_name").val().replace(/\s+/g, " "));
+                var email = $.trim($("#email").val());
+                var password = $("#password").val();
+                var confirmPassword = $("#confirm_password").val();
+                var captcha = $.trim($("#captcha-input").val());
+
+                if (!fullName || !email || !password || !confirmPassword || !captcha) {
+                    showMessage("Unable to Submit", "Please fill in every field, including the verification code.");
+                    return;
+                }
+                if (fullName.length < 2 || !/^[^\d_!@#$%^&*()+=\[\]{}<>\/\\|~`?:;"]+$/.test(fullName)) {
+                    showMessage("Invalid Name", "Please enter your full name (letters, spaces, dots, apostrophes and dashes only).");
+                    return;
+                }
+                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                    showMessage("Invalid Email", "Please enter a valid email address.");
+                    return;
+                }
+                if (password.length < 8) {
+                    showMessage("Password Too Short", "Your password must be at least 8 characters.");
+                    return;
+                }
+                if (password !== confirmPassword) {
+                    showMessage("Passwords Do Not Match", "Please type the same password in both fields.");
+                    return;
+                }
+
+                var $btn = $("#submitBtn").prop("disabled", true);
+
+                $.ajax({
+                    url: "../src/register-citizen.php",
+                    method: "POST",
+                    data: {
+                        full_name: fullName, email: email, password: password,
+                        confirm_password: confirmPassword, captcha: captcha, website: $("#website").val()
+                    },
+                    dataType: "json"
+                }).done(function (response) {
+                    if (response.success) {
+                        showSuccess();
+                    } else {
+                        showMessage("Unable to Create Account", response.message || "An unexpected error occurred.");
+                        reloadCaptcha();
+                    }
+                }).fail(function (xhr) {
+                    var msg = (xhr.responseJSON && xhr.responseJSON.message) ||
+                        "Could not reach the server. Please check your connection and try again.";
+                    showMessage("Connection Error", msg);
+                    reloadCaptcha();
+                }).always(function () {
+                    $btn.prop("disabled", false);
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

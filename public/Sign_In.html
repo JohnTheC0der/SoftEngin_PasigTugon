@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pasig Tugon! - Admin Login</title>
+    <title>Pasig Tugon! - Sign In</title>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -218,6 +218,21 @@
             text-align: center;
         }
 
+        /* "Account created" notice (shown after sign-up) */
+        .success-text {
+            display: none;
+            width: 100%;
+            margin: -12px 0 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #6ee7b7;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.35);
+            border-radius: 12px;
+            padding: 10px 14px;
+            text-align: center;
+        }
+
         /* SUBMIT BUTTON */
         .login-btn {
             width: 100%;
@@ -383,14 +398,16 @@
         <h1 class="brand-title">
             <span class="blue-text">PASIG</span> <span class="white-text">TUGON!</span>
         </h1>
-        <p class="sub-title">Admin Login Station</p>
+        <p class="sub-title">Sign In Station</p>
+
+        <p id="signin-notice" class="success-text" role="status"></p>
 
         <!-- Login Form -->
         <form class="login-form" id="login-form" action="#" method="POST">
             <div class="input-group">
-                <label for="username" class="input-label">Username</label>
-                <input type="text" id="username" name="username" class="input-field" placeholder="Enter your username"
-                    required autocomplete="username">
+                <label for="username" class="input-label">Email</label>
+                <input type="text" id="username" name="username" class="input-field" placeholder="Enter your email address"
+                    required autocomplete="email">
             </div>
 
             <div class="input-group">
@@ -418,11 +435,11 @@
                     <path stroke-linecap="round" stroke-linejoin="round"
                         d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
-                <span id="btn-text">Log In</span>
+                <span id="btn-text">Sign In</span>
             </button>
 
             <p class="form-footer">
-                No account yet? <a href="Admin_Sign_Up.html">Sign up here</a>
+                No account yet? <a href="Sign_Up.html">Sign up here</a>
             </p>
         </form>
 
@@ -448,6 +465,19 @@
         const eyeOpenSVG = '<path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />';
         const eyeOffSVG = '<path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858-5.908a10.03 10.03 0 013.122-.813c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m-1.22 1.22L3 3l18 18" />';
 
+        // Friendly note when arriving straight from a sign-up page
+        (function () {
+            var params = new URLSearchParams(window.location.search);
+            var notice = document.getElementById('signin-notice');
+            if (params.get('registered') === 'citizen') {
+                notice.textContent = 'Your account is ready. Sign in with your email address and password.';
+                notice.style.display = 'block';
+            } else if (params.get('registered') === 'staff') {
+                notice.textContent = 'Your staff account was created. You can sign in once a super admin approves it.';
+                notice.style.display = 'block';
+            }
+        })();
+
         // Password Visibility Toggle
         toggleBtn.addEventListener('click', () => {
             const isPassword = passwordInput.getAttribute('type') === 'password';
@@ -471,7 +501,7 @@
             // Reset UI State
             errorEl.style.display = 'none';
             submitBtn.disabled = true;
-            btnText.textContent = 'Logging in...';
+            btnText.textContent = 'Signing in...';
 
             // Show Spinner in Button Icon
             btnIcon.classList.add('spinner');
@@ -489,22 +519,18 @@
                 const data = await response.json();
 
                 if (data.success) {
-                    if (data.role === 'super_admin') {
-                        window.location.href = 'Super_Admin_Dashboard.php';
-                    } else {
-                        window.location.href = (data.status === 'approved')
-                            ? 'Admin_Dashboard_Page.php'
-                            : 'Admin_Wait_Page.html';
-                    }
+                    // The server decides where each role lands: Citizen Dashboard,
+                    // Staff Dashboard (or the wait page until approved), or Super Admin Dashboard.
+                    window.location.href = data.redirect;
                 } else {
-                    showError(data.message || 'Invalid username or password.');
+                    showError(data.message || 'Invalid email or password.');
                 }
             } catch (err) {
                 showError('Could not reach the server. Please check your connection and try again.');
             } finally {
                 if (submitBtn.disabled) {
                     submitBtn.disabled = false;
-                    btnText.textContent = 'Log In';
+                    btnText.textContent = 'Sign In';
                     btnIcon.classList.remove('spinner');
                     btnIcon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />';
                 }

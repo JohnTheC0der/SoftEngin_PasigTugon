@@ -1,16 +1,11 @@
 <?php
-// Session guard — redirects to login if nobody is signed in.
+// Staff-only page. require_page_role() re-checks the database on every load: the person must be
+// signed in, be a staff member, and belong to a barangay a super admin has approved. Citizens and
+// super admins are sent to their own home page; everyone else goes to Sign_In.html.
 // Must run before any HTML is output, so this block stays at the very top of the file.
-session_start();
-if (!isset($_SESSION['user_id'])) {
-    header('Location: Admin_Log_In.html');
-    exit;
-}
-// Super admins have their own settings page (password + database backup)
-if (($_SESSION['role'] ?? '') === 'super_admin') {
-    header('Location: Super_Admin_Setting_Page.php');
-    exit;
-}
+require_once __DIR__ . '/../src/db_connect.php';
+require_once __DIR__ . '/../src/auth.php';
+require_page_role($pdo, 'staff');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -18,7 +13,7 @@ if (($_SESSION['role'] ?? '') === 'super_admin') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pasig Tugon! - Admin Settings</title>
+    <title>Pasig Tugon! - Staff Settings</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Gantari:wght@400;600;700;800;900&display=swap"
@@ -699,7 +694,7 @@ if (($_SESSION['role'] ?? '') === 'super_admin') {
                 </h2>
                 <button class="modal_close_btn" onclick="closeModal('logoutModal')" aria-label="Close">&times;</button>
             </div>
-            <div class="modal_body">Are you sure you want to securely log out of the admin portal?</div>
+            <div class="modal_body">Are you sure you want to securely log out of the staff portal?</div>
             <div class="modal_footer">
                 <button class="swiss_btn_modal cancel" onclick="closeModal('logoutModal')">Cancel</button>
                 <button class="swiss_btn_modal confirm_danger" onclick="executeLogout()">Log Out</button>
@@ -722,7 +717,7 @@ if (($_SESSION['role'] ?? '') === 'super_admin') {
                 </svg>
             </button>
             <div class="dropdown-menu" id="navDropdown">
-                <a href="Admin_Setting_Page.php" class="dropdown-item active">Settings</a>
+                <a href="Staff_Setting_Page.php" class="dropdown-item active">Settings</a>
                 <a href="#" class="dropdown-item logout" id="logoutBtn">Log Out</a>
             </div>
         </div>
@@ -730,15 +725,15 @@ if (($_SESSION['role'] ?? '') === 'super_admin') {
 
     <!-- TAB BAR -->
     <div class="tab-bar">
-        <a href="Admin_Dashboard_Page.php" class="tab-link">Dashboard</a>
-        <a href="Admin_Concerns_Table_Page.php" class="tab-link">Concerns</a>
+        <a href="Staff_Dashboard_Page.php" class="tab-link">Dashboard</a>
+        <a href="Staff_Concerns_Table_Page.php" class="tab-link">Concerns</a>
     </div>
 
     <!-- MAIN -->
     <main class="main-wrapper">
         <div class="outer-card">
             <h1 class="card-header-title">Settings</h1>
-            <p class="card-subtitle">Admin-only · Account credentials</p>
+            <p class="card-subtitle">Staff-only · Account credentials</p>
             <hr class="header-divider">
 
             <div class="inner-box">
@@ -847,7 +842,7 @@ if (($_SESSION['role'] ?? '') === 'super_admin') {
             }
 
             // Adjust this path if your folder structure differs —
-            // this assumes public/Admin_Setting_Page.php and src/change-password.php as siblings.
+            // this assumes public/Staff_Setting_Page.php and src/change-password.php as siblings.
             fetch('../src/change-password.php', {
                     method: 'POST',
                     headers: {

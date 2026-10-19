@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pasig Tugon! - Admin Registration</title>
+    <title>Pasig Tugon! - Staff Registration</title>
 
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -253,6 +253,13 @@
             height: 18px;
         }
 
+        .field-hint {
+            font-size: 0.72rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.65);
+            line-height: 1.4;
+        }
+
         /* SUBMIT BUTTON */
         .login-btn {
             width: 100%;
@@ -479,7 +486,7 @@
             </div>
             <h2 class="dialog-title">Unauthorized Email</h2>
             <p class="dialog-description">Only official <strong>@pasigcity.gov.ph</strong> email addresses are permitted
-                to create admin accounts.</p>
+                to create staff accounts.</p>
         </div>
     </div>
 
@@ -504,7 +511,7 @@
         <h1 class="brand-title">
             <span class="blue-text">PASIG</span> <span class="white-text">TUGON!</span>
         </h1>
-        <p class="sub-title">Admin Registration Station</p>
+        <p class="sub-title">Staff Registration Station</p>
 
         <div class="notice-box">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
@@ -513,7 +520,7 @@
                     d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
             <div>
-                <strong>Restricted Access:</strong> Registration is strictly reserved for official Barangay Head Admins.
+                <strong>Restricted Access:</strong> Registration is reserved for official barangay staff. A super admin must approve your account before you can use it.
             </div>
         </div>
 
@@ -570,10 +577,10 @@
             </div>
 
             <div class="input-group">
-                <label for="password" class="input-label">Account Password</label>
+                <label for="password" class="input-label">Password</label>
                 <div class="input-wrapper">
                     <input type="password" id="password" name="password" class="input-field"
-                        placeholder="Enter or generate password" required>
+                        placeholder="Create a password" required autocomplete="new-password">
                     <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round"
@@ -591,6 +598,20 @@
                 </div>
             </div>
 
+            <div class="input-group">
+                <label for="confirm_password" class="input-label">Confirm Password</label>
+                <div class="input-wrapper">
+                    <input type="password" id="confirm_password" name="confirm_password" class="input-field"
+                        placeholder="Re-enter your password" required autocomplete="new-password">
+                    <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                </div>
+                <span class="field-hint">At least 8 characters, with an uppercase letter, a number and a symbol.</span>
+            </div>
+
             <button type="submit" class="login-btn">
                 Create Account
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"
@@ -601,9 +622,9 @@
         </form>
 
         <p class="form-footer">
-            Already have an account? <a href="Admin_Log_In.html">Log In here</a>
+            Already have an account? <a href="Sign_In.html">Sign in here</a><br>
+            <span style="display:inline-block;margin-top:8px;">Not barangay staff? <a href="Citizen_Sign_Up.html">Sign up as a citizen</a></span>
         </p>
-        </form>
 
         <p class="back-to-home-footer">
             <a href="main_menu.html">
@@ -618,27 +639,10 @@
     </main>
 
     <script>
-        function generatePasswordIfEmpty() {
-            var username = $("#username").val().trim();
-            var email = $("#email").val().trim();
-            var barangay = $("#barangay").val();
-            var passwordField = $("#password");
-
-            // Auto-generate password if empty upon completing other fields
-            if (username !== "" && email !== "" && barangay !== "" && passwordField.val() === "") {
-                var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*";
-                var generatedPassword = "";
-                for (var i = 0; i < 12; i++) {
-                    generatedPassword += chars.charAt(Math.floor(Math.random() * chars.length));
-                }
-                passwordField.val(generatedPassword);
-            }
-        }
-
         $(document).ready(function () {
             // Password Visibility Toggle
             $("#togglePasswordBtn").on("click", function () {
-                var passInput = $("#password");
+                var passInput = $("#password, #confirm_password");   // the eye shows/hides both fields
                 var eyeIcon = $("#eyeIcon");
 
                 if (passInput.attr("type") === "password") {
@@ -688,10 +692,6 @@
                 }
             });
 
-            // Password Auto-Generation Listeners
-            $("#username, #email").on("input", generatePasswordIfEmpty);
-            $("#barangay").on("change", generatePasswordIfEmpty);
-
             // Form Submit Handler
             $("#registration-form").on("submit", function (e) {
                 e.preventDefault();
@@ -699,10 +699,11 @@
                 var username = $("#username").val().trim();
                 var email = $("#email").val().trim();
                 var barangay = $("#barangay").val();
-                var password = $("#password").val().trim();
+                var password = $("#password").val();
+                var confirmPassword = $("#confirm_password").val();
 
                 // Step 1: Check for Empty Fields
-                if (!username || !email || !barangay || !password) {
+                if (!username || !email || !barangay || !password || !confirmPassword) {
                     $("#form-incomplete .dialog-title").text("Unable to Submit");
                     $("#form-incomplete .dialog-description").text(
                         "Please make sure all details are completely filled out before submitting."
@@ -717,22 +718,37 @@
                     return;
                 }
 
-                // Step 3: AJAX Submit
+                // Step 3: Password rules (the server checks them again)
+                if (password !== confirmPassword) {
+                    $("#form-incomplete .dialog-title").text("Passwords Do Not Match");
+                    $("#form-incomplete .dialog-description").text("Please type the same password in both fields.");
+                    $("#form-incomplete").dialog("open");
+                    return;
+                }
+                if (password.length < 8 || !/[A-Z]/.test(password) || !/[0-9]/.test(password) || !/[^A-Za-z0-9]/.test(password)) {
+                    $("#form-incomplete .dialog-title").text("Password Too Weak");
+                    $("#form-incomplete .dialog-description").text(
+                        "Your password needs at least 8 characters, an uppercase letter, a number and a symbol."
+                    );
+                    $("#form-incomplete").dialog("open");
+                    return;
+                }
+
+                // Step 4: AJAX Submit
                 $.ajax({
-                    url: "../src/register.php",
+                    url: "../src/register-staff.php",
                     method: "POST",
                     data: {
                         username: username,
                         email: email,
                         barangay: barangay,
-                        password: password
+                        password: password,
+                        confirm_password: confirmPassword
                     },
                     dataType: "json"
                 }).done(function (response) {
                     if (response.success) {
-                        sessionStorage.setItem("newAdminUsername", username);
-                        sessionStorage.setItem("newAdminPassword", password);
-                        window.location.href = "Admin_Account_Created.html";
+                        window.location.href = "Sign_In.html?registered=staff";
                     } else {
                         $("#form-incomplete .dialog-title").text("Unable to Create Account");
                         $("#form-incomplete .dialog-description").text(response.message || "An unexpected error occurred.");
