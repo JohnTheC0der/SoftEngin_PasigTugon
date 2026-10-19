@@ -1,11 +1,11 @@
 <?php
-// Session guard — only a signed-in super_admin may open this page.
+// Super-admin-only page. require_page_role() re-checks the database on every load: the person
+// must be signed in as an active super_admin. Citizens and staff are sent to their own home page;
+// everyone else goes to Sign_In.html.
 // Must run before any HTML is output, so this block stays at the very top of the file.
-session_start();
-if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'super_admin') {
-    header('Location: Admin_Log_In.html');
-    exit;
-}
+require_once __DIR__ . '/../src/db_connect.php';
+require_once __DIR__ . '/../src/auth.php';
+require_page_role($pdo, 'super_admin');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -707,7 +707,7 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'super_admin')
                 <button class="modal_close_btn" onclick="closeModal('restoreModal')" aria-label="Close">&times;</button>
             </div>
             <div class="modal_body">
-                <p>This replaces <strong>all current data</strong> (barangays, admin accounts and concerns) with the
+                <p>This replaces <strong>all current data</strong> (barangays, user accounts and concerns) with the
                     last backup. Anything recorded <strong>after</strong> that backup will be lost, and you will be
                     logged out.</p>
                 <div class="modal_highlight">Last Backup: <span id="restoreDate">—</span></div>
@@ -924,7 +924,7 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'super_admin')
             }
 
             // Adjust this path if your folder structure differs —
-            // this assumes public/Admin_Setting_Page.php and src/change-password.php as siblings.
+            // this assumes public/Super_Admin_Setting_Page.php and src/change-password.php as siblings.
             fetch('../src/change-password.php', {
                     method: 'POST',
                     headers: {
@@ -1030,7 +1030,7 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'super_admin')
                 if (!d.success) return showToast(d.message, true);
                 closeModal('restoreModal');
                 showToast(d.message);
-                setTimeout(() => { window.location.href = 'Admin_Log_In.html'; }, 1800);
+                setTimeout(() => { window.location.href = 'Sign_In.html'; }, 1800);
             });
         }
 

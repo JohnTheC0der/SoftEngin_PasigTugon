@@ -1,6 +1,6 @@
 <?php
-// super-admin-get-data.php
-// Returns all barangay admins and all super admins for the Super Admin panel.
+// get-super-admin-data.php
+// Returns all barangay staff accounts and all super admins for the Super Admin panel.
 // Only callable by an active super_admin session.
 
 session_start();
@@ -8,7 +8,7 @@ header('Content-Type: application/json');
 require_once 'db_connect.php';
 require_once 'backup-lib.php';
 
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'super_admin') {
+if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'super_admin') {
     http_response_code(403);
     echo json_encode(['error' => 'Not authorized.']);
     exit;
@@ -22,7 +22,7 @@ try {
 }
 
 try {
-    // All barangay admins with their barangay approval status
+    // All barangay staff accounts with their barangay approval status
     $stmt = $pdo->query(
         "SELECT
             u.user_id,
@@ -35,13 +35,13 @@ try {
             b.approval_status
          FROM tbl_users u
          JOIN tbl_barangay b ON u.barangay_id = b.barangay_id
-         WHERE u.role = 'admin'
+         WHERE u.role = 'staff'
          ORDER BY b.approval_status = 'pending' DESC, u.created_at DESC"
     );
-    $barangayAdmins = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $barangayStaff = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     // Cast is_active to bool for clean JSON
-    foreach ($barangayAdmins as &$row) {
+    foreach ($barangayStaff as &$row) {
         $row['is_active'] = (bool) $row['is_active'];
     }
     unset($row);
@@ -61,7 +61,7 @@ try {
     unset($row);
 
     echo json_encode([
-        'barangay_admins' => $barangayAdmins,
+        'barangay_staff'  => $barangayStaff,
         'super_admins'    => $superAdmins,
     ]);
 } catch (PDOException $e) {

@@ -10,7 +10,7 @@ require_once 'db_connect.php';
 
 $response = ['success' => false, 'message' => ''];
 
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'super_admin') {
+if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'super_admin') {
     http_response_code(403);
     $response['message'] = 'Not authorized.';
     echo json_encode($response);
@@ -36,12 +36,12 @@ if ($action === 'approve') {
             "UPDATE tbl_barangay b
              JOIN tbl_users u ON u.barangay_id = b.barangay_id
              SET b.approval_status = 'approved', b.approved_at = NOW()
-             WHERE u.user_id = ? AND u.role = 'admin'"
+             WHERE u.user_id = ? AND u.role = 'staff'"
         );
         $stmt->execute([$userId]);
 
         if ($stmt->rowCount() === 0) {
-            $response['message'] = 'No matching admin account found.';
+            $response['message'] = 'No matching staff account found.';
         } else {
             $response['success'] = true;
             $response['message'] = 'Barangay approved.';
@@ -68,7 +68,7 @@ if ($action === 'approve') {
             "UPDATE tbl_barangay b
              JOIN tbl_users u ON u.barangay_id = b.barangay_id
              SET b.approval_status = 'rejected'
-             WHERE u.user_id = ? AND u.role = 'admin'"
+             WHERE u.user_id = ? AND u.role = 'staff'"
         );
         $stmt->execute([$userId]);
 
@@ -81,7 +81,7 @@ if ($action === 'approve') {
 
     // ──────────────────────────────────────────────────────────────
     //  ARCHIVE  (deactivate account, approval_status → pending so the
-    //            barangay slot opens for a new admin to register)
+    //            barangay slot opens for new staff to register)
     // ──────────────────────────────────────────────────────────────
 } elseif ($action === 'archive') {
     $userId = (int) ($_POST['user_id'] ?? 0);
@@ -105,13 +105,13 @@ if ($action === 'approve') {
         $stmt = $pdo->prepare("UPDATE tbl_users SET is_active = FALSE WHERE user_id = ?");
         $stmt->execute([$userId]);
 
-        // If this was a barangay admin, reset the barangay approval to 'pending'
-        // so a new admin can register for the same barangay later
+        // If this was a barangay staff account, reset the barangay approval to 'pending'
+        // so a new staff member can register for the same barangay later
         $stmt = $pdo->prepare(
             "UPDATE tbl_barangay b
              JOIN tbl_users u ON u.barangay_id = b.barangay_id
              SET b.approval_status = 'pending', b.approved_at = NULL
-             WHERE u.user_id = ? AND u.role = 'admin'"
+             WHERE u.user_id = ? AND u.role = 'staff'"
         );
         $stmt->execute([$userId]);
 
@@ -138,25 +138,25 @@ if ($action === 'approve') {
     }
 
     try {
-        // Find which barangay this archived admin belongs to
-        $stmt = $pdo->prepare("SELECT barangay_id FROM tbl_users WHERE user_id = ? AND role = 'admin'");
+        // Find which barangay this archived staff account belongs to
+        $stmt = $pdo->prepare("SELECT barangay_id FROM tbl_users WHERE user_id = ? AND role = 'staff'");
         $stmt->execute([$userId]);
         $barangayId = $stmt->fetchColumn();
 
         if ($barangayId === false) {
-            $response['message'] = 'Admin account not found.';
+            $response['message'] = 'Staff account not found.';
             echo json_encode($response);
             exit;
         }
 
-        // Guard: refuse to restore if another active admin already occupies this barangay
-        // (this can happen if a new admin registered for the same barangay after this one was archived)
+        // Guard: refuse to restore if another active staff account already occupies this barangay
+        // (this can happen if new staff registered for the same barangay after this one was archived)
         $stmt = $pdo->prepare(
             "SELECT user_id FROM tbl_users WHERE barangay_id = ? AND user_id != ? AND is_active = TRUE"
         );
         $stmt->execute([$barangayId, $userId]);
         if ($stmt->fetch()) {
-            $response['message'] = 'This barangay already has an active admin. Archive or reject that account first.';
+            $response['message'] = 'This barangay already has an active staff account. Archive or reject that account first.';
             echo json_encode($response);
             exit;
         }
@@ -166,7 +166,7 @@ if ($action === 'approve') {
         $stmt = $pdo->prepare("UPDATE tbl_users SET is_active = TRUE WHERE user_id = ?");
         $stmt->execute([$userId]);
 
-        // Fully reinstate — re-approve the barangay too, so the restored admin goes
+        // Fully reinstate — re-approve the barangay too, so the restored staff member goes
         // straight back to their dashboard instead of being stuck on the wait page.
         $stmt = $pdo->prepare(
             "UPDATE tbl_barangay SET approval_status = 'approved', approved_at = NOW() WHERE barangay_id = ?"

@@ -1,12 +1,11 @@
 <?php
-// Session guard — the only way into this page is logging in as a super_admin through
-// Admin_Log_In.html (username + password). Anyone who loads this URL directly without
-// a valid super_admin session is bounced straight back to the login page.
-session_start();
-if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'super_admin') {
-    header('Location: Admin_Log_In.html');
-    exit;
-}
+// Super-admin-only page. require_page_role() re-checks the database on every load: the person
+// must be signed in as an active super_admin. Citizens and staff are sent to their own home page;
+// everyone else goes to Sign_In.html.
+// Must run before any HTML is output, so this block stays at the very top of the file.
+require_once __DIR__ . '/../src/db_connect.php';
+require_once __DIR__ . '/../src/auth.php';
+require_page_role($pdo, 'super_admin');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -995,6 +994,203 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'super_admin')
             text-align: center;
             padding: 40px;
         }
+
+        /* ── OVERVIEW / CONCERNS TABS ── */
+        .ov-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .ov-box {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 18px;
+            padding: 18px 20px;
+        }
+
+        .ov-box h3 {
+            font-size: 0.8rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #93C5FD;
+            margin-bottom: 14px;
+        }
+
+        .rank-row {
+            display: grid;
+            grid-template-columns: 112px 1fr 34px;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 12px;
+            font-size: 0.88rem;
+            font-weight: 700;
+        }
+
+        .rank-row .rank-pos {
+            color: rgba(255, 255, 255, 0.5);
+            margin-right: 6px;
+        }
+
+        .rank-track {
+            height: 10px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.12);
+            overflow: hidden;
+        }
+
+        .rank-track>span {
+            display: block;
+            height: 100%;
+            border-radius: 10px;
+        }
+
+        .rank-count {
+            text-align: right;
+            font-weight: 900;
+        }
+
+        .ov-empty {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .kw-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .kw-tag {
+            background: rgba(56, 189, 248, 0.16);
+            border: 1px solid rgba(56, 189, 248, 0.35);
+            color: #BAE6FD;
+            padding: 6px 12px;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .data-table td.num,
+        .data-table th.num {
+            text-align: center;
+        }
+
+        .data-table .case-no {
+            font-weight: 900;
+            white-space: nowrap;
+        }
+
+        .data-table .concern-snippet {
+            display: block;
+            max-width: 340px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .table-scroll-x {
+            overflow-x: auto;
+        }
+
+        .barangay-link {
+            cursor: pointer;
+            font-weight: 800;
+            color: var(--table-header);
+            text-decoration: underline;
+            text-decoration-style: dotted;
+        }
+
+        .pill.p-high {
+            background: rgba(239, 68, 68, 0.22);
+            color: #7f1d1d;
+        }
+
+        .pill.p-medium {
+            background: rgba(245, 158, 11, 0.25);
+            color: #78350f;
+        }
+
+        .pill.p-low {
+            background: rgba(16, 185, 129, 0.22);
+            color: #065f46;
+        }
+
+        .readonly-note {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #FDE68A;
+            background: rgba(245, 158, 11, 0.12);
+            border: 1px solid rgba(245, 158, 11, 0.35);
+            border-radius: 12px;
+            padding: 10px 14px;
+        }
+
+        .cm-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px 16px;
+            margin-bottom: 16px;
+        }
+
+        .cm-grid .full {
+            grid-column: 1 / -1;
+        }
+
+        .cm-label {
+            display: block;
+            font-size: 0.7rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #93C5FD;
+            margin-bottom: 3px;
+        }
+
+        .cm-value {
+            font-weight: 800;
+            font-size: 0.95rem;
+        }
+
+        .cm-text {
+            background: #E0F2FE;
+            color: #032B69;
+            border-radius: 14px;
+            padding: 16px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            line-height: 1.6;
+            max-height: 240px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+            margin-bottom: 14px;
+        }
+
+        @media (max-width: 1000px) {
+            .ov-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .main-wrapper {
+                padding: 1.2rem;
+            }
+
+            .tab-nav {
+                padding: 12px 16px 0;
+                overflow-x: auto;
+            }
+
+            .tab-btn {
+                white-space: nowrap;
+            }
+        }
     </style>
 </head>
 
@@ -1023,11 +1219,17 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'super_admin')
 
     <!-- ══════════════════════════════ TAB NAV ══════════════════════════════ -->
     <div class="tab-nav">
-        <button class="tab-btn active" data-tab="pending">
+        <button class="tab-btn active" data-tab="overview">
+            Overview
+        </button>
+        <button class="tab-btn" data-tab="concerns">
+            Concerns
+        </button>
+        <button class="tab-btn" data-tab="pending">
             Pending Approvals
         </button>
         <button class="tab-btn" data-tab="barangays">
-            Active Barangay Admins
+            Active Barangay Staff
         </button>
     </div>
 
@@ -1035,7 +1237,7 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'super_admin')
     <div class="main-wrapper">
 
         <!-- QUICK STATS -->
-        <div class="stats-row" id="statsRow">
+        <div class="stats-row" id="statsRow" style="display:none;">
             <div class="stat-card">
                 <div class="stat-icon blue">
                     <!-- Buildings / Barangay Icon -->
@@ -1109,13 +1311,216 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'super_admin')
             </div>
         </div>
 
-        <!-- ═══ TAB 1: PENDING APPROVALS ═══ -->
-        <div class="tab-panel active" id="tab-pending">
+        <!-- ═══ TAB: OVERVIEW (all barangays, read-only) ═══ -->
+        <div class="tab-panel active" id="tab-overview">
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-icon blue">📋</div>
+                    <div class="stat-text-group">
+                        <div class="stat-value" id="ovActive">—</div>
+                        <div class="stat-label">Active Concerns</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon red">🚨</div>
+                    <div class="stat-text-group">
+                        <div class="stat-value" id="ovHigh">—</div>
+                        <div class="stat-label">High-Priority Active</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon amber">🏘️</div>
+                    <div class="stat-text-group">
+                        <div class="stat-value" id="ovBarangays">—</div>
+                        <div class="stat-label">Barangays With Active Concerns</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green">🗄️</div>
+                    <div class="stat-text-group">
+                        <div class="stat-value" id="ovArchived">—</div>
+                        <div class="stat-label">Archived Concerns</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="outer-card">
+                <div class="card-top-row">
+                    <div>
+                        <div class="card-header-title">Concerns Overview</div>
+                        <div class="card-subtitle">All barangays combined · active concerns only · view only</div>
+                    </div>
+                </div>
+                <hr class="header-divider">
+                <div class="ov-grid">
+                    <div class="ov-box">
+                        <h3>Sectors Ranked</h3>
+                        <div id="ovSectors"></div>
+                    </div>
+                    <div class="ov-box">
+                        <h3>Priorities Ranked</h3>
+                        <div id="ovPriorities"></div>
+                    </div>
+                    <div class="ov-box">
+                        <h3>Common Keywords</h3>
+                        <div class="kw-cloud" id="ovKeywords"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="outer-card">
+                <div class="card-top-row">
+                    <div>
+                        <div class="card-header-title">By Barangay</div>
+                        <div class="card-subtitle">Active concerns per barangay, busiest first · click a barangay to open its concerns</div>
+                    </div>
+                </div>
+                <hr class="header-divider">
+                <div class="inner-box">
+                    <div class="table-scroll-x">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Barangay</th>
+                                    <th class="num">Active</th>
+                                    <th class="num">High</th>
+                                    <th class="num">Medium</th>
+                                    <th class="num">Low</th>
+                                    <th class="num">Health</th>
+                                    <th class="num">Infrastructure</th>
+                                    <th class="num">Crime</th>
+                                    <th class="num">Environment</th>
+                                    <th class="num">Archived</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ovBarangayTbody">
+                                <tr class="loading-row">
+                                    <td colspan="10">
+                                        <div class="spinner"></div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="outer-card">
+                <div class="card-top-row">
+                    <div>
+                        <div class="card-header-title">Latest Concerns</div>
+                        <div class="card-subtitle">The 8 most recent concerns from any barangay</div>
+                    </div>
+                </div>
+                <hr class="header-divider">
+                <div class="inner-box">
+                    <div class="table-scroll-x">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Case No.</th>
+                                    <th>Barangay</th>
+                                    <th>Date</th>
+                                    <th style="text-align:left;">Concern</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ovRecentTbody">
+                                <tr class="loading-row">
+                                    <td colspan="4">
+                                        <div class="spinner"></div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ TAB: CONCERNS (all barangays, read-only) ═══ -->
+        <div class="tab-panel" id="tab-concerns">
+            <div class="outer-card">
+                <div class="card-top-row">
+                    <div>
+                        <div class="card-header-title">All Concerns</div>
+                        <div class="card-subtitle">Every barangay · ongoing and archived</div>
+                    </div>
+                </div>
+                <div class="readonly-note">View only. Archiving and changing a concern's sector or priority is done by each barangay's staff.</div>
+                <hr class="header-divider">
+
+                <div class="toolbar">
+                    <div class="search-wrap">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
+                            viewBox="0 0 24 24">
+                            <circle cx="11" cy="11" r="8" />
+                            <path d="m21 21-4.35-4.35" />
+                        </svg>
+                        <input class="search-input" type="text" id="cSearch"
+                            placeholder="Search words, keywords or case number…">
+                    </div>
+                    <select class="filter-select" id="cStatus" aria-label="Filter by status">
+                        <option value="ongoing">Active (Ongoing)</option>
+                        <option value="archived">Archived</option>
+                        <option value="all">All Concerns</option>
+                    </select>
+                    <select class="filter-select" id="cBarangay" aria-label="Filter by barangay">
+                        <option value="">All Barangays</option>
+                    </select>
+                    <select class="filter-select" id="cSector" aria-label="Filter by sector">
+                        <option value="">All Sectors</option>
+                        <option>Health</option>
+                        <option>Infrastructure</option>
+                        <option>Crime</option>
+                        <option>Environment</option>
+                    </select>
+                    <select class="filter-select" id="cPriority" aria-label="Filter by priority">
+                        <option value="">All Priorities</option>
+                        <option>High</option>
+                        <option>Medium</option>
+                        <option>Low</option>
+                    </select>
+                </div>
+
+                <div class="inner-box">
+                    <div class="table-scroll-x">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Case No.</th>
+                                    <th>Barangay</th>
+                                    <th>Date</th>
+                                    <th>Status</th>
+                                    <th>Sector</th>
+                                    <th>Priority</th>
+                                    <th style="text-align:left;">Concern</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="concernsTbody">
+                                <tr class="loading-row">
+                                    <td colspan="8">
+                                        <div class="spinner"></div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination-row" id="concernsPagRow" style="display:none;">
+                        <span id="concernsPagInfo"></span>
+                        <div class="page-btns" id="concernsPagBtns"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ TAB: PENDING APPROVALS ═══ -->
+        <div class="tab-panel" id="tab-pending">
             <div class="outer-card">
                 <div class="card-top-row">
                     <div>
                         <div class="card-header-title">Pending Approvals</div>
-                        <div class="card-subtitle">Barangay admins awaiting your review</div>
+                        <div class="card-subtitle">Barangay staff awaiting your review</div>
                     </div>
                 </div>
                 <hr class="header-divider">
@@ -1161,12 +1566,12 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'super_admin')
             </div>
         </div>
 
-        <!-- ═══ TAB 2: ALL BARANGAY ADMINS ═══ -->
+        <!-- ═══ TAB: ACTIVE BARANGAY STAFF ═══ -->
         <div class="tab-panel" id="tab-barangays">
             <div class="outer-card">
                 <div class="card-top-row">
                     <div>
-                        <div class="card-header-title">Active Barangay Admins</div>
+                        <div class="card-header-title">Active Barangay Staff</div>
                         <div class="card-subtitle">Manage accounts across all Pasig City barangays</div>
                     </div>
                 </div>
@@ -1180,7 +1585,7 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'super_admin')
                             <path d="m21 21-4.35-4.35" />
                         </svg>
                         <input class="search-input" type="text" id="searchBarangays"
-                            placeholder="Search barangay or admin…">
+                            placeholder="Search barangay or staff…">
                     </div>
                     <select class="filter-select" id="filterStatus">
                         <option value="ACTIVE">Active</option>
@@ -1240,13 +1645,36 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'super_admin')
         </div>
     </div>
 
+    <!-- Concern card (read-only: no archive / re-classify controls exist for super admins) -->
+    <div class="modal-overlay" id="concernModal">
+        <div class="modal-panel wide">
+            <div class="modal-header">
+                <div class="modal-title" id="cmTitle">Concern</div>
+                <button class="modal-close" id="closeConcernModalBtn" aria-label="Close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="cm-grid">
+                    <div><span class="cm-label">Barangay</span><span class="cm-value" id="cmBarangay">-</span></div>
+                    <div><span class="cm-label">Date</span><span class="cm-value" id="cmDate">-</span></div>
+                    <div><span class="cm-label">Status</span><span class="cm-value" id="cmStatus">-</span></div>
+                    <div><span class="cm-label">Model Confidence</span><span class="cm-value" id="cmConf">-</span></div>
+                    <div><span class="cm-label">Sector</span><span class="cm-value" id="cmSector">-</span></div>
+                    <div><span class="cm-label">Priority</span><span class="cm-value" id="cmPriority">-</span></div>
+                    <div class="full"><span class="cm-label">Keywords</span><span class="cm-value" id="cmKeywords">-</span></div>
+                </div>
+                <div class="cm-text" id="cmText"></div>
+                <div class="readonly-note">View only. This concern is managed by the barangay's staff.</div>
+            </div>
+        </div>
+    </div>
+
     <!-- Toast Container -->
     <div class="toast-container" id="toastContainer"></div>
 
     <script>
-        // All barangay admin rows as last fetched from the server — tabs/filters/search
+        // All barangay staff rows as last fetched from the server — tabs/filters/search
         // all operate on this one array client-side rather than re-fetching each time.
-        let allAdmins = [];
+        let allStaff = [];
         let pendingConfirmAction = null; // { action, userId, label } — set right before the confirm modal opens
 
         function escapeHtml(text) {
@@ -1269,6 +1697,164 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'super_admin')
 
         // Adjust these paths if your folder structure differs —
         // this assumes public/Super_Admin_Dashboard.php and src/*.php as siblings.
+        // ══════════ ALL-BARANGAY CONCERNS (read-only) ══════════
+        const SECTOR_COLORS = { Health: '#ef4444', Infrastructure: '#2563eb', Crime: '#f59e0b', Environment: '#10b981' };
+        const PRIORITY_COLORS = { High: '#ef4444', Medium: '#f59e0b', Low: '#10b981' };
+        const PAGE_SIZE = 15;
+        let allConcerns = [];
+        let concernsPage = 1;
+
+        function renderRanking(selector, rows, colors) {
+            const $el = $(selector).empty();
+            if (!rows.length) {
+                $el.append('<div class="ov-empty">No active concerns yet</div>');
+                return;
+            }
+            const max = Math.max.apply(null, rows.map(r => r.total));
+            rows.forEach((r, i) => {
+                $el.append(
+                    '<div class="rank-row">' +
+                    '<span><span class="rank-pos">' + (i + 1) + '.</span>' + escapeHtml(r.label) + '</span>' +
+                    '<div class="rank-track"><span style="width:' + Math.max(4, (r.total / max) * 100) + '%;background:' + (colors[r.label] || '#94a3b8') + '"></span></div>' +
+                    '<span class="rank-count">' + r.total + '</span></div>'
+                );
+            });
+        }
+
+        function loadOverview() {
+            $.ajax({ url: '../src/get-super-admin-overview.php', method: 'GET', dataType: 'json' })
+                .done(function (d) {
+                    if (d.error) { showToast(d.error, 'error'); return; }
+                    $('#ovActive').text(d.total_active);
+                    $('#ovHigh').text(d.total_high);
+                    $('#ovArchived').text(d.total_archived);
+                    $('#ovBarangays').text(d.barangays.filter(b => b.active > 0).length);
+
+                    renderRanking('#ovSectors', d.sector_ranking, SECTOR_COLORS);
+                    renderRanking('#ovPriorities', d.priority_ranking, PRIORITY_COLORS);
+
+                    const $kw = $('#ovKeywords').empty();
+                    if (!d.common_keywords.length) $kw.append('<div class="ov-empty">No keywords yet</div>');
+                    d.common_keywords.forEach(k => $kw.append('<span class="kw-tag">' + escapeHtml(k) + '</span>'));
+
+                    const $b = $('#ovBarangayTbody').empty();
+                    if (!d.barangays.length) {
+                        $b.append('<tr class="empty-row"><td colspan="10">No barangays yet</td></tr>');
+                    }
+                    d.barangays.forEach(b => {
+                        $b.append(
+                            '<tr><td><span class="barangay-link" data-barangay="' + escapeHtml(b.name) + '">' + escapeHtml(b.name) + '</span></td>' +
+                            '<td class="num"><strong>' + b.active + '</strong></td>' +
+                            '<td class="num">' + b.priority.High + '</td><td class="num">' + b.priority.Medium + '</td><td class="num">' + b.priority.Low + '</td>' +
+                            '<td class="num">' + b.sector.Health + '</td><td class="num">' + b.sector.Infrastructure + '</td>' +
+                            '<td class="num">' + b.sector.Crime + '</td><td class="num">' + b.sector.Environment + '</td>' +
+                            '<td class="num">' + b.archived + '</td></tr>'
+                        );
+                    });
+
+                    const $r = $('#ovRecentTbody').empty();
+                    if (!d.recent_concerns.length) {
+                        $r.append('<tr class="empty-row"><td colspan="4">No concerns yet</td></tr>');
+                    }
+                    d.recent_concerns.forEach(c => {
+                        $r.append(
+                            '<tr><td class="case-no">#' + c.id + '</td><td>' + escapeHtml(c.barangay) + '</td><td>' + escapeHtml(c.date) + '</td>' +
+                            '<td style="text-align:left;"><span class="concern-snippet">' + escapeHtml(c.text) + '</span></td></tr>'
+                        );
+                    });
+                })
+                .fail(function () { showToast('Could not load the overview.', 'error'); });
+        }
+
+        function loadConcerns() {
+            $.ajax({ url: '../src/get-super-admin-concerns.php', method: 'GET', dataType: 'json' })
+                .done(function (d) {
+                    if (d.error) { showToast(d.error, 'error'); return; }
+                    allConcerns = d.concerns || [];
+
+                    // barangay dropdown = every barangay that has at least one concern
+                    const keep = $('#cBarangay').val();
+                    const names = Array.from(new Set(allConcerns.map(c => c.barangay))).sort();
+                    const $sel = $('#cBarangay').empty().append('<option value="">All Barangays</option>');
+                    names.forEach(n => $sel.append($('<option>').val(n).text(n)));
+                    if (names.indexOf(keep) !== -1) $sel.val(keep);
+
+                    renderConcerns();
+                })
+                .fail(function () {
+                    $('#concernsTbody').html('<tr class="empty-row"><td colspan="8">Could not load concerns</td></tr>');
+                });
+        }
+
+        function filteredConcerns() {
+            const status = $('#cStatus').val();
+            const barangay = $('#cBarangay').val();
+            const sector = $('#cSector').val();
+            const priority = $('#cPriority').val();
+            const terms = $('#cSearch').val().toLowerCase().split(/\s+/).map(s => s.replace(/^#/, '')).filter(Boolean);
+            return allConcerns.filter(c => {
+                if (status !== 'all' && c.status !== status) return false;
+                if (barangay && c.barangay !== barangay) return false;
+                if (sector && c.sector !== sector) return false;
+                if (priority && c.priority !== priority) return false;
+                const hay = (c.text + ' ' + (c.keywords || '') + ' ' + c.id + ' ' + c.barangay).toLowerCase();
+                return terms.every(t => hay.includes(t));
+            });
+        }
+
+        function renderConcerns() {
+            const rows = filteredConcerns();
+            const pages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+            if (concernsPage > pages) concernsPage = pages;
+            const start = (concernsPage - 1) * PAGE_SIZE;
+            const $tbody = $('#concernsTbody').empty();
+
+            if (!rows.length) {
+                $tbody.append('<tr class="empty-row"><td colspan="8">No concerns match these filters</td></tr>');
+                $('#concernsPagRow').hide();
+                return;
+            }
+
+            rows.slice(start, start + PAGE_SIZE).forEach(c => {
+                const statusPill = c.status === 'archived'
+                    ? '<span class="pill archived">Archived</span>'
+                    : '<span class="pill active">Ongoing</span>';
+                const prio = c.priority ? '<span class="pill p-' + escapeHtml(c.priority.toLowerCase()) + '">' + escapeHtml(c.priority) + '</span>' : '—';
+                $tbody.append(
+                    '<tr><td class="case-no">#' + c.id + '</td><td>' + escapeHtml(c.barangay) + '</td><td>' + escapeHtml(c.date) + '</td>' +
+                    '<td>' + statusPill + '</td><td>' + escapeHtml(c.sector || '—') + '</td><td>' + prio + '</td>' +
+                    '<td style="text-align:left;"><span class="concern-snippet">' + escapeHtml(c.text) + '</span></td>' +
+                    '<td><button class="row-btn view" data-id="' + c.id + '">View</button></td></tr>'
+                );
+            });
+
+            $('#concernsPagRow').show();
+            $('#concernsPagInfo').text('Showing ' + (start + 1) + '–' + Math.min(start + PAGE_SIZE, rows.length) + ' of ' + rows.length);
+            const $btns = $('#concernsPagBtns').empty();
+            for (let p = 1; p <= pages; p++) {
+                if (pages > 7 && p !== 1 && p !== pages && Math.abs(p - concernsPage) > 1) {
+                    if (Math.abs(p - concernsPage) === 2) $btns.append('<span style="align-self:center;">…</span>');
+                    continue;
+                }
+                $btns.append($('<button class="page-btn">').toggleClass('active', p === concernsPage).text(p).attr('data-page', p));
+            }
+        }
+
+        function openConcernCard(id) {
+            const c = allConcerns.find(x => x.id === id);
+            if (!c) return;
+            $('#cmTitle').text('Case #' + c.id);
+            $('#cmBarangay').text(c.barangay);
+            $('#cmDate').text(c.date);
+            $('#cmStatus').text(c.status === 'archived' ? 'Archived' : 'Ongoing');
+            $('#cmConf').text(c.confidence === null ? '—' : c.confidence.toFixed(2));
+            $('#cmSector').text(c.sector || '—');
+            $('#cmPriority').text(c.priority || '—');
+            $('#cmKeywords').text(c.keywords || '—');
+            $('#cmText').text(c.text);
+            $('#concernModal').addClass('active');
+        }
+
         function loadData() {
             $('#pendingTbody, #barangaysTbody').html('<tr class="loading-row"><td colspan="7"><div class="spinner"></div></td></tr>');
 
@@ -1281,7 +1867,7 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'super_admin')
                     showToast(response.error, 'error');
                     return;
                 }
-                allAdmins = response.barangay_admins || [];
+                allStaff = response.barangay_staff || [];
                 renderStats();
                 renderPendingTable();
                 renderBarangaysTable();
@@ -1291,10 +1877,10 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'super_admin')
         }
 
         function renderStats() {
-            const distinctBarangays = new Set(allAdmins.map(a => a.barangay_name)).size;
-            const pending = allAdmins.filter(a => a.approval_status === 'pending' && a.is_active).length;
-            const approved = allAdmins.filter(a => a.approval_status === 'approved' && a.is_active).length;
-            const archived = allAdmins.filter(a => !a.is_active).length;
+            const distinctBarangays = new Set(allStaff.map(a => a.barangay_name)).size;
+            const pending = allStaff.filter(a => a.approval_status === 'pending' && a.is_active).length;
+            const approved = allStaff.filter(a => a.approval_status === 'approved' && a.is_active).length;
+            const archived = allStaff.filter(a => !a.is_active).length;
 
             $('#statTotal').text(distinctBarangays);
             $('#statPending').text(pending);
@@ -1303,11 +1889,11 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'super_admin')
         }
 
         // ── TAB 1: PENDING APPROVALS ──
-        // Shows admins genuinely awaiting review — excludes archived admins, whose
+        // Shows staff genuinely awaiting review — excludes archived staff, whose
         // barangay also shows 'pending' (that just means the slot is open again).
         function renderPendingTable() {
             const search = $('#searchPending').val().toLowerCase().trim();
-            let rows = allAdmins.filter(a => a.approval_status === 'pending' && a.is_active);
+            let rows = allStaff.filter(a => a.approval_status === 'pending' && a.is_active);
 
             if (search) {
                 rows = rows.filter(a =>
@@ -1343,12 +1929,12 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'super_admin')
             });
         }
 
-        // ── TAB 2: ACTIVE BARANGAY ADMINS (with Active/Archived filter) ──
+        // ── ACTIVE BARANGAY STAFF (with Active/Archived filter) ──
         function renderBarangaysTable() {
             const search = $('#searchBarangays').val().toLowerCase().trim();
             const filter = $('#filterStatus').val(); // 'ACTIVE' | 'ARCHIVED'
 
-            let rows = allAdmins.filter(a =>
+            let rows = allStaff.filter(a =>
                 filter === 'ARCHIVED' ? !a.is_active : (a.is_active && a.approval_status === 'approved')
             );
 
@@ -1362,7 +1948,7 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'super_admin')
             const $tbody = $('#barangaysTbody').empty();
 
             if (rows.length === 0) {
-                $tbody.append('<tr class="empty-row"><td colspan="7">No ' + (filter === 'ARCHIVED' ? 'archived' : 'active') + ' admins found</td></tr>');
+                $tbody.append('<tr class="empty-row"><td colspan="7">No ' + (filter === 'ARCHIVED' ? 'archived' : 'active') + ' staff accounts found</td></tr>');
                 return;
             }
 
@@ -1389,10 +1975,10 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'super_admin')
 
         // ── CONFIRM MODAL ──
         const CONFIRM_CONFIG = {
-            approve: { icon: '✅', header: '', title: 'Approve Admin', heading: 'Approve this admin?', btnClass: 'success', msg: b => `This grants the admin for <span class="modal-highlight">${b}</span> full access to their barangay dashboard.` },
-            reject: { icon: '🚫', header: 'danger', title: 'Reject Admin', heading: 'Reject this registration?', btnClass: 'danger', msg: b => `The registration for <span class="modal-highlight">${b}</span> will be marked rejected.` },
-            archive: { icon: '📦', header: 'amber', title: 'Archive Admin', heading: 'Archive this admin?', btnClass: 'danger', msg: b => `This deactivates the account and frees up <span class="modal-highlight">${b}</span> for a new admin to register.` },
-            restore: { icon: '♻️', header: '', title: 'Restore Admin', heading: 'Restore this admin?', btnClass: 'success', msg: b => `This reactivates the account for <span class="modal-highlight">${b}</span>, if the barangay is still unoccupied.` }
+            approve: { icon: '✅', header: '', title: 'Approve Staff', heading: 'Approve this staff account?', btnClass: 'success', msg: b => `This grants the staff account for <span class="modal-highlight">${b}</span> full access to their barangay dashboard.` },
+            reject: { icon: '🚫', header: 'danger', title: 'Reject Staff', heading: 'Reject this registration?', btnClass: 'danger', msg: b => `The registration for <span class="modal-highlight">${b}</span> will be marked rejected.` },
+            archive: { icon: '📦', header: 'amber', title: 'Archive Staff', heading: 'Archive this staff account?', btnClass: 'danger', msg: b => `This deactivates the account and frees up <span class="modal-highlight">${b}</span> for a new staff member to register.` },
+            restore: { icon: '♻️', header: '', title: 'Restore Staff', heading: 'Restore this staff account?', btnClass: 'success', msg: b => `This reactivates the account for <span class="modal-highlight">${b}</span>, if the barangay is still unoccupied.` }
         };
 
         function openConfirm(action, userId, barangayName) {
@@ -1429,6 +2015,8 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'super_admin')
 
         $(document.body).ready(function () {
             loadData();
+            loadOverview();
+            loadConcerns();
 
             // Dropdown Menu Toggle
             $('#menuBtn').on('click', function (e) {
@@ -1453,6 +2041,36 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'super_admin')
                 $(this).addClass('active');
                 $('.tab-panel').removeClass('active');
                 $('#tab-' + targetTab).addClass('active');
+
+                // Account counters belong to the two account tabs only
+                $('#statsRow').toggle(targetTab === 'pending' || targetTab === 'barangays');
+                // Concern tabs always show fresh data
+                if (targetTab === 'overview') loadOverview();
+                if (targetTab === 'concerns') loadConcerns();
+            });
+
+            // Concerns tab: filters, paging, view button (read-only)
+            $('#cSearch').on('input', function () { concernsPage = 1; renderConcerns(); });
+            $('#cStatus, #cBarangay, #cSector, #cPriority').on('change', function () { concernsPage = 1; renderConcerns(); });
+            $('#concernsPagBtns').on('click', '.page-btn', function () {
+                concernsPage = parseInt($(this).attr('data-page'), 10);
+                renderConcerns();
+            });
+            $('#concernsTbody').on('click', '.row-btn.view', function () {
+                openConcernCard(parseInt($(this).attr('data-id'), 10));
+            });
+            $('#closeConcernModalBtn').on('click', function () { $('#concernModal').removeClass('active'); });
+            $('#concernModal').on('click', function (e) { if (e.target === this) $(this).removeClass('active'); });
+            $(document).on('keydown', function (e) { if (e.key === 'Escape') $('#concernModal').removeClass('active'); });
+
+            // Overview → click a barangay to open its (active) concerns
+            $('#ovBarangayTbody').on('click', '.barangay-link', function () {
+                const name = $(this).attr('data-barangay');
+                $('#cStatus').val('ongoing');
+                $('#cSector, #cPriority').val('');
+                $('#cSearch').val('');
+                $('.tab-btn[data-tab="concerns"]').trigger('click');
+                setTimeout(function () { $('#cBarangay').val(name); concernsPage = 1; renderConcerns(); }, 400);
             });
 
             // Search + filter (live, client-side against the already-fetched data)

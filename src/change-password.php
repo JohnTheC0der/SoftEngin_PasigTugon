@@ -1,5 +1,5 @@
 <?php
-// Changes the logged-in admin's own password.
+// Changes the logged-in user's own password (citizen, staff or super admin).
 // POST params: current_password, new_password, confirm_password
 
 session_start();

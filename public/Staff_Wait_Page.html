@@ -200,7 +200,7 @@
         <h1 class="brand-title">
             <span class="blue-text">PASIG</span> <span class="white-text">TUGON!</span>
         </h1>
-        <p class="sub-title">Citizen Concern Station</p>
+        <p class="sub-title">Barangay Staff Portal</p>
 
         <!-- STATE 1: PENDING (Shown when site is still under development) -->
         <div id="view-pending" class="status-view">
@@ -210,7 +210,7 @@
                 Your requested domain for your barangay is still being processed. We will email you as soon as your site
                 is live. If you need assistance, please <a href="mailto:support@pasigtugon.gov.ph">contact us</a>.
             </p>
-            <a href="Admin_Log_In.html" class="action-btn">Go Back to Login</a>
+            <a href="../src/logout.php" class="action-btn">Sign Out</a>
         </div>
 
         <!-- STATE 2: READY (Shown when developers finish building the barangay page) -->
@@ -251,10 +251,10 @@
                 'We could not verify your account status. Refresh this page to try again.';
         }
 
-        // Ask the backend whether this admin's barangay has been approved yet.
+        // Ask the backend whether this staff member's barangay has been approved yet.
         // Relies on the session created during login — if the session has expired
         // or nothing is found, the endpoint falls back to "pending" by default.
-        fetch('../src/get-admin-status.php')
+        fetch('../src/get-staff-status.php')
             .then(function (res) {
                 if (!res.ok) {
                     throw new Error('Status request failed.');

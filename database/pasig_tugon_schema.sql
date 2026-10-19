@@ -12,7 +12,7 @@ USE pasig_tugon;
 
 -- ---------------------------------------------------
 -- Table: tbl_barangay
--- Barangay master records and admin approval status
+-- Barangay master records and staff approval status
 -- ---------------------------------------------------
 CREATE TABLE tbl_barangay (
     barangay_id     INT AUTO_INCREMENT PRIMARY KEY,
@@ -24,15 +24,15 @@ CREATE TABLE tbl_barangay (
 
 -- ---------------------------------------------------
 -- Table: tbl_users
--- Admin credentials, roles, and authentication state
+-- Accounts for all three roles: citizen, staff (barangay staff), super_admin
 -- ---------------------------------------------------
 CREATE TABLE tbl_users (
     user_id        INT AUTO_INCREMENT PRIMARY KEY,
-    barangay_id    INT NULL COMMENT 'NULL for super_admin accounts, which are not tied to a barangay',
+    barangay_id    INT NULL COMMENT 'Only staff accounts have a barangay; NULL for citizen and super_admin',
     username       VARCHAR(50) NOT NULL UNIQUE,
     email          VARCHAR(150) NOT NULL UNIQUE,
     password_hash  VARCHAR(255) NOT NULL,
-    role           ENUM('admin', 'super_admin') NOT NULL DEFAULT 'admin',
+    role           ENUM('citizen', 'staff', 'super_admin') NOT NULL DEFAULT 'citizen',
     is_active      BOOLEAN NOT NULL DEFAULT TRUE,
     created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     last_login_at  TIMESTAMP NULL,
@@ -43,23 +43,30 @@ CREATE TABLE tbl_users (
 
 -- ---------------------------------------------------
 -- Table: tbl_concerns
--- Raw complaint text, extracted keywords, sector, and priority (set by ml_engine/)
+-- Raw complaint text, extracted keywords, sector, and priority (set by ml_engine/,
+-- then optionally overturned by barangay staff). Every concern always has a sector
+-- and a priority. concern_id doubles as the public Case Number.
 -- ---------------------------------------------------
 CREATE TABLE tbl_concerns (
     concern_id         INT AUTO_INCREMENT PRIMARY KEY,
     barangay_id        INT NOT NULL,
+    user_id            INT NULL COMMENT 'the citizen who submitted it; NULL if that account was deleted',
     raw_text           TEXT NOT NULL,
     extracted_keywords VARCHAR(500),
-    sector             ENUM('Health', 'Infrastructure', 'Crime', 'Environment') NULL COMMENT 'NULL while status = for_review (model confidence too low)',
-    confidence_score   DECIMAL(5,4),
-    priority_level     ENUM('High', 'Medium', 'Low') NULL COMMENT 'NULL while status = for_review',
-    status             ENUM('ongoing', 'for_review', 'archived') NOT NULL DEFAULT 'ongoing',
+    sector             ENUM('Health', 'Infrastructure', 'Crime', 'Environment') NOT NULL,
+    confidence_score   DECIMAL(5,4) COMMENT 'model confidence at submission time',
+    priority_level     ENUM('High', 'Medium', 'Low') NOT NULL,
+    status             ENUM('ongoing', 'archived') NOT NULL DEFAULT 'ongoing',
     submitted_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     resolved_at        TIMESTAMP NULL,
     FOREIGN KEY (barangay_id) REFERENCES tbl_barangay(barangay_id)
         ON DELETE CASCADE
         ON UPDATE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES tbl_users(user_id)
+        ON DELETE SET NULL
+        ON UPDATE CASCADE,
     INDEX idx_barangay_status (barangay_id, status),
+    INDEX idx_user (user_id),
     INDEX idx_priority (priority_level),
     INDEX idx_sector (sector),
     INDEX idx_submitted_at (submitted_at)

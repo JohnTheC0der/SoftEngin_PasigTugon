@@ -1,9 +1,9 @@
 <?php
-// Creates or refreshes the local demo barangay-admin account for UI testing.
+// Creates or refreshes the local demo barangay STAFF account for UI testing.
 // Run from the command line only; do not use on a production database.
 //
 // Usage:
-//   php create_demo_admin.php
+//   php create_demo_staff.php
 //
 // Demo login:
 //   Username: demo_admin
@@ -56,7 +56,7 @@ try {
         );
         $stmt->execute([$barangayId, $accounts[0] ?? 0]);
         if ($stmt->fetch()) {
-            throw new RuntimeException('Demo Barangay is already assigned to another admin account.');
+            throw new RuntimeException('Demo Barangay is already assigned to another staff account.');
         }
 
         $stmt = $pdo->prepare(
@@ -68,26 +68,26 @@ try {
     if ($accounts) {
         $stmt = $pdo->prepare(
             "UPDATE tbl_users
-             SET barangay_id = ?, username = ?, email = ?, password_hash = ?, role = 'admin', is_active = TRUE
+             SET barangay_id = ?, username = ?, email = ?, password_hash = ?, role = 'staff', is_active = TRUE
              WHERE user_id = ?"
         );
         $stmt->execute([$barangayId, $username, $email, $passwordHash, $accounts[0]]);
     } else {
         $stmt = $pdo->prepare(
             "INSERT INTO tbl_users (barangay_id, username, email, password_hash, role, is_active)
-             VALUES (?, ?, ?, ?, 'admin', TRUE)"
+             VALUES (?, ?, ?, ?, 'staff', TRUE)"
         );
         $stmt->execute([$barangayId, $username, $email, $passwordHash]);
     }
 
     $pdo->commit();
-    echo "Local demo admin is ready.\n";
+    echo "Local demo staff account is ready.\n";
     echo "Username: $username\n";
     echo "Password: DemoAdmin!2026\n";
 } catch (PDOException | RuntimeException $e) {
     if ($pdo->inTransaction()) {
         $pdo->rollBack();
     }
-    fwrite(STDERR, "Error creating demo admin: " . $e->getMessage() . "\n");
+    fwrite(STDERR, "Error creating demo staff account: " . $e->getMessage() . "\n");
     exit(1);
 }
