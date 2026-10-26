@@ -8,7 +8,10 @@ require_once 'db_connect.php';
 try {
     $rows = $pdo->query("SELECT barangay_name FROM tbl_barangay WHERE approval_status = 'approved'")
                 ->fetchAll(PDO::FETCH_COLUMN);
-    $slugs = array_map(fn($n) => str_replace(' ', '-', strtolower($n)), $rows);
+    $slugs = array_map(
+        fn($name) => str_replace(' ', '-', strtolower(preg_replace('/^barangay\s+/i', '', trim($name)))),
+        $rows
+    );
     echo json_encode(['available' => array_values($slugs)]);
 } catch (PDOException $e) {
     http_response_code(500);

@@ -58,10 +58,18 @@ if (mb_strlen($concernText) > 2000) {
 
 try {
     // Concerns are only accepted for barangays that already have an approved staff account.
-    $barangayName = ucwords(str_replace('-', ' ', $barangaySlug));
-    $stmt = $pdo->prepare("SELECT barangay_id FROM tbl_barangay WHERE barangay_name = ? AND approval_status = 'approved'");
-    $stmt->execute([$barangayName]);
-    $barangayId = $stmt->fetchColumn();
+    $approvedBarangays = $pdo->query(
+        "SELECT barangay_id, barangay_name FROM tbl_barangay WHERE approval_status = 'approved'"
+    )->fetchAll(PDO::FETCH_ASSOC);
+    $barangayId = false;
+    foreach ($approvedBarangays as $barangay) {
+        $approvedSlug = strtolower(preg_replace('/^barangay\s+/i', '', trim($barangay['barangay_name'])));
+        $approvedSlug = str_replace(' ', '-', $approvedSlug);
+        if ($approvedSlug === $barangaySlug) {
+            $barangayId = $barangay['barangay_id'];
+            break;
+        }
+    }
     if ($barangayId === false) {
         reply(false, 'This barangay is not accepting concerns yet. Please choose another barangay.');
     }

@@ -9,7 +9,14 @@ const CONCERN_PRIORITIES = ['High', 'Medium', 'Low'];
 // engine could not run or returned something unusable.
 function classifyWithModel(string $text): ?array
 {
-    $python = defined('PYTHON_BIN') ? PYTHON_BIN : 'python';
+    if (defined('PYTHON_BIN')) {
+        $python = PYTHON_BIN;
+    } else {
+        $venvPython = DIRECTORY_SEPARATOR === '\\'
+            ? __DIR__ . '/../venv/Scripts/python.exe'
+            : __DIR__ . '/../venv/bin/python';
+        $python = is_file($venvPython) ? $venvPython : 'python';
+    }
     $script = __DIR__ . '/../ml_engine/predict.py';
 
     $cmd = escapeshellarg($python) . ' ' . escapeshellarg($script) . ' ' . escapeshellarg($text);

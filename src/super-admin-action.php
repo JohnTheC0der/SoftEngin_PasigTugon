@@ -4,18 +4,12 @@
 //   approve, reject, archive, restore, create_super_admin
 // POST params: action, user_id (for most), username/email/password (for create)
 
-session_start();
 header('Content-Type: application/json');
 require_once 'db_connect.php';
+require_once 'auth.php';
 
 $response = ['success' => false, 'message' => ''];
-
-if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'super_admin') {
-    http_response_code(403);
-    $response['message'] = 'Not authorized.';
-    echo json_encode($response);
-    exit;
-}
+require_api_role($pdo, 'super_admin');
 
 $action = trim($_POST['action'] ?? '');
 

@@ -925,27 +925,114 @@ require_page_role($pdo, 'super_admin');
         }
 
         /* ── EXPECTED RESPONSE TIME (live countdown) ── */
-        .eta { white-space: nowrap; min-width: 150px; }
-        .eta-time { display: block; font-size: 0.88rem; font-weight: 900; font-variant-numeric: tabular-nums; }
-        .eta-sub { display: block; margin-top: 1px; font-size: 0.68rem; font-weight: 700; color: #1E3A8A; opacity: 0.8; }
-        .eta.ok .eta-time { color: #065F46; }
-        .eta.warn .eta-time { color: #92400E; }
-        .eta.late .eta-time { color: #B91C1C; }
-        .eta.closed .eta-time { color: #334155; }
-        .cm-value.eta-ok { color: #6EE7B7; }
-        .cm-value.eta-warn { color: #FCD34D; }
-        .cm-value.eta-late { color: #FCA5A5; }
-        .cm-value.eta-closed { color: #CBD5E1; }
-        .cm-sub { display: block; margin-top: 2px; font-size: 0.75rem; font-weight: 700; color: #93C5FD; }
-        .cm-value.small { font-size: 0.9rem; word-break: break-all; }
-        .name-cell { font-weight: 800; }
-        .sub-line { display: block; font-size: 0.72rem; font-weight: 700; opacity: 0.7; }
-        .modal-panel.xl { width: 1120px; max-width: 96vw; overflow-y: auto; }
-        #ctHistoryTbody td { white-space: nowrap; padding: 11px 12px; }
-        #citizenModal .data-table th { padding: 12px; }
-        #citizenModal .concern-snippet { max-width: 170px; }
-        .history-box { margin-top: 18px; }
-        .history-title { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #93C5FD; margin-bottom: 10px; }
+        .eta {
+            white-space: nowrap;
+            min-width: 150px;
+        }
+
+        .eta-time {
+            display: block;
+            font-size: 0.88rem;
+            font-weight: 900;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .eta-sub {
+            display: block;
+            margin-top: 1px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: #1E3A8A;
+            opacity: 0.8;
+        }
+
+        .eta.ok .eta-time {
+            color: #065F46;
+        }
+
+        .eta.warn .eta-time {
+            color: #92400E;
+        }
+
+        .eta.late .eta-time {
+            color: #B91C1C;
+        }
+
+        .eta.closed .eta-time {
+            color: #334155;
+        }
+
+        .cm-value.eta-ok {
+            color: #6EE7B7;
+        }
+
+        .cm-value.eta-warn {
+            color: #FCD34D;
+        }
+
+        .cm-value.eta-late {
+            color: #FCA5A5;
+        }
+
+        .cm-value.eta-closed {
+            color: #CBD5E1;
+        }
+
+        .cm-sub {
+            display: block;
+            margin-top: 2px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #93C5FD;
+        }
+
+        .cm-value.small {
+            font-size: 0.9rem;
+            word-break: break-all;
+        }
+
+        .name-cell {
+            font-weight: 800;
+        }
+
+        .sub-line {
+            display: block;
+            font-size: 0.72rem;
+            font-weight: 700;
+            opacity: 0.7;
+        }
+
+        .modal-panel.xl {
+            width: 1120px;
+            max-width: 96vw;
+            overflow-y: auto;
+        }
+
+        #ctHistoryTbody td {
+            white-space: nowrap;
+            padding: 11px 12px;
+        }
+
+        #citizenModal .data-table th {
+            padding: 12px;
+        }
+
+        #citizenModal .concern-snippet {
+            max-width: 170px;
+        }
+
+        .history-box {
+            margin-top: 18px;
+        }
+
+        .history-title {
+            font-size: 0.8rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #93C5FD;
+            margin-bottom: 10px;
+        }
 
         /* ── TOAST NOTIFICATION ── */
         .toast-container {
@@ -1342,28 +1429,52 @@ require_page_role($pdo, 'super_admin');
         <div class="tab-panel active" id="tab-overview">
             <div class="stats-row">
                 <div class="stat-card">
-                    <div class="stat-icon blue">📋</div>
+                    <div class="stat-icon blue">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z" />
+                            <path d="M14 2v6h6" />
+                        </svg>
+                    </div>
                     <div class="stat-text-group">
                         <div class="stat-value" id="ovActive">—</div>
                         <div class="stat-label">Active Concerns</div>
                     </div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon red">🚨</div>
+                    <div class="stat-icon red">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                            <line x1="12" y1="9" x2="12" y2="13" />
+                            <line x1="12" y1="17" x2="12.01" y2="17" />
+                        </svg>
+                    </div>
                     <div class="stat-text-group">
                         <div class="stat-value" id="ovHigh">—</div>
                         <div class="stat-label">High-Priority Active</div>
                     </div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon amber">🏘️</div>
+                    <div class="stat-icon amber"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                            <polyline points="9 22 9 12 15 12 15 22" />
+                        </svg></div>
                     <div class="stat-text-group">
                         <div class="stat-value" id="ovBarangays">—</div>
                         <div class="stat-label">Barangays With Active Concerns</div>
                     </div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-icon green">🗄️</div>
+                    <div class="stat-icon green">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="21 8 21 21 3 21 3 8" />
+                            <rect x="1" y="3" width="22" height="5" />
+                            <line x1="10" y1="12" x2="14" y2="12" />
+                        </svg>
+                    </div>
                     <div class="stat-text-group">
                         <div class="stat-value" id="ovArchived">—</div>
                         <div class="stat-label">Archived Concerns</div>
@@ -1587,7 +1698,11 @@ require_page_role($pdo, 'super_admin');
                                 </tr>
                             </thead>
                             <tbody id="citizensTbody">
-                                <tr class="loading-row"><td colspan="8"><div class="spinner"></div></td></tr>
+                                <tr class="loading-row">
+                                    <td colspan="8">
+                                        <div class="spinner"></div>
+                                    </td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
@@ -1718,7 +1833,14 @@ require_page_role($pdo, 'super_admin');
                 <button class="modal-close" id="closeConfirmModalBtn">&times;</button>
             </div>
             <div class="modal-body centered">
-                <div class="modal-icon" id="confirmModalIcon">⚠️</div>
+                <div class="modal-icon" id="confirmModalIcon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                        <line x1="12" y1="9" x2="12" y2="13" />
+                        <line x1="12" y1="17" x2="12.01" y2="17" />
+                    </svg>
+                </div>
                 <h3 id="confirmModalHeading">Are you sure?</h3>
                 <p id="confirmModalMessage">This action cannot be undone.</p>
                 <div class="modal-actions">
@@ -1815,7 +1937,11 @@ require_page_role($pdo, 'super_admin');
         function formatDate(raw) {
             if (!raw) return '—';
             const d = new Date(raw.replace(' ', 'T'));
-            return isNaN(d) ? raw : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            return isNaN(d) ? raw : d.toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+            });
         }
 
         function showToast(message, type) {
@@ -1827,8 +1953,17 @@ require_page_role($pdo, 'super_admin');
         // Adjust these paths if your folder structure differs —
         // this assumes public/Super_Admin_Dashboard.php and src/*.php as siblings.
         // ══════════ ALL-BARANGAY CONCERNS (read-only) ══════════
-        const SECTOR_COLORS = { Health: '#ef4444', Infrastructure: '#2563eb', Crime: '#f59e0b', Environment: '#10b981' };
-        const PRIORITY_COLORS = { High: '#ef4444', Medium: '#f59e0b', Low: '#10b981' };
+        const SECTOR_COLORS = {
+            Health: '#ef4444',
+            Infrastructure: '#2563eb',
+            Crime: '#f59e0b',
+            Environment: '#10b981'
+        };
+        const PRIORITY_COLORS = {
+            High: '#ef4444',
+            Medium: '#f59e0b',
+            Low: '#10b981'
+        };
         const PAGE_SIZE = 15;
         let allConcerns = [];
         let concernsPage = 1;
@@ -1851,9 +1986,16 @@ require_page_role($pdo, 'super_admin');
         }
 
         function loadOverview() {
-            $.ajax({ url: '../src/get-super-admin-overview.php', method: 'GET', dataType: 'json' })
-                .done(function (d) {
-                    if (d.error) { showToast(d.error, 'error'); return; }
+            $.ajax({
+                    url: '../src/get-super-admin-overview.php',
+                    method: 'GET',
+                    dataType: 'json'
+                })
+                .done(function(d) {
+                    if (d.error) {
+                        showToast(d.error, 'error');
+                        return;
+                    }
                     $('#ovActive').text(d.total_active);
                     $('#ovHigh').text(d.total_high);
                     $('#ovArchived').text(d.total_archived);
@@ -1892,13 +2034,22 @@ require_page_role($pdo, 'super_admin');
                         );
                     });
                 })
-                .fail(function () { showToast('Could not load the overview.', 'error'); });
+                .fail(function() {
+                    showToast('Could not load the overview.', 'error');
+                });
         }
 
         function loadConcerns() {
-            $.ajax({ url: '../src/get-super-admin-concerns.php', method: 'GET', dataType: 'json' })
-                .done(function (d) {
-                    if (d.error) { showToast(d.error, 'error'); return; }
+            $.ajax({
+                    url: '../src/get-super-admin-concerns.php',
+                    method: 'GET',
+                    dataType: 'json'
+                })
+                .done(function(d) {
+                    if (d.error) {
+                        showToast(d.error, 'error');
+                        return;
+                    }
                     allConcerns = d.concerns || [];
                     ConcernTimer.markFetched();
 
@@ -1911,7 +2062,7 @@ require_page_role($pdo, 'super_admin');
 
                     renderConcerns();
                 })
-                .fail(function () {
+                .fail(function() {
                     $('#concernsTbody').html('<tr class="empty-row"><td colspan="9">Could not load concerns</td></tr>');
                 });
         }
@@ -1946,9 +2097,9 @@ require_page_role($pdo, 'super_admin');
             }
 
             rows.slice(start, start + PAGE_SIZE).forEach(c => {
-                const statusPill = c.status === 'archived'
-                    ? '<span class="pill archived">Archived</span>'
-                    : '<span class="pill active">Ongoing</span>';
+                const statusPill = c.status === 'archived' ?
+                    '<span class="pill archived">Archived</span>' :
+                    '<span class="pill active">Ongoing</span>';
                 const prio = c.priority ? '<span class="pill p-' + escapeHtml(c.priority.toLowerCase()) + '">' + escapeHtml(c.priority) + '</span>' : '—';
                 $tbody.append(
                     '<tr><td class="case-no">#' + c.id + '</td><td>' + escapeHtml(c.barangay) + '</td><td>' + escapeHtml(c.date) + '</td>' +
@@ -2010,14 +2161,21 @@ require_page_role($pdo, 'super_admin');
         let citPage = 1;
 
         function loadCitizens() {
-            $.ajax({ url: '../src/get-super-admin-citizens.php', method: 'GET', dataType: 'json' })
-                .done(function (d) {
-                    if (d.error) { showToast(d.error, 'error'); return; }
+            $.ajax({
+                    url: '../src/get-super-admin-citizens.php',
+                    method: 'GET',
+                    dataType: 'json'
+                })
+                .done(function(d) {
+                    if (d.error) {
+                        showToast(d.error, 'error');
+                        return;
+                    }
                     allCitizens = d.citizens || [];
                     ConcernTimer.markFetched();
                     renderCitizens();
                 })
-                .fail(function () {
+                .fail(function() {
                     $('#citizensTbody').html('<tr class="empty-row"><td colspan="8">Could not load citizens</td></tr>');
                 });
         }
@@ -2106,8 +2264,9 @@ require_page_role($pdo, 'super_admin');
                 url: '../src/get-super-admin-data.php',
                 method: 'GET',
                 dataType: 'json'
-            }).done(function (response) {
+            }).done(function(response) {
                 if (response.error) {
+                    $('#pendingTbody, #barangaysTbody').html('<tr class="empty-row"><td colspan="7">Could not load staff accounts</td></tr>');
                     showToast(response.error, 'error');
                     return;
                 }
@@ -2115,7 +2274,8 @@ require_page_role($pdo, 'super_admin');
                 renderStats();
                 renderPendingTable();
                 renderBarangaysTable();
-            }).fail(function () {
+            }).fail(function() {
+                $('#pendingTbody, #barangaysTbody').html('<tr class="empty-row"><td colspan="7">Could not load staff accounts</td></tr>');
                 showToast('Could not reach the server.', 'error');
             });
         }
@@ -2199,9 +2359,9 @@ require_page_role($pdo, 'super_admin');
             rows.forEach((a, i) => {
                 const pillClass = a.is_active ? 'active' : 'archived';
                 const pillLabel = a.is_active ? 'Active' : 'Archived';
-                const actionBtn = a.is_active
-                    ? `<button class="row-btn archive" data-user-id="${a.user_id}" data-barangay="${escapeHtml(a.barangay_name)}">Archive</button>`
-                    : `<button class="row-btn restore" data-user-id="${a.user_id}" data-barangay="${escapeHtml(a.barangay_name)}">Restore</button>`;
+                const actionBtn = a.is_active ?
+                    `<button class="row-btn archive" data-user-id="${a.user_id}" data-barangay="${escapeHtml(a.barangay_name)}">Archive</button>` :
+                    `<button class="row-btn restore" data-user-id="${a.user_id}" data-barangay="${escapeHtml(a.barangay_name)}">Restore</button>`;
 
                 $tbody.append(`
                     <tr>
@@ -2219,67 +2379,104 @@ require_page_role($pdo, 'super_admin');
 
         // ── CONFIRM MODAL ──
         const CONFIRM_CONFIG = {
-            approve: { icon: '✅', header: '', title: 'Approve Staff', heading: 'Approve this staff account?', btnClass: 'success', msg: b => `This grants the staff account for <span class="modal-highlight">${b}</span> full access to their barangay dashboard.` },
-            reject: { icon: '🚫', header: 'danger', title: 'Reject Staff', heading: 'Reject this registration?', btnClass: 'danger', msg: b => `The registration for <span class="modal-highlight">${b}</span> will be marked rejected.` },
-            archive: { icon: '📦', header: 'amber', title: 'Archive Staff', heading: 'Archive this staff account?', btnClass: 'danger', msg: b => `This deactivates the account and frees up <span class="modal-highlight">${b}</span> for a new staff member to register.` },
-            restore: { icon: '♻️', header: '', title: 'Restore Staff', heading: 'Restore this staff account?', btnClass: 'success', msg: b => `This reactivates the account for <span class="modal-highlight">${b}</span>, if the barangay is still unoccupied.` }
+            approve: {
+                icon: '<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="green" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>',
+                header: '',
+                title: 'Approve Staff',
+                heading: 'Approve this staff account?',
+                btnClass: 'success',
+                msg: b => `This grants the staff account for <span class="modal-highlight">${b}</span> full access to their barangay dashboard.`
+            },
+            reject: {
+                icon: '<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="red" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>',
+                header: 'danger',
+                title: 'Reject Staff',
+                heading: 'Reject this registration?',
+                btnClass: 'danger',
+                msg: b => `The registration for <span class="modal-highlight">${b}</span> will be marked rejected.`
+            },
+            archive: {
+                icon: '<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"></polyline><rect x="1" y="3" width="22" height="5"></rect><line x1="10" y1="12" x2="14" y2="12"></line></svg>',
+                header: 'amber',
+                title: 'Archive Staff',
+                heading: 'Archive this staff account?',
+                btnClass: 'danger',
+                msg: b => `This deactivates the account and frees up <span class="modal-highlight">${b}</span> for a new staff member to register.`
+            },
+            restore: {
+                icon: '<svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.69-5.69"></path></svg>',
+                header: '',
+                title: 'Restore Staff',
+                heading: 'Restore this staff account?',
+                btnClass: 'success',
+                msg: b => `This reactivates the account for <span class="modal-highlight">${b}</span>, if the barangay is still unoccupied.`
+            }
         };
 
         function openConfirm(action, userId, barangayName) {
             const cfg = CONFIRM_CONFIG[action];
-            pendingConfirmAction = { action, userId };
+            pendingConfirmAction = {
+                action,
+                userId
+            };
 
             $('#confirmModalHeader').attr('class', 'modal-header' + (cfg.header ? ' ' + cfg.header : ''));
             $('#confirmModalTitle').text(cfg.title);
-            $('#confirmModalIcon').text(cfg.icon);
+            $('#confirmModalIcon').html(cfg.icon);
             $('#confirmModalHeading').text(cfg.heading);
-            $('#confirmModalMessage').html(cfg.msg(barangayName));
+            $('#confirmModalMessage').html(cfg.msg(escapeHtml(barangayName)));
             $('#actionConfirmBtn').attr('class', 'swiss-btn ' + cfg.btnClass);
             $('#confirmModal').addClass('active');
         }
 
         function runPendingAction() {
             if (!pendingConfirmAction) return;
-            const { action, userId } = pendingConfirmAction;
+            const {
+                action,
+                userId
+            } = pendingConfirmAction;
 
             $.ajax({
                 url: '../src/super-admin-action.php',
                 method: 'POST',
-                data: { action: action, user_id: userId },
+                data: {
+                    action: action,
+                    user_id: userId
+                },
                 dataType: 'json'
-            }).done(function (response) {
+            }).done(function(response) {
                 $('#confirmModal').removeClass('active');
                 showToast(response.message, response.success ? 'success' : 'error');
                 if (response.success) loadData();
-            }).fail(function () {
+            }).fail(function() {
                 $('#confirmModal').removeClass('active');
                 showToast('Could not reach the server.', 'error');
             });
         }
 
-        $(document.body).ready(function () {
+        $(document.body).ready(function() {
             loadData();
             loadOverview();
             loadConcerns();
 
             // Dropdown Menu Toggle
-            $('#menuBtn').on('click', function (e) {
+            $('#menuBtn').on('click', function(e) {
                 e.stopPropagation();
                 $('#dropdownMenu').toggleClass('show');
             });
 
-            $(document).on('click', function () {
+            $(document).on('click', function() {
                 $('#dropdownMenu').removeClass('show');
             });
 
             // Logout
-            $('#logoutBtn').on('click', function (e) {
+            $('#logoutBtn').on('click', function(e) {
                 e.preventDefault();
                 window.location.href = '../src/logout.php';
             });
 
             // Tab Navigation Switching
-            $('.tab-btn').on('click', function () {
+            $('.tab-btn').on('click', function() {
                 const targetTab = $(this).data('tab');
                 $('.tab-btn').removeClass('active');
                 $(this).addClass('active');
@@ -2295,40 +2492,66 @@ require_page_role($pdo, 'super_admin');
             });
 
             // Concerns tab: filters, paging, view button (read-only)
-            $('#cSearch').on('input', function () { concernsPage = 1; renderConcerns(); });
-            $('#cStatus, #cBarangay, #cSector, #cPriority').on('change', function () { concernsPage = 1; renderConcerns(); });
-            $('#concernsPagBtns').on('click', '.page-btn', function () {
+            $('#cSearch').on('input', function() {
+                concernsPage = 1;
+                renderConcerns();
+            });
+            $('#cStatus, #cBarangay, #cSector, #cPriority').on('change', function() {
+                concernsPage = 1;
+                renderConcerns();
+            });
+            $('#concernsPagBtns').on('click', '.page-btn', function() {
                 concernsPage = parseInt($(this).attr('data-page'), 10);
                 renderConcerns();
             });
-            $('#concernsTbody').on('click', '.row-btn.view', function () {
+            $('#concernsTbody').on('click', '.row-btn.view', function() {
                 openConcernCard(parseInt($(this).attr('data-id'), 10));
             });
             // Citizens tab: search, filter, paging, view history (read-only)
-            $('#citSearch').on('input', function () { citPage = 1; renderCitizens(); });
-            $('#citFilter').on('change', function () { citPage = 1; renderCitizens(); });
-            $('#citPagBtns').on('click', '.page-btn', function () {
+            $('#citSearch').on('input', function() {
+                citPage = 1;
+                renderCitizens();
+            });
+            $('#citFilter').on('change', function() {
+                citPage = 1;
+                renderCitizens();
+            });
+            $('#citPagBtns').on('click', '.page-btn', function() {
                 citPage = parseInt($(this).attr('data-page'), 10);
                 renderCitizens();
             });
-            $('#citizensTbody').on('click', '.row-btn.view', function () {
+            $('#citizensTbody').on('click', '.row-btn.view', function() {
                 openCitizenCard(parseInt($(this).attr('data-id'), 10));
             });
-            $('#closeCitizenModalBtn').on('click', function () { $('#citizenModal').removeClass('active'); });
-            $('#citizenModal').on('click', function (e) { if (e.target === this) $(this).removeClass('active'); });
+            $('#closeCitizenModalBtn').on('click', function() {
+                $('#citizenModal').removeClass('active');
+            });
+            $('#citizenModal').on('click', function(e) {
+                if (e.target === this) $(this).removeClass('active');
+            });
 
-            $('#closeConcernModalBtn').on('click', function () { $('#concernModal').removeClass('active'); });
-            $('#concernModal').on('click', function (e) { if (e.target === this) $(this).removeClass('active'); });
-            $(document).on('keydown', function (e) { if (e.key === 'Escape') $('#concernModal, #citizenModal').removeClass('active'); });
+            $('#closeConcernModalBtn').on('click', function() {
+                $('#concernModal').removeClass('active');
+            });
+            $('#concernModal').on('click', function(e) {
+                if (e.target === this) $(this).removeClass('active');
+            });
+            $(document).on('keydown', function(e) {
+                if (e.key === 'Escape') $('#concernModal, #citizenModal').removeClass('active');
+            });
 
             // Overview → click a barangay to open its (active) concerns
-            $('#ovBarangayTbody').on('click', '.barangay-link', function () {
+            $('#ovBarangayTbody').on('click', '.barangay-link', function() {
                 const name = $(this).attr('data-barangay');
                 $('#cStatus').val('ongoing');
                 $('#cSector, #cPriority').val('');
                 $('#cSearch').val('');
                 $('.tab-btn[data-tab="concerns"]').trigger('click');
-                setTimeout(function () { $('#cBarangay').val(name); concernsPage = 1; renderConcerns(); }, 400);
+                setTimeout(function() {
+                    $('#cBarangay').val(name);
+                    concernsPage = 1;
+                    renderConcerns();
+                }, 400);
             });
 
             // Search + filter (live, client-side against the already-fetched data)
@@ -2337,22 +2560,22 @@ require_page_role($pdo, 'super_admin');
             $('#filterStatus').on('change', renderBarangaysTable);
 
             // Row action buttons (event-delegated since rows are rendered dynamically)
-            $('#pendingTbody').on('click', '.row-btn.approve', function () {
+            $('#pendingTbody').on('click', '.row-btn.approve', function() {
                 openConfirm('approve', $(this).data('user-id'), $(this).data('barangay'));
             });
-            $('#pendingTbody').on('click', '.row-btn.reject', function () {
+            $('#pendingTbody').on('click', '.row-btn.reject', function() {
                 openConfirm('reject', $(this).data('user-id'), $(this).data('barangay'));
             });
-            $('#barangaysTbody').on('click', '.row-btn.archive', function () {
+            $('#barangaysTbody').on('click', '.row-btn.archive', function() {
                 openConfirm('archive', $(this).data('user-id'), $(this).data('barangay'));
             });
-            $('#barangaysTbody').on('click', '.row-btn.restore', function () {
+            $('#barangaysTbody').on('click', '.row-btn.restore', function() {
                 openConfirm('restore', $(this).data('user-id'), $(this).data('barangay'));
             });
 
             // Confirm modal controls
             $('#actionConfirmBtn').on('click', runPendingAction);
-            $('#closeConfirmModalBtn, #cancelConfirmBtn').on('click', function () {
+            $('#closeConfirmModalBtn, #cancelConfirmBtn').on('click', function() {
                 $('#confirmModal').removeClass('active');
                 pendingConfirmAction = null;
             });

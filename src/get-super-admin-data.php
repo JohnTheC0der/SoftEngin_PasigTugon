@@ -3,16 +3,12 @@
 // Returns all barangay staff accounts and all super admins for the Super Admin panel.
 // Only callable by an active super_admin session.
 
-session_start();
 header('Content-Type: application/json');
 require_once 'db_connect.php';
+require_once 'auth.php';
 require_once 'backup-lib.php';
 
-if (!isset($_SESSION['user_id']) || ($_SESSION['role'] ?? '') !== 'super_admin') {
-    http_response_code(403);
-    echo json_encode(['error' => 'Not authorized.']);
-    exit;
-}
+require_api_role($pdo, 'super_admin');
 
 // Opportunistic auto-backup: if the chosen interval has passed, take one now.
 // Never allowed to break the dashboard (e.g. if the backup migration wasn't run yet).
